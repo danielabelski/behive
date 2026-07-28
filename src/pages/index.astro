@@ -1,0 +1,410 @@
+---
+import Layout from '../layouts/Layout.astro'
+import HexGrid from '../components/HexGrid.tsx'
+import MagnetLines from '../components/MagnetLines.tsx'
+import MatrixRain from '../components/MatrixRain.tsx'
+import KineticReveal from '../components/KineticReveal.tsx'
+import VelocityScroll from '../components/VelocityScroll.tsx'
+import FadeIn from '../components/FadeIn.tsx'
+---
+
+<Layout>
+  <!-- ═══════════════════ NAV ═══════════════════ -->
+  <nav class="fixed top-0 w-full z-50 backdrop-blur-md bg-black/80 border-b border-gold-muted/20">
+    <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-3">
+        <img src="/images/behive_logo_pixelbee_primary.png" alt="BeHive" class="w-8 h-8 pixel-render" />
+        <span class="font-mono font-bold text-gold-bright text-lg tracking-tight">BeHive</span>
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm font-mono">
+        <a href="#how-it-works" class="text-muted hover:text-gold transition-colors">How It Works</a>
+        <a href="#benchmarks" class="text-muted hover:text-gold transition-colors">Benchmarks</a>
+        <a href="#integrations" class="text-muted hover:text-gold transition-colors">Integrations</a>
+        <a href="https://github.com/qa10devteam/behive" target="_blank" class="text-muted hover:text-gold transition-colors flex items-center gap-1.5">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+          GitHub
+        </a>
+      </div>
+      <a href="#install" class="bg-gold hover:bg-gold-bright text-black font-mono font-bold text-sm px-4 py-2 rounded-sm transition-colors">
+        Get Started
+      </a>
+    </div>
+  </nav>
+
+  <!-- ═══════════════════ HERO ═══════════════════ -->
+  <section class="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
+    <!-- Interactive background -->
+    <HexGrid client:load />
+    <MagnetLines client:load rows={8} cols={15} />
+    
+    <!-- Content -->
+    <div class="relative z-10 max-w-5xl mx-auto px-6 text-center">
+      <!-- Badge -->
+      <FadeIn client:load delay={0}>
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-gold-muted/30 bg-surface/50 backdrop-blur-sm mb-8">
+          <span class="w-2 h-2 rounded-full bg-success animate-pulse"></span>
+          <span class="text-xs font-mono text-muted">v0.1.0 — Open Source (MIT)</span>
+        </div>
+      </FadeIn>
+      
+      <!-- Headline -->
+      <KineticReveal 
+        client:load 
+        text="Structured knowledge," 
+        className="text-5xl md:text-7xl font-mono font-extrabold text-gold-bright justify-center"
+        delay={0.3}
+      />
+      <KineticReveal 
+        client:load 
+        text="not text soup." 
+        className="text-5xl md:text-7xl font-mono font-extrabold text-text mt-2 justify-center"
+        delay={0.8}
+      />
+      
+      <!-- Subheadline -->
+      <FadeIn client:load delay={1.4}>
+        <p class="mt-8 text-lg md:text-xl text-text-dim max-w-2xl mx-auto leading-relaxed">
+          Feed it a question. Get back <span class="text-gold font-medium">scored claims</span>, 
+          <span class="text-info font-medium">entity graphs</span>, and a 
+          <span class="text-success font-medium">synthesized report</span> — from 1000+ live sources.
+        </p>
+      </FadeIn>
+      
+      <!-- CTA -->
+      <FadeIn client:load delay={1.8}>
+        <div class="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4" id="install">
+          <div class="flex items-center gap-3 bg-surface border border-gold-muted/40 rounded-sm px-6 py-3 font-mono text-sm group hover:border-gold transition-colors">
+            <span class="text-muted">$</span>
+            <code class="text-gold-bright">pip install behive</code>
+            <button onclick="navigator.clipboard.writeText('pip install behive')" class="text-muted hover:text-gold transition-colors ml-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+            </button>
+          </div>
+          <a href="https://github.com/qa10devteam/behive" target="_blank" class="flex items-center gap-2 border border-muted/30 rounded-sm px-6 py-3 font-mono text-sm text-muted hover:text-text hover:border-muted transition-colors">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+            View on GitHub
+          </a>
+        </div>
+      </FadeIn>
+      
+      <!-- Demo GIF -->
+      <FadeIn client:load delay={2.2}>
+        <div class="mt-16 rounded-sm border border-gold-muted/30 overflow-hidden shadow-2xl shadow-gold/5 glow-pulse">
+          <div class="flex items-center gap-2 px-4 py-2 bg-surface border-b border-gold-muted/20">
+            <div class="w-3 h-3 rounded-full bg-error/60"></div>
+            <div class="w-3 h-3 rounded-full bg-amber/60"></div>
+            <div class="w-3 h-3 rounded-full bg-success/60"></div>
+            <span class="ml-3 text-xs font-mono text-muted">behive research "NVIDIA GPU market 2026" --scale 30</span>
+          </div>
+          <img src="/images/demo.gif" alt="BeHive CLI Demo" class="w-full" loading="lazy" />
+        </div>
+      </FadeIn>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ VELOCITY SCROLL ═══════════════════ -->
+  <VelocityScroll 
+    client:visible 
+    texts={['MCP Native', '70+ APIs', 'Knowledge Graph', 'Quality Scoring', 'Self-Hosted', 'MIT License', 'SSE Streaming', 'Stealth Drones', 'Neo4j', 'PostgreSQL', 'Docker Compose']}
+    className="border-y border-gold-muted/10 bg-surface/30"
+  />
+
+  <!-- ═══════════════════ PROBLEM ═══════════════════ -->
+  <section class="py-32 px-6">
+    <div class="max-w-5xl mx-auto">
+      <FadeIn client:visible>
+        <p class="font-mono text-xs text-gold uppercase tracking-[0.3em] mb-4">The Problem</p>
+      </FadeIn>
+      <FadeIn client:visible delay={0.1}>
+        <h2 class="text-3xl md:text-5xl font-mono font-bold text-text leading-tight">
+          You ask AI to research a topic.<br/>
+          <span class="text-muted">It gives you confident-sounding<br/>text soup.</span>
+        </h2>
+      </FadeIn>
+      <div class="grid md:grid-cols-2 gap-12 mt-16">
+        <FadeIn client:visible delay={0.2}>
+          <div class="p-6 border border-error/20 rounded-sm bg-error/5">
+            <p class="font-mono text-sm text-error mb-3">❌ Without BeHive</p>
+            <p class="text-text-dim leading-relaxed">
+              "Based on my training data, NVIDIA's GPU market shows promising growth with several key factors driving demand..."
+            </p>
+            <p class="mt-4 text-xs text-muted font-mono">No sources. No structure. No verification. Months-old data.</p>
+          </div>
+        </FadeIn>
+        <FadeIn client:visible delay={0.3}>
+          <div class="p-6 border border-success/20 rounded-sm bg-success/5">
+            <p class="font-mono text-sm text-success mb-3">✅ With BeHive</p>
+            <p class="text-text-dim leading-relaxed">
+              <span class="text-gold">[0.94]</span> NVIDIA H200 production at 500K units/month as of Q2 2026, up from 350K in Q1<br/>
+              <span class="text-gold">[0.91]</span> Data center GPU revenue $35.1B in FY2026 Q2, 87% YoY growth
+            </p>
+            <p class="mt-4 text-xs text-muted font-mono">290 claims · 234 sources · avg quality 0.797 · 8 min</p>
+          </div>
+        </FadeIn>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ HOW IT WORKS ═══════════════════ -->
+  <section id="how-it-works" class="py-32 px-6 relative">
+    <div class="absolute inset-0 hex-bg"></div>
+    <div class="relative max-w-5xl mx-auto">
+      <FadeIn client:visible>
+        <p class="font-mono text-xs text-gold uppercase tracking-[0.3em] mb-4">How It Works</p>
+        <h2 class="text-3xl md:text-4xl font-mono font-bold text-text">
+          Swarm intelligence.<br/>
+          <span class="text-gold">Not prompt engineering.</span>
+        </h2>
+      </FadeIn>
+      
+      <div class="grid md:grid-cols-3 gap-8 mt-16">
+        {[
+          { icon: '🐝', step: '01', title: 'Scout', desc: 'Queen decomposes your question into 5 research axes. Generates 60+ search queries. Checks 70+ APIs. Plans the mission.' },
+          { icon: '⬡', step: '02', title: 'Harvest', desc: 'Stealth drones fetch 1000+ URLs through an 8-layer evasion stack. Bypasses Cloudflare, DataDome, Akamai. No IP gets burned.' },
+          { icon: '⚗️', step: '03', title: 'Extract', desc: 'Dual-model extraction. Haiku for bulk speed. Sonnet for enriching thin claims. Every fact scored 0.0-1.0 on 5 dimensions.' },
+        ].map((item, i) => (
+          <FadeIn client:visible delay={i * 0.15}>
+            <div class="p-6 border border-gold-muted/20 rounded-sm bg-surface/50 hover:border-gold/40 transition-colors group">
+              <div class="flex items-center gap-3 mb-4">
+                <span class="text-2xl">{item.icon}</span>
+                <span class="font-mono text-xs text-gold-muted">{item.step}</span>
+              </div>
+              <h3 class="font-mono font-bold text-lg text-gold-bright group-hover:text-gold-bright mb-3">{item.title}</h3>
+              <p class="text-sm text-text-dim leading-relaxed">{item.desc}</p>
+            </div>
+          </FadeIn>
+        ))}
+      </div>
+      
+      <div class="grid md:grid-cols-3 gap-8 mt-8">
+        {[
+          { icon: '🧬', step: '04', title: 'Deduplicate', desc: 'Jaccard similarity at 0.60 threshold merges duplicate facts from different sources. No inflation. Only unique intelligence.' },
+          { icon: '📊', step: '05', title: 'Synthesize', desc: 'Claude weaves verified claims into a structured report. Every statement mapped to a scored source. Zero hallucination.' },
+          { icon: '🕸️', step: '06', title: 'Graph', desc: 'Entities and relationships stored in Neo4j. Knowledge compounds across missions. Research builds on research.' },
+        ].map((item, i) => (
+          <FadeIn client:visible delay={0.45 + i * 0.15}>
+            <div class="p-6 border border-gold-muted/20 rounded-sm bg-surface/50 hover:border-gold/40 transition-colors group">
+              <div class="flex items-center gap-3 mb-4">
+                <span class="text-2xl">{item.icon}</span>
+                <span class="font-mono text-xs text-gold-muted">{item.step}</span>
+              </div>
+              <h3 class="font-mono font-bold text-lg text-gold-bright group-hover:text-gold-bright mb-3">{item.title}</h3>
+              <p class="text-sm text-text-dim leading-relaxed">{item.desc}</p>
+            </div>
+          </FadeIn>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ BENCHMARKS ═══════════════════ -->
+  <section id="benchmarks" class="py-32 px-6 bg-surface/30 border-y border-gold-muted/10">
+    <div class="max-w-5xl mx-auto">
+      <FadeIn client:visible>
+        <p class="font-mono text-xs text-gold uppercase tracking-[0.3em] mb-4">Benchmarks</p>
+        <h2 class="text-3xl md:text-4xl font-mono font-bold text-text">
+          Real results. <span class="text-muted">No cherry-picking.</span>
+        </h2>
+        <p class="mt-4 text-text-dim">Scale 30 (standard). EC2 g6.24xlarge — 4× NVIDIA L4, 96 vCPU, 384 GB RAM.</p>
+      </FadeIn>
+      
+      <FadeIn client:visible delay={0.2}>
+        <div class="mt-12 overflow-x-auto">
+          <table class="w-full text-sm font-mono">
+            <thead>
+              <tr class="border-b border-gold-muted/20">
+                <th class="text-left py-3 px-4 text-gold text-xs uppercase tracking-wider">Topic</th>
+                <th class="text-right py-3 px-4 text-gold text-xs uppercase tracking-wider">Claims</th>
+                <th class="text-right py-3 px-4 text-gold text-xs uppercase tracking-wider">Quality</th>
+                <th class="text-right py-3 px-4 text-gold text-xs uppercase tracking-wider">Duration</th>
+                <th class="text-right py-3 px-4 text-gold text-xs uppercase tracking-wider">Sources</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                { topic: 'NVIDIA GPU market 2026', claims: 290, quality: 0.797, time: '8 min', sources: 234 },
+                { topic: 'OpenAI GPT-5 capabilities', claims: 574, quality: 0.789, time: '12 min', sources: 174 },
+                { topic: 'EU AI Act enforcement', claims: 267, quality: 0.759, time: '6 min', sources: 130 },
+                { topic: 'Meta Llama 4 architecture', claims: 568, quality: 0.821, time: '11 min', sources: 198 },
+              ].map((row, i) => (
+                <tr class="border-b border-gold-muted/10 hover:bg-gold/5 transition-colors">
+                  <td class="py-3 px-4 text-text">{row.topic}</td>
+                  <td class="text-right py-3 px-4 text-text-dim">{row.claims}</td>
+                  <td class="text-right py-3 px-4">
+                    <span class={`${row.quality >= 0.8 ? 'text-success' : 'text-gold'} font-bold`}>{row.quality.toFixed(3)}</span>
+                  </td>
+                  <td class="text-right py-3 px-4 text-text-dim">{row.time}</td>
+                  <td class="text-right py-3 px-4 text-text-dim">{row.sources}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </FadeIn>
+      
+      <FadeIn client:visible delay={0.3}>
+        <p class="mt-6 text-xs text-muted font-mono text-center">
+          Honest scoring. No sigmoid rescaling. No artificial inflation. The score is a weighted average of specificity, density, uniqueness, verifiability, and structure.
+        </p>
+      </FadeIn>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ INTEGRATIONS ═══════════════════ -->
+  <section id="integrations" class="py-32 px-6">
+    <div class="max-w-5xl mx-auto">
+      <FadeIn client:visible>
+        <p class="font-mono text-xs text-gold uppercase tracking-[0.3em] mb-4">Integrations</p>
+        <h2 class="text-3xl md:text-4xl font-mono font-bold text-text">
+          Works with your <span class="text-gold">existing stack.</span>
+        </h2>
+      </FadeIn>
+      
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-12">
+        {[
+          { name: 'Claude Desktop', method: 'MCP (zero-code)', desc: 'Add one URL to config. Claude calls BeHive natively.' },
+          { name: 'Cursor / Windsurf', method: 'MCP', desc: 'Research from your IDE. No context switching.' },
+          { name: 'n8n', method: 'Community Node', desc: 'Drag-and-drop BeHive into automation workflows.' },
+          { name: 'Hermes Agent', method: 'MCP + Skill', desc: 'Deep research with autonomous agents.' },
+          { name: 'OpenClaw', method: 'Skill', desc: 'ClawHub-ready skill for OpenClaw agents.' },
+          { name: 'Any MCP Client', method: 'Streamable HTTP', desc: 'Standard MCP protocol. Any client works.' },
+        ].map((item, i) => (
+          <FadeIn client:visible delay={i * 0.1}>
+            <div class="p-5 border border-gold-muted/20 rounded-sm bg-surface/30 hover:border-gold/30 transition-colors">
+              <h3 class="font-mono font-bold text-text">{item.name}</h3>
+              <p class="text-xs font-mono text-gold mt-1">{item.method}</p>
+              <p class="text-sm text-text-dim mt-2">{item.desc}</p>
+            </div>
+          </FadeIn>
+        ))}
+      </div>
+      
+      <FadeIn client:visible delay={0.6}>
+        <div class="mt-12 p-6 border border-gold-muted/20 rounded-sm bg-surface/30">
+          <p class="font-mono text-sm text-muted mb-3">MCP Configuration (works everywhere):</p>
+          <pre class="font-mono text-sm text-gold overflow-x-auto"><code>{`{
+  "mcpServers": {
+    "behive": {
+      "url": "http://localhost:8090/mcp",
+      "transport": "streamable-http"
+    }
+  }
+}`}</code></pre>
+        </div>
+      </FadeIn>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ SELF-HOSTING ═══════════════════ -->
+  <section class="py-32 px-6 bg-surface/30 border-y border-gold-muted/10">
+    <div class="max-w-4xl mx-auto text-center">
+      <FadeIn client:visible>
+        <p class="font-mono text-xs text-gold uppercase tracking-[0.3em] mb-4">Self-Hosting</p>
+        <h2 class="text-3xl md:text-4xl font-mono font-bold text-text">
+          Three commands. <span class="text-gold">Your infrastructure.</span>
+        </h2>
+      </FadeIn>
+      
+      <FadeIn client:visible delay={0.2}>
+        <div class="mt-12 text-left max-w-2xl mx-auto p-6 border border-gold-muted/30 rounded-sm bg-black">
+          <div class="flex items-center gap-2 mb-4">
+            <div class="w-3 h-3 rounded-full bg-error/60"></div>
+            <div class="w-3 h-3 rounded-full bg-amber/60"></div>
+            <div class="w-3 h-3 rounded-full bg-success/60"></div>
+          </div>
+          <pre class="font-mono text-sm leading-relaxed overflow-x-auto"><code><span class="text-muted">$</span> <span class="text-text">git clone https://github.com/qa10devteam/behive.git</span>
+<span class="text-muted">$</span> <span class="text-text">cp .env.example .env</span>  <span class="text-muted"># add your API key</span>
+<span class="text-muted">$</span> <span class="text-gold">docker compose up -d</span>
+
+<span class="text-success">✓</span> <span class="text-text-dim">API ready at localhost:8091</span>
+<span class="text-success">✓</span> <span class="text-text-dim">MCP server at localhost:8090</span>
+<span class="text-success">✓</span> <span class="text-text-dim">PostgreSQL + Neo4j running</span></code></pre>
+        </div>
+      </FadeIn>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ COMPARISON ═══════════════════ -->
+  <section class="py-32 px-6">
+    <div class="max-w-5xl mx-auto">
+      <FadeIn client:visible>
+        <p class="font-mono text-xs text-gold uppercase tracking-[0.3em] mb-4">Comparison</p>
+        <h2 class="text-3xl md:text-4xl font-mono font-bold text-text">
+          Why not just use <span class="text-muted">Perplexity?</span>
+        </h2>
+      </FadeIn>
+      
+      <FadeIn client:visible delay={0.2}>
+        <div class="mt-12 overflow-x-auto">
+          <table class="w-full text-sm font-mono">
+            <thead>
+              <tr class="border-b border-gold-muted/20">
+                <th class="text-left py-3 px-3"></th>
+                <th class="text-center py-3 px-3 text-gold font-bold">BeHive</th>
+                <th class="text-center py-3 px-3 text-muted">GPT-Researcher</th>
+                <th class="text-center py-3 px-3 text-muted">Tavily</th>
+                <th class="text-center py-3 px-3 text-muted">Perplexity</th>
+              </tr>
+            </thead>
+            <tbody class="text-xs">
+              {[
+                { feat: 'Per-claim scoring', b: '✅', g: '—', t: '—', p: '—' },
+                { feat: 'Knowledge graph', b: '✅', g: '—', t: '—', p: '—' },
+                { feat: 'MCP native', b: '✅', g: '—', t: '—', p: '—' },
+                { feat: '70+ API sources', b: '✅', g: '—', t: '~', p: '~' },
+                { feat: 'Self-hosted', b: '✅', g: '~', t: '—', p: '—' },
+                { feat: 'SSE streaming', b: '✅', g: '—', t: '—', p: '—' },
+                { feat: 'Cross-session memory', b: '✅', g: '—', t: '—', p: '—' },
+                { feat: 'Price', b: 'Free (MIT)', g: 'Free', t: '$0.01/search', p: '$20/mo+' },
+              ].map(row => (
+                <tr class="border-b border-gold-muted/10">
+                  <td class="py-2.5 px-3 text-text-dim">{row.feat}</td>
+                  <td class="text-center py-2.5 px-3 text-success">{row.b}</td>
+                  <td class="text-center py-2.5 px-3 text-muted">{row.g}</td>
+                  <td class="text-center py-2.5 px-3 text-muted">{row.t}</td>
+                  <td class="text-center py-2.5 px-3 text-muted">{row.p}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </FadeIn>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ CTA / FOOTER ═══════════════════ -->
+  <section class="relative py-32 px-6 overflow-hidden">
+    <MatrixRain client:visible />
+    <div class="relative z-10 max-w-3xl mx-auto text-center">
+      <FadeIn client:visible>
+        <h2 class="text-3xl md:text-5xl font-mono font-bold text-gold-bright">
+          Start researching.
+        </h2>
+        <p class="mt-4 text-text-dim text-lg">
+          One command. Infinite knowledge.
+        </p>
+      </FadeIn>
+      <FadeIn client:visible delay={0.2}>
+        <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div class="flex items-center gap-3 bg-surface border border-gold/40 rounded-sm px-6 py-3 font-mono text-sm glow-pulse">
+            <span class="text-muted">$</span>
+            <code class="text-gold-bright">pip install behive</code>
+          </div>
+        </div>
+      </FadeIn>
+      <FadeIn client:visible delay={0.4}>
+        <div class="mt-12 flex items-center justify-center gap-8 text-sm font-mono text-muted">
+          <a href="https://github.com/qa10devteam/behive" target="_blank" class="hover:text-gold transition-colors">GitHub</a>
+          <a href="https://pypi.org/project/behive" target="_blank" class="hover:text-gold transition-colors">PyPI</a>
+          <a href="https://www.npmjs.com/package/n8n-nodes-behive" target="_blank" class="hover:text-gold transition-colors">npm</a>
+          <a href="https://github.com/qa10devteam/behive/blob/main/integrations/README.md" target="_blank" class="hover:text-gold transition-colors">Docs</a>
+        </div>
+      </FadeIn>
+      <FadeIn client:visible delay={0.5}>
+        <p class="mt-16 text-xs text-muted font-mono">
+          Built by <a href="https://qa10.io" class="text-gold hover:text-gold-bright transition-colors">QA10</a> · MIT License · Structured knowledge, not text soup.
+        </p>
+      </FadeIn>
+    </div>
+  </section>
+</Layout>

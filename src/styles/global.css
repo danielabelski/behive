@@ -1,0 +1,105 @@
+@import "tailwindcss";
+
+@theme {
+  --color-black: #0C0C0C;
+  --color-surface: #161616;
+  --color-depth: #1A1A2E;
+  --color-gold: #F5A623;
+  --color-gold-bright: #FFD700;
+  --color-amber: #FF8C00;
+  --color-gold-muted: #8B6914;
+  --color-success: #10B981;
+  --color-error: #EF4444;
+  --color-info: #4FC3F7;
+  --color-muted: #6B7280;
+  --color-text: #E5E7EB;
+  --color-text-dim: #9CA3AF;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --font-sans: 'Inter', -apple-system, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #0C0C0C;
+  color: #E5E7EB;
+  font-family: var(--font-sans);
+}
+
+::selection {
+  background-color: rgba(245, 166, 35, 0.3);
+  color: #FFD700;
+}
+
+/* Scanline overlay */
+.scanlines::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.03) 2px,
+    rgba(0, 0, 0, 0.03) 4px
+  );
+}
+
+/* Pixel border */
+.pixel-border {
+  border: 2px solid var(--color-gold-muted);
+  image-rendering: pixelated;
+}
+
+.pixel-border:hover {
+  border-color: var(--color-gold);
+  box-shadow: 0 0 30px rgba(245, 166, 35, 0.1);
+}
+
+/* Hex pattern background */
+.hex-bg {
+  background-image: url('/images/behive_pattern_hex_tileable.png');
+  background-size: 300px;
+  background-repeat: repeat;
+  opacity: 0.05;
+}
+
+/* Terminal cursor blink */
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+.cursor-blink::after {
+  content: '▋';
+  animation: blink 1s infinite;
+  color: var(--color-gold);
+}
+
+/* Glow pulse */
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(245, 166, 35, 0.1); }
+  50% { box-shadow: 0 0 40px rgba(245, 166, 35, 0.25); }
+}
+.glow-pulse {
+  animation: glow-pulse 3s ease-in-out infinite;
+}
+
+/* Typewriter */
+@keyframes typewriter {
+  from { width: 0; }
+  to { width: 100%; }
+}
+.typewriter {
+  overflow: hidden;
+  white-space: nowrap;
+  animation: typewriter 2s steps(40) forwards;
+}
+
+/* Pixel art rendering */
+.pixel-render {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
