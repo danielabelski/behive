@@ -63,7 +63,7 @@ import TypeWriter from '../components/TypeWriter.tsx'
             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75"></span>
             <span class="relative inline-flex rounded-full h-2 w-2 bg-success"></span>
           </span>
-          <span class="text-xs font-mono text-muted">v0.1.0 — Open Source (MIT)</span>
+          <span class="text-xs font-mono text-muted">v0.4.0 — Open Source (MIT)</span>
         </div>
       </FadeIn>
       
@@ -86,7 +86,7 @@ import TypeWriter from '../components/TypeWriter.tsx'
         <p class="mt-8 md:mt-10 text-base md:text-xl text-text-dim max-w-2xl mx-auto leading-relaxed">
           Feed it a question. Get back <span class="text-gold font-medium">scored claims</span>, 
           <span class="text-info font-medium">entity graphs</span>, and a 
-          <span class="text-success font-medium">synthesized report</span> — from 1000+ live sources.
+          <span class="text-success font-medium">synthesized report</span> — using your own LLM.
         </p>
       </FadeIn>
       
@@ -141,7 +141,7 @@ import TypeWriter from '../components/TypeWriter.tsx'
       <FadeIn client:visible delay={0}>
         <div>
           <div class="text-3xl md:text-4xl font-mono font-bold text-gold-bright">
-            <CountUp client:visible end={70} suffix="+" />
+            <CountUp client:visible end={64} />
           </div>
           <p class="text-xs font-mono text-muted mt-2 uppercase tracking-wider">API Sources</p>
         </div>
@@ -149,9 +149,9 @@ import TypeWriter from '../components/TypeWriter.tsx'
       <FadeIn client:visible delay={0.1}>
         <div>
           <div class="text-3xl md:text-4xl font-mono font-bold text-gold-bright">
-            <CountUp client:visible end={125} />
+            <CountUp client:visible end={53} suffix="K" />
           </div>
-          <p class="text-xs font-mono text-muted mt-2 uppercase tracking-wider">Endpoints</p>
+          <p class="text-xs font-mono text-muted mt-2 uppercase tracking-wider">Claims Extracted</p>
         </div>
       </FadeIn>
       <FadeIn client:visible delay={0.2}>
@@ -165,9 +165,9 @@ import TypeWriter from '../components/TypeWriter.tsx'
       <FadeIn client:visible delay={0.3}>
         <div>
           <div class="text-3xl md:text-4xl font-mono font-bold text-gold-bright">
-            <CountUp client:visible end={27} />
+            <CountUp client:visible end={127} suffix="K" />
           </div>
-          <p class="text-xs font-mono text-muted mt-2 uppercase tracking-wider">API Endpoints</p>
+          <p class="text-xs font-mono text-muted mt-2 uppercase tracking-wider">Entities Mapped</p>
         </div>
       </FadeIn>
     </div>
@@ -179,7 +179,7 @@ import TypeWriter from '../components/TypeWriter.tsx'
   <!-- ═══════════════════ VELOCITY SCROLL ═══════════════════ -->
   <VelocityScroll 
     client:visible 
-    texts={['MCP Native', '70+ APIs', 'Knowledge Graph', 'Quality Scoring', 'Self-Hosted', 'MIT License', 'SSE Streaming', 'Stealth Drones', 'Neo4j', 'PostgreSQL', 'Docker Compose']}
+    texts={['MCP Native', '64 APIs', 'Knowledge Graph', 'Quality Scoring', 'Self-Hosted', 'MIT License', 'SSE Streaming', 'BYOK LLM', 'PostgreSQL', 'Docker Compose', '53K Claims', '127K Entities']}
     className="py-6 bg-black/50"
   />
 
@@ -251,12 +251,12 @@ import TypeWriter from '../components/TypeWriter.tsx'
       
       <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mt-12 md:mt-16">
         {[
-          { icon: '🐝', step: '01', title: 'Scout', desc: 'Queen decomposes your question into 5 research axes. Generates 60+ search queries. Checks 70+ APIs. Plans the mission.', color: 'gold' },
-          { icon: '⬡', step: '02', title: 'Harvest', desc: 'Stealth drones fetch 1000+ URLs through an 8-layer evasion stack. Bypasses Cloudflare, DataDome, Akamai. No IP gets burned.', color: 'amber' },
-          { icon: '⚗️', step: '03', title: 'Extract', desc: 'Dual-model extraction. Haiku for bulk speed. Sonnet for enriching thin claims. Every fact scored 0.0–1.0 on 5 dimensions.', color: 'info' },
+          { icon: '🐝', step: '01', title: 'Scout', desc: 'Queen decomposes your question into research axes. Generates 60+ search queries across 64 APIs. Plans the mission.', color: 'gold' },
+          { icon: '⬡', step: '02', title: 'Harvest', desc: 'Stealth drones fetch 1000+ URLs through a multi-layer evasion stack. Rotates backends: Chromium, SearXNG, Brave, Serper, Tavily.', color: 'amber' },
+          { icon: '⚗️', step: '03', title: 'Extract', desc: 'Your LLM extracts claims from raw content. Every fact scored 0.0–1.0 on specificity, density, uniqueness, verifiability, structure.', color: 'info' },
           { icon: '🧬', step: '04', title: 'Deduplicate', desc: 'Jaccard similarity at 0.60 threshold merges duplicate facts from different sources. No inflation. Only unique intelligence.', color: 'gold-bright' },
-          { icon: '📊', step: '05', title: 'Synthesize', desc: 'Claude weaves verified claims into a structured report. Every statement mapped to a scored source. Zero hallucination.', color: 'success' },
-          { icon: '🕸️', step: '06', title: 'Graph', desc: 'Entities and relationships stored in Neo4j. Knowledge compounds across missions. Research builds on research.', color: 'info' },
+          { icon: '📊', step: '05', title: 'Synthesize', desc: 'Your LLM weaves verified claims into a structured report. Every statement mapped to a scored source. Zero hallucination.', color: 'success' },
+          { icon: '🕸️', step: '06', title: 'Graph', desc: 'Entities and relationships stored in PostgreSQL. Knowledge compounds across missions. Research builds on research.', color: 'info' },
         ].map((item, i) => (
           <FadeIn client:visible delay={i * 0.1}>
             <div class="p-6 border border-gold-muted/20 rounded bg-surface/50 card-hover group relative overflow-hidden">
@@ -288,7 +288,7 @@ import TypeWriter from '../components/TypeWriter.tsx'
         <h2 class="text-2xl sm:text-3xl md:text-4xl font-mono font-bold text-text">
           Real results. <span class="text-muted">No cherry-picking.</span>
         </h2>
-        <p class="mt-4 text-text-dim text-sm md:text-base">Scale 30 (standard). EC2 g6.24xlarge — 4× NVIDIA L4, 96 vCPU, 384 GB RAM.</p>
+        <p class="mt-4 text-text-dim text-sm md:text-base">Depth 3 (standard). Self-hosted PostgreSQL. Your LLM key.</p>
       </FadeIn>
       
       <FadeIn client:visible delay={0.2}>
@@ -400,7 +400,7 @@ import TypeWriter from '../components/TypeWriter.tsx'
         <h2 class="text-2xl sm:text-3xl md:text-4xl font-mono font-bold text-text">
           Three commands. <span class="text-gold">Your infrastructure.</span>
         </h2>
-        <p class="mt-4 text-text-dim text-sm md:text-base">Docker Compose. PostgreSQL + Neo4j + API. Zero config.</p>
+        <p class="mt-4 text-text-dim text-sm md:text-base">Docker Compose. PostgreSQL + API + MCP. Zero config.</p>
       </FadeIn>
       
       <FadeIn client:visible delay={0.2}>
@@ -417,7 +417,7 @@ import TypeWriter from '../components/TypeWriter.tsx'
 
 <span class="text-success">✓</span> <span class="text-text-dim">API ready at</span> <span class="text-gold">localhost:8091</span>
 <span class="text-success">✓</span> <span class="text-text-dim">MCP server at</span> <span class="text-gold">localhost:8090</span>
-<span class="text-success">✓</span> <span class="text-text-dim">PostgreSQL + Neo4j</span> <span class="text-success">running</span></code></pre>
+<span class="text-success">✓</span> <span class="text-text-dim">PostgreSQL</span> <span class="text-success">running</span></code></pre>
         </div>
       </FadeIn>
     </div>
@@ -453,7 +453,8 @@ import TypeWriter from '../components/TypeWriter.tsx'
                 { feat: 'Per-claim scoring', b: '✅', g: '—', t: '—', p: '—' },
                 { feat: 'Knowledge graph', b: '✅', g: '—', t: '—', p: '—' },
                 { feat: 'MCP native', b: '✅', g: '—', t: '—', p: '—' },
-                { feat: '70+ API sources', b: '✅', g: '—', t: '~', p: '~' },
+                { feat: 'BYOK (any LLM)', b: '✅', g: '✅', t: '—', p: '—' },
+                { feat: '64 API sources', b: '✅', g: '—', t: '—', p: '~' },
                 { feat: 'Self-hosted', b: '✅', g: '~', t: '—', p: '—' },
                 { feat: 'SSE streaming', b: '✅', g: '—', t: '—', p: '—' },
                 { feat: 'Cross-session KG', b: '✅', g: '—', t: '—', p: '—' },
