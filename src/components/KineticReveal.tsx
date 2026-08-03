@@ -24,14 +24,14 @@ export default function KineticReveal({ text, className = '', delay = 0, stagger
             return (
               <motion.span
                 key={`${wi}-${ci}`}
-                initial={{ y: '100%', opacity: 0, filter: 'blur(8px)' }}
-                animate={isInView ? { y: '0%', opacity: 1, filter: 'blur(0px)' } : {}}
+                initial={{ y: '100%', opacity: 0 }}
+                animate={isInView ? { y: '0%', opacity: 1 } : {}}
                 transition={{
                   duration: 0.5,
                   delay: delay + i * stagger,
                   ease: [0.25, 0.4, 0, 1]
                 }}
-                className="inline-block"
+                className="inline-block will-change-transform"
               >
                 {char}
               </motion.span>

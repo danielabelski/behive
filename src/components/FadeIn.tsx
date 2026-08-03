@@ -24,9 +24,9 @@ export default function FadeIn({ children, className = '', delay = 0, direction 
     <motion.div
       ref={ref}
       className={className}
-      initial={{ opacity: 0, ...dirs[direction], filter: 'blur(4px)' }}
-      animate={isInView ? { opacity: 1, x: 0, y: 0, filter: 'blur(0px)' } : {}}
-      transition={{ duration: 0.7, delay, ease: [0.25, 0.4, 0, 1] }}
+      initial={{ opacity: 0, ...dirs[direction] }}
+      animate={isInView ? { opacity: 1, x: 0, y: 0 } : {}}
+      transition={{ duration: 0.6, delay, ease: [0.25, 0.4, 0, 1] }}
     >
       {children}
     </motion.div>
