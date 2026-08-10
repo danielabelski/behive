@@ -725,31 +725,11 @@ HYBRID_BM25_B      = 0.75    # BM25 document length normalization
 
 def _ensure_fts_index(con: Any, mission_id: str) -> bool:
     """
-    Tworzy FTS index na hive_rag_chunks dla danej misji (jeśli nie istnieje).
-    Używa PostgreSQL FTS extension z BM25 scoring.
-
-    Returns True jeśli index istnieje/stworzony, False przy błędzie.
-
-    UWAGA: PostgreSQL FTS 1.5.x wymaga minimum 2 tokenów w query do match_bm25.
-    Dla single-word queries używamy fallback: query duplikowany ('word word').
+    FTS index for BM25 — DuckDB PRAGMA not available in PostgreSQL.
+    PostgreSQL native FTS (tsvector/tsquery) would need a different implementation.
+    Returns False to disable BM25 path and use vector-only search.
     """
-    try:
-        # PostgreSQL: use built-in FTS or pg_trgm instead of DuckDB fts extension
-        try:
-            con.execute("CREATE EXTENSION IF NOT EXISTS pg_trgm;")
-        except Exception:
-            pass
-        # Sprawdź czy schema fts_main_hive_rag_chunks już istnieje
-        schemas = [r[0] for r in con.execute(
-            "SELECT schema_name FROM information_schema.schemata"
-        ).fetchall()]
-        if "fts_main_hive_rag_chunks" not in schemas:
-            con.execute("PRAGMA create_fts_index(hive_rag_chunks, id, chunk_text)")
-            log.info("FTS index created on hive_rag_chunks.")
-        return True
-    except Exception as exc:
-        log.warning("FTS index creation failed (BM25 disabled): %s", exc)
-        return False
+    return False
 
 
 def _bm25_search(

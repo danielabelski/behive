@@ -259,6 +259,19 @@ class PgConnection:
         
         # list_append → array_append
         sql = sql.replace("list_append(", "array_append(")
+        
+        # strftime(col, fmt) → TO_CHAR(col, pg_fmt) for DuckDB compat
+        if 'strftime(' in sql:
+            import re as _re_adapt
+            def _strftime_to_tochar(m):
+                col = m.group(1)
+                fmt = m.group(2)
+                # Convert DuckDB format to PostgreSQL
+                pg_fmt = fmt.replace('%Y', 'YYYY').replace('%m', 'MM').replace('%d', 'DD')
+                pg_fmt = pg_fmt.replace('%H', 'HH24').replace('%M', 'MI').replace('%S', 'SS')
+                return f"TO_CHAR({col}, '{pg_fmt}')"
+            sql = _re_adapt.sub(r"strftime\((\w+),\s*'([^']+)'\)", _strftime_to_tochar, sql)
+        
         return sql
 
 

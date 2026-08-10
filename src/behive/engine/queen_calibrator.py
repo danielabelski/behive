@@ -394,12 +394,15 @@ class QueenCalibrator:
         self, conn: Any, domain: str
     ) -> list[dict]:
         """Wczytuje zweryfikowane fakty bazowe (priors)."""
-        rows = conn.execute("""
-            SELECT fact, domain, confidence, times_confirmed, times_contradicted
-            FROM hive3_priors
-            WHERE times_contradicted = 0
-            ORDER BY times_confirmed DESC, confidence DESC
-        """).fetchall()
+        try:
+            rows = conn.execute("""
+                SELECT fact, domain, confidence, times_confirmed, times_contradicted
+                FROM hive3_priors
+                WHERE times_contradicted = 0
+                ORDER BY times_confirmed DESC, confidence DESC
+            """).fetchall()
+        except Exception:
+            return []
         # Filter per domain if match, else return all
         matched = [
             {"fact": r[0], "domain": r[1], "confidence": r[2],
@@ -417,11 +420,14 @@ class QueenCalibrator:
         self, conn: Any, domain: str
     ) -> list[dict]:
         """Hipotezy odrzucone — czego NIE zakładać."""
-        rows = conn.execute("""
-            SELECT hypothesis, topic_domain, failure_reason, confidence_at_death
-            FROM hive3_graveyard
-            ORDER BY confidence_at_death ASC
-        """).fetchall()
+        try:
+            rows = conn.execute("""
+                SELECT hypothesis, topic_domain, failure_reason, confidence_at_death
+                FROM hive3_graveyard
+                ORDER BY confidence_at_death ASC
+            """).fetchall()
+        except Exception:
+            return []
         return [
             {"hypothesis": r[0], "domain": r[1],
              "failure_reason": r[2], "conf_at_death": r[3]}
@@ -432,11 +438,14 @@ class QueenCalibrator:
         self, conn: Any, domain: str
     ) -> list[dict]:
         """Lekcje z przeszłych misji."""
-        rows = conn.execute("""
-            SELECT lesson_type, lesson, recommendation, applies_to, mission_id
-            FROM hive3_lessons
-            ORDER BY created_at DESC
-        """).fetchall()
+        try:
+            rows = conn.execute("""
+                SELECT lesson_type, lesson, recommendation, applies_to, mission_id
+                FROM hive3_lessons
+                ORDER BY created_at DESC
+            """).fetchall()
+        except Exception:
+            return []
         return [
             {"type": r[0], "lesson": r[1], "recommendation": r[2],
              "applies_to": r[3], "mission_id": r[4]}
@@ -447,11 +456,14 @@ class QueenCalibrator:
         self, conn: Any, domain: str
     ) -> list[dict]:
         """Tuning wag tierów per domain."""
-        rows = conn.execute("""
-            SELECT tier, topic_domain, activation_weight, avg_confidence, mission_count
-            FROM hive3_tier_tuning
-            ORDER BY avg_confidence DESC
-        """).fetchall()
+        try:
+            rows = conn.execute("""
+                SELECT tier, topic_domain, activation_weight, avg_confidence, mission_count
+                FROM hive3_tier_tuning
+                ORDER BY avg_confidence DESC
+            """).fetchall()
+        except Exception:
+            return []
         matched = [
             {"tier": r[0], "domain": r[1], "weight": r[2],
              "avg_conf": r[3], "missions": r[4]}
@@ -468,9 +480,12 @@ class QueenCalibrator:
         self, conn: Any
     ) -> dict[str, float]:
         """Wagi narzędzi z ecosystem_state."""
-        row = conn.execute(
-            "SELECT value FROM hive3_ecosystem_state WHERE key='tool_weights'"
-        ).fetchone()
+        try:
+            row = conn.execute(
+                "SELECT value FROM hive3_ecosystem_state WHERE key='tool_weights'"
+            ).fetchone()
+        except Exception:
+            return {}
         if row:
             try:
                 return json.loads(row[0])
@@ -482,13 +497,16 @@ class QueenCalibrator:
         self, conn: Any
     ) -> tuple[Optional[float], int]:
         """Accuracy predykcji Queen (calibration_log)."""
-        row = conn.execute("""
-            SELECT
-                COUNT(*) AS total,
-                SUM(CASE WHEN outcome='correct' THEN 1 ELSE 0 END) AS correct
-            FROM hive3_calibration_log
-            WHERE outcome IS NOT NULL
-        """).fetchone()
+        try:
+            row = conn.execute("""
+                SELECT
+                    COUNT(*) AS total,
+                    SUM(CASE WHEN outcome='correct' THEN 1 ELSE 0 END) AS correct
+                FROM hive3_calibration_log
+                WHERE outcome IS NOT NULL
+            """).fetchone()
+        except Exception:
+            return None, 0
         if row and row[0] > 0:
             accuracy = round(row[1] / row[0], 4)
             return accuracy, row[0]
@@ -498,12 +516,15 @@ class QueenCalibrator:
         self, conn: Any, domain: str
     ) -> list[dict]:
         """Wzorce z hive3_pattern_library."""
-        rows = conn.execute("""
-            SELECT pattern_name, pattern_type, description,
-                   confidence, observation_count
-            FROM hive3_pattern_library
-            ORDER BY confidence DESC, observation_count DESC
-        """).fetchall()
+        try:
+            rows = conn.execute("""
+                SELECT pattern_name, pattern_type, description,
+                       confidence, observation_count
+                FROM hive3_pattern_library
+                ORDER BY confidence DESC, observation_count DESC
+            """).fetchall()
+        except Exception:
+            return []
         return [
             {"name": r[0], "type": r[1], "description": r[2],
              "confidence": r[3], "observations": r[4]}

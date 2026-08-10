@@ -105,7 +105,7 @@ def _get_unresolved_gaps(mission_id: str) -> list:
     con = _connect_db(read_only=True)
     try:
         rows = con.execute(
-            "SELECT gap_text FROM hive_gaps WHERE mission_id = ? AND resolved = FALSE",
+            "SELECT gap_query FROM hive_gaps WHERE mission_id = ? AND resolved = FALSE",
             [mission_id]
         ).fetchall()
         return [r[0] for r in rows]

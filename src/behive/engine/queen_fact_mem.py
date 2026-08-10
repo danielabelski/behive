@@ -128,7 +128,7 @@ CREATE INDEX IF NOT EXISTS idx_queen_facts_mission
 """.format(dims=EMBED_DIMS)
 
 # FTS index — created separately (DDL cannot be in CREATE TABLE)
-_FTS_INDEX_SQL = "PRAGMA create_fts_index(hive_queen_facts, id, fact_text, overwrite=1)"
+_FTS_INDEX_SQL = ""  # PostgreSQL uses built-in tsvector/tsquery — no DuckDB PRAGMA needed
 
 
 # ---------------------------------------------------------------------------
@@ -207,13 +207,9 @@ class QueenFactMemory:
     def _ensure_schema(self) -> None:
         con = self._con
         con.execute(_SCHEMA_SQL)
-        # FTS index — graceful fail (may already exist or not be available)
-        try:
-            con.execute("INSTALL fts; LOAD fts;")
-            con.execute(_FTS_INDEX_SQL)
-            self._fts_ready = True
-        except Exception as exc:
-            log.debug("FTS index for hive_queen_facts: %s", exc)
+        # DuckDB FTS not available in PostgreSQL — disable BM25 hybrid
+        # PostgreSQL native FTS could be added later via tsvector/tsquery
+        self._fts_ready = False
 
     def _fact_id(self, fact_text: str) -> str:
         """Deterministyczny ID faktu — SHA256[:32] z tekstu."""
@@ -385,7 +381,7 @@ class QueenFactMemory:
         vec_rows = con.execute(
             f"""
             SELECT id, fact_text, source_type, mission_id, agent_id, run_id,
-                   strftime(created_at, '%Y-%m-%d %H:%M'),
+                   TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI'),
                    array_cosine_similarity(embedding, ?::FLOAT[{EMBED_DIMS}]) AS sim
             FROM hive_queen_facts
             WHERE {where_sql}
@@ -448,7 +444,7 @@ class QueenFactMemory:
         if missing_ids:
             placeholders = ",".join(["?"] * len(missing_ids))
             extra = con.execute(
-                f"SELECT id, fact_text, source_type, mission_id, agent_id, run_id, strftime(created_at, '%Y-%m-%d %H:%M'), 0.0 FROM hive_queen_facts WHERE id IN ({placeholders})",
+                f"SELECT id, fact_text, source_type, mission_id, agent_id, run_id, TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI'), 0.0 FROM hive_queen_facts WHERE id IN ({placeholders})",
                 missing_ids,
             ).fetchall()
             for row in extra:

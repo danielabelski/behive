@@ -329,3 +329,210 @@ CREATE TABLE IF NOT EXISTS hive_queen_assessments (
     created_at              TIMESTAMPTZ DEFAULT NOW()
 );
 CREATE INDEX IF NOT EXISTS idx_queen_assessments_mission ON hive_queen_assessments(mission_id);
+
+-- ─── Compatibility Functions ──────────────────────────────────────────────
+-- Replaces DuckDB's built-in array_cosine_similarity for vector search
+CREATE OR REPLACE FUNCTION array_cosine_similarity(a DOUBLE PRECISION[], b DOUBLE PRECISION[]) 
+RETURNS DOUBLE PRECISION AS $$
+DECLARE
+    dot_product DOUBLE PRECISION := 0;
+    norm_a DOUBLE PRECISION := 0;
+    norm_b DOUBLE PRECISION := 0;
+    i INTEGER;
+BEGIN
+    IF a IS NULL OR b IS NULL OR array_length(a, 1) IS NULL OR array_length(b, 1) IS NULL THEN
+        RETURN NULL;
+    END IF;
+    IF array_length(a, 1) != array_length(b, 1) THEN
+        RETURN NULL;
+    END IF;
+    FOR i IN 1..array_length(a, 1) LOOP
+        dot_product := dot_product + a[i] * b[i];
+        norm_a := norm_a + a[i] * a[i];
+        norm_b := norm_b + b[i] * b[i];
+    END LOOP;
+    IF norm_a = 0 OR norm_b = 0 THEN
+        RETURN 0;
+    END IF;
+    RETURN dot_product / (sqrt(norm_a) * sqrt(norm_b));
+END;
+$$ LANGUAGE plpgsql IMMUTABLE;
+
+-- Overload for REAL[] arrays (FLOAT[] in schema)
+CREATE OR REPLACE FUNCTION array_cosine_similarity(a REAL[], b REAL[]) 
+RETURNS DOUBLE PRECISION AS $$
+    SELECT array_cosine_similarity(a::DOUBLE PRECISION[], b::DOUBLE PRECISION[]);
+$$ LANGUAGE sql IMMUTABLE;
+
+-- ─── Feedback / Intelligence Closure Tables ──────────────────────────────
+
+-- Calibration log (predictions extracted from syntheses)
+CREATE TABLE IF NOT EXISTS hive3_calibration_log (
+    id SERIAL PRIMARY KEY,
+    mission_id TEXT,
+    prediction TEXT NOT NULL,
+    confidence_stated REAL DEFAULT 0.5,
+    outcome TEXT,
+    outcome_evidence TEXT,
+    time_to_outcome_hours REAL,
+    resolved_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_calibration_mission ON hive3_calibration_log(mission_id);
+CREATE INDEX IF NOT EXISTS idx_calibration_outcome ON hive3_calibration_log(outcome);
+
+-- Priors (cross-mission confirmed facts)
+CREATE TABLE IF NOT EXISTS hive3_priors (
+    id TEXT PRIMARY KEY,
+    fact TEXT NOT NULL,
+    domain TEXT DEFAULT 'general',
+    confidence REAL DEFAULT 0.5,
+    source_mission TEXT,
+    cited_by_missions TEXT DEFAULT '[]',
+    times_confirmed INTEGER DEFAULT 0,
+    times_contradicted INTEGER DEFAULT 0,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    last_confirmed TIMESTAMPTZ
+);
+CREATE INDEX IF NOT EXISTS idx_priors_domain ON hive3_priors(domain);
+CREATE INDEX IF NOT EXISTS idx_priors_confidence ON hive3_priors(confidence DESC);
+
+-- Graveyard (refuted hypotheses)
+CREATE TABLE IF NOT EXISTS hive3_graveyard (
+    id TEXT PRIMARY KEY,
+    hypothesis TEXT NOT NULL,
+    topic_domain TEXT DEFAULT 'general',
+    failure_reason TEXT,
+    mission_id TEXT,
+    confidence_at_death REAL DEFAULT 0.0,
+    buried_at TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_graveyard_domain ON hive3_graveyard(topic_domain);
+
+-- Lessons (operational lessons from past missions)
+CREATE TABLE IF NOT EXISTS hive3_lessons (
+    id SERIAL PRIMARY KEY,
+    mission_id TEXT,
+    lesson_type TEXT DEFAULT 'INSIGHT',
+    lesson TEXT NOT NULL,
+    recommendation TEXT,
+    applies_to TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_lessons_mission ON hive3_lessons(mission_id);
+CREATE INDEX IF NOT EXISTS idx_lessons_type ON hive3_lessons(lesson_type);
+
+-- Falsification evidence
+CREATE TABLE IF NOT EXISTS hive3_falsification_evidence (
+    id VARCHAR PRIMARY KEY,
+    mission_id VARCHAR,
+    doc_url VARCHAR,
+    target_claim VARCHAR,
+    contra_evidence VARCHAR,
+    evidence_quality VARCHAR,
+    contradiction_type VARCHAR,
+    impact VARCHAR,
+    confidence FLOAT DEFAULT 0.0,
+    overall_challenge_score FLOAT DEFAULT 0.0,
+    falsification_status VARCHAR,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Numerical conflicts
+CREATE TABLE IF NOT EXISTS hive3_numerical_conflicts (
+    id VARCHAR PRIMARY KEY,
+    mission_id VARCHAR,
+    entity_category VARCHAR,
+    year_context VARCHAR,
+    claim_a_id VARCHAR,
+    claim_a_text VARCHAR,
+    value_a DOUBLE PRECISION,
+    unit_a VARCHAR,
+    claim_b_id VARCHAR,
+    claim_b_text VARCHAR,
+    value_b DOUBLE PRECISION,
+    unit_b VARCHAR,
+    divergence_pct DOUBLE PRECISION,
+    resolution VARCHAR,
+    resolver_notes VARCHAR,
+    resolved_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ─── RAG Chunks ───────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS hive_rag_chunks (
+    id VARCHAR PRIMARY KEY,
+    mission_id VARCHAR,
+    doc_id VARCHAR,
+    url VARCHAR,
+    domain VARCHAR,
+    language VARCHAR,
+    chunk_index INTEGER,
+    chunk_text VARCHAR,
+    context_header VARCHAR,
+    word_count INTEGER,
+    embedding FLOAT[512],
+    confidence FLOAT DEFAULT 0.7,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_rag_chunks_mission ON hive_rag_chunks(mission_id);
+
+-- ─── Additional Intelligence Tables ──────────────────────────────────────
+
+-- Tier tuning (per-domain bee tier weight calibration)
+CREATE TABLE IF NOT EXISTS hive3_tier_tuning (
+    id SERIAL PRIMARY KEY,
+    tier INTEGER NOT NULL,
+    topic_domain TEXT DEFAULT 'general',
+    activation_weight REAL DEFAULT 1.0,
+    avg_confidence REAL DEFAULT 0.5,
+    mission_count INTEGER DEFAULT 0,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_tier_tuning_domain ON hive3_tier_tuning(topic_domain);
+
+-- Ecosystem state (key-value store for calibrator state)
+CREATE TABLE IF NOT EXISTS hive3_ecosystem_state (
+    key TEXT PRIMARY KEY,
+    value TEXT,
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Pattern library (discovered research patterns)
+CREATE TABLE IF NOT EXISTS hive3_pattern_library (
+    id SERIAL PRIMARY KEY,
+    pattern_name TEXT NOT NULL,
+    pattern_type TEXT DEFAULT 'general',
+    description TEXT,
+    confidence REAL DEFAULT 0.5,
+    observation_count INTEGER DEFAULT 1,
+    first_seen TIMESTAMPTZ DEFAULT NOW(),
+    last_seen TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_patterns_type ON hive3_pattern_library(pattern_type);
+
+-- Cluster atlas (cross-mission topic clustering)
+CREATE TABLE IF NOT EXISTS hive3_cluster_atlas (
+    id SERIAL PRIMARY KEY,
+    cluster_theme TEXT NOT NULL,
+    theme_keywords JSONB DEFAULT '[]'::jsonb,
+    mission_ids JSONB DEFAULT '[]'::jsonb,
+    mission_count INTEGER DEFAULT 0,
+    centroid FLOAT[512],
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    last_seen TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_cluster_atlas_theme ON hive3_cluster_atlas(cluster_theme);
+
+-- Mission memory (key findings persistence across missions)
+CREATE TABLE IF NOT EXISTS hive3_mission_memory (
+    id SERIAL PRIMARY KEY,
+    mission_id TEXT NOT NULL,
+    mission_topic TEXT,
+    completed_at TIMESTAMPTZ,
+    key_findings JSONB DEFAULT '[]'::jsonb,
+    confidence REAL DEFAULT 0.5,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_mission_memory_mission ON hive3_mission_memory(mission_id);
