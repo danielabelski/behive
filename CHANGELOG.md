@@ -2,6 +2,29 @@
 
 All notable changes to BeHive are documented here.
 
+## [0.6.0] — 2026-08-13
+
+### Added
+- **Entity Anchoring** — Queen task generation enforces 60%+ entity-specific queries (eliminates topic drift)
+- **direct_url scout method** — fetch known API endpoints directly (KRS, VAT Biała Lista, company sites)
+- **Context Providers subsystem** — pluggable context injection for domain-specific knowledge
+- **AI Brand Visibility Checker** — free tool endpoint for brand SERP analysis
+- **Federated Knowledge Network** — cross-instance knowledge sharing protocol
+- **llms.txt** — AI discoverability metadata
+
+### Fixed
+- Graph engine single-instance PID lock prevents zombie process accumulation
+- PostgreSQL schema compatibility (DuckDB syntax migration)
+
+### Security
+- All hardcoded database credentials removed from test files
+- Production password rotated; credentials now read from environment variables only
+- Git history scrubbed of leaked test credentials (BFG)
+
+### Changed
+- Synth module streamlined (491-line rewrite, faster report generation)
+- API scout sources expanded (+152 entries, 70+ categories)
+
 ## [0.1.0] — 2026-07-28
 
 ### Added
