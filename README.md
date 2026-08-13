@@ -37,7 +37,7 @@ You ask an AI to research something. It hallucinates confidently or gives you a 
 {
   "mcpServers": {
     "behive": {
-      "url": "https://api.yu-na.io/mcp",
+      "url": "https://api.behive.site/mcp",
       "transport": "streamable-http"
     }
   }
@@ -69,7 +69,7 @@ You ask Claude → Claude calls BeHive MCP tool → BeHive scouts 70+ APIs
 2. Create a new GPT
 3. Under **Actions** → click **Import from URL** → paste:
    ```
-   https://api.yu-na.io/openapi.json
+   https://api.behive.site/openapi.json
    ```
 4. Name it "Deep Researcher" and save
 
@@ -85,7 +85,7 @@ Add to your MCP config (`.cursor/mcp.json`, `~/.claude/settings.json`, etc.):
 {
   "mcpServers": {
     "behive": {
-      "url": "https://api.yu-na.io/mcp",
+      "url": "https://api.behive.site/mcp",
       "transport": "streamable-http"
     }
   }
