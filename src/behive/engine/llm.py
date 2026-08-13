@@ -21,6 +21,10 @@ import json
 import logging
 from typing import Optional
 
+# Ensure Bedrock knows our region (litellm needs this for cross-region inference profiles)
+if not os.environ.get("AWS_REGION_NAME") and not os.environ.get("AWS_DEFAULT_REGION"):
+    os.environ["AWS_REGION_NAME"] = "eu-central-1"
+
 log = logging.getLogger(__name__)
 
 
@@ -34,7 +38,7 @@ _PROVIDER_SUGGESTIONS = {
     "together": "together_ai/meta-llama/Llama-3.3-70B-Instruct-Turbo",
     "mistral": "mistral/mistral-large-latest",
     "deepseek": "deepseek/deepseek-chat",
-    "bedrock": "bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0",
+    "bedrock": "bedrock/eu.anthropic.claude-sonnet-4-5-20250929-v1:0",
     "local": "openai/local-model",
 }
 

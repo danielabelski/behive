@@ -414,426 +414,11 @@ class Queen:
         Build structured text context from honey — NEVER raw article text.
         Includes all intelligence layers: priors, graveyard, QuantumBee hypotheses,
         hive_claims with deduplication.
+        
+        Refactored: delegates to context_providers (CC=135 → CC=5 dispatcher + 16 providers).
         """
-        lines = []
-        m = honey["mission"]
-
-        lines.append(f"TEMAT MISJI: {m['topic']}")
-        lines.append(
-            f"STATYSTYKI: {m['sources_found']} znalezionych źródeł | "
-            f"{m['sources_harvested']} zebranych | "
-            f"{m['total_words']} słów | "
-            f"{m['total_entities']} encji | "
-            f"{m['total_facts']} faktów"
-        )
-        lines.append("")
-
-        # ── NUMERIC FACT DIGEST — TOP (depth booster, pre-inject before claims) ──
-        # Numeric value extraction z raw_claims konficdencja >= 0.65
-        # Built-in at top — Queen sees numbers BEFORE receiving claims
-        import re as _re_top
-        _num_top = _re_top.compile(
-            r'\b(\d[\d\s]*[\d](?:[.,]\d+)?)\s*'
-            r'(%|PLN|EUR|USD|GBP|zł|mln|tys|k|M|B|GB|TB|ms|s|min|h|'
-            r'dni|miesięcy|lat|gwiazdek|users|klientów|pracowników|firm|'
-            r'projektów|calls|req|rps|stars|downloads|installs|seats|licenses)\b',
-            _re_top.IGNORECASE
-        )
-        _num_digest = []
-        for rc in honey.get("raw_claims", [])[:300]:
-            if len(rc) < 5:
-                continue
-            claim_text = str(rc[0] or "")
-            conf = rc[4]
-            try:
-                conf_f = float(conf)
-            except Exception as e:
-                log.debug(f"Suppressed in synth.py: {e}")
-                conf_f = 0.5
-            if conf_f < 0.65:
-                continue
-            for v, u in _num_top.findall(claim_text)[:2]:
-                entry = f"[{conf_f:.2f}] {v.strip()} {u} — {claim_text[:120]}"
-                if entry not in _num_digest:
-                    _num_digest.append(entry)
-            if len(_num_digest) >= 25:
-                break
-        if _num_digest:
-            lines.append("=== LICZBY KLUCZOWE — DIGEST (do cytowania w raporcie) ===")
-            lines.extend(_num_digest)
-            lines.append("")
-
-
-        # Must appear at TOP so Queen sees them even when context is truncated
-        lines.append("=== KLUCZOWE USTALENIA WYWIADOWCZE (hive_claims — top 40) ===")
-        if honey.get("raw_claims"):
-            seen_claims: set = set()
-            added = 0
-            for row in honey["raw_claims"]:
-                if len(row) == 5:
-                    claim, evidence, src_url, claim_type, conf = row
-                elif len(row) == 3:
-                    claim, src_url, conf = row
-                    evidence, claim_type = "", "intelligence"
-                else:
-                    continue
-                dedup_key = (claim or "")[:100].lower().strip()
-                if dedup_key in seen_claims:
-                    continue
-                seen_claims.add(dedup_key)
-                try:
-                    conf_val = f"{float(conf):.2f}"
-                except Exception as e:
-                    log.debug(f"Suppressed in synth.py: {e}")
-                    conf_val = str(conf)
-                domain = ""
-                if src_url:
-                    try:
-                        from urllib.parse import urlparse
-                        domain = urlparse(src_url).netloc.replace("www.", "")
-                    except Exception as e:
-                        log.debug(f"Suppressed: {e}")
-                evidence_snippet = (evidence or "")[:80]
-                lines.append(
-                    f"[{conf_val}] [{claim_type or '?'}] {claim[:200]}"
-                    + (f" | evid: {evidence_snippet}" if evidence_snippet else "")
-                    + (f" | src: {domain}" if domain else "")
-                )
-                added += 1
-                if added >= 40:
-                    break
-        else:
-            lines.append("Brak twierdzeń wywiadowczych — pipeline extraction nie zebrał claims.")
-        lines.append("")
-        lines.append("=== POTWIERDZONE FAKTY NUMERYCZNE ===")
-        if honey["confirmed_facts"]:
-            for row in honey["confirmed_facts"]:
-                val, unit, ctx, src_count, sources_json, domains_json, conf = row
-                domains = []
-                try:
-                    domains = domains_json if isinstance(domains_json, list) else (json.loads(domains_json) if isinstance(domains_json, str) and domains_json else [])
-                except (json.JSONDecodeError, ValueError, KeyError) as e:
-                    log.debug(f"Parse error: {e}")
-                domain_str = ", ".join(domains[:3]) if domains else "—"
-                val_str  = f"{val:g}" if val is not None else "?"
-                unit_str = f" {unit}" if unit else ""
-                lines.append(
-                    f"[{conf}] {val_str}{unit_str} — {ctx} "
-                    f"(źródła: {domain_str}, n={src_count})"
-                )
-        else:
-            # hive_facts empty (competitive intel missions store in hive_claims, not hive_facts).
-            # Extract numerical values from high-confidence claims as a substitute.
-            lines.append("⚠️  hive_facts pusta — ekstrakcja wartości numerycznych z hive_claims:")
-            import re as _re
-            _num_pattern = _re.compile(
-                r'\b(\d[\d\s]*[\d](?:[.,]\d+)?)\s*'
-                r'(%|PLN|EUR|USD|zł|mln|tys|k|M|B|GB|TB|ms|s|min|h|dni|miesięcy|lat|'
-                r'gwiazdek|users|klientów|pracowników|firm|projektów|calls|req|rps|'
-                r'stars|downloads|installs)\b',
-                _re.IGNORECASE
-            )
-            _num_claims_added = 0
-            for rc in honey.get("raw_claims", [])[:200]:
-                if len(rc) < 5:
-                    continue
-                claim_text = str(rc[0] or "")
-                src_url    = str(rc[2] or "")
-                conf       = rc[4]
-                try:
-                    conf_f = float(conf)
-                except Exception as e:
-                    log.debug(f"Suppressed in synth.py: {e}")
-                    conf_f = 0.5
-                if conf_f < 0.6:
-                    continue
-                matches = _num_pattern.findall(claim_text)
-                if matches:
-                    try:
-                        from urllib.parse import urlparse as _up
-                        domain = _up(src_url).netloc.replace("www.", "")
-                    except Exception as e:
-                        log.debug(f"Suppressed in synth.py: {e}")
-                        domain = src_url[:40]
-                    for val_str, unit_str in matches[:2]:
-                        lines.append(
-                            f"[{conf_f:.2f}] {val_str.strip()} {unit_str} "
-                            f"— {claim_text[:150]} ({domain})"
-                        )
-                        _num_claims_added += 1
-                        if _num_claims_added >= 30:
-                            break
-                if _num_claims_added >= 30:
-                    break
-            if _num_claims_added == 0:
-                lines.append("Brak wartości numerycznych w claims dla tej misji.")
-        lines.append("")
-
-        # ── All facts ────────────────────────────────────────────────────────
-        if honey["all_facts"]:
-            lines.append("=== WSZYSTKIE FAKTY NUMERYCZNE (TOP 50) ===")
-            for row in honey["all_facts"]:
-                val, unit, ctx, src_count, sources_json, domains_json, conf = row
-                domains = []
-                try:
-                    domains = domains_json if isinstance(domains_json, list) else (json.loads(domains_json) if isinstance(domains_json, str) and domains_json else [])
-                except (json.JSONDecodeError, ValueError, KeyError) as e:
-                    log.debug(f"Parse error: {e}")
-                domain_str = ", ".join(domains[:2]) if domains else "—"
-                val_str  = f"{val:g}" if val is not None else "?"
-                unit_str = f" {unit}" if unit else ""
-                lines.append(
-                    f"[{conf}] {val_str}{unit_str} — {ctx} ({domain_str})"
-                )
-            lines.append("")
-
-        # ── Key entities ─────────────────────────────────────────────────────
-        lines.append("=== KLUCZOWE ENCJE ===")
-        if honey["top_entities"]:
-            by_type: dict = {}
-            for row in honey["top_entities"]:
-                text, etype, canonical, conf, src_count, context = row
-                display = canonical or text
-                by_type.setdefault(etype, []).append(f"{display}:{src_count}")
-            for etype, items in by_type.items():
-                lines.append(f"{etype}: " + " | ".join(items))
-        else:
-            lines.append("Brak encji.")
-        lines.append("")
-
-        # ── Topic clusters ───────────────────────────────────────────────────
-        # Use cluster_context_block if available (contains clusters + cross-mission atlas)
-        _ccb = honey.get("cluster_context_block")
-        if _ccb:
-            lines.append(_ccb)
-        elif honey["clusters"]:
-            lines.append("=== KLASTRY TEMATYCZNE ===")
-            for i, row in enumerate(honey["clusters"], 1):
-                cid, label, kw_json, doc_count, repr_text = row
-                kws = []
-                try:
-                    kws = kw_json if isinstance(kw_json, list) else (json.loads(kw_json) if isinstance(kw_json, str) and kw_json else [])
-                except (json.JSONDecodeError, ValueError, KeyError) as e:
-                    log.debug(f"Parse error: {e}")
-                kw_str = ", ".join(kws[:6]) if kws else "—"
-                lines.append(f"{i}. {label} ({doc_count} dokumentów): {kw_str}")
-        else:
-            lines.append("=== KLASTRY TEMATYCZNE ===")
-            lines.append("Brak klastrów tematycznych — dokumenty nie były klastrowane.")
-        lines.append("")
-
-        # ── Numerical Falsification evidence ─────────────────────────────────
-        try:
-            import importlib.util as _flu2
-            _fs2 = _flu2.spec_from_file_location("hive2_falsifier", "hive2_falsifier.py")
-            _fm2 = _flu2.module_from_spec(_fs2)
-            _fs2.loader.exec_module(_fm2)
-            _falsif_block = _fm2.get_falsification_report(self.mission_id)
-            if _falsif_block:
-                lines.append(_falsif_block)
-        except Exception as e:
-            log.debug(f"Suppressed: {e}")
-
-        # ── Outliers ─────────────────────────────────────────────────────────
-        lines.append("=== WARTOŚCI ODSTAJĄCE (OUTLIERS) ===")
-        if honey["outliers"]:
-            for row in honey["outliers"]:
-                val, unit, ctx, src_count, _, domains_json, conf = row
-                domains = []
-                try:
-                    domains = domains_json if isinstance(domains_json, list) else (json.loads(domains_json) if isinstance(domains_json, str) and domains_json else [])
-                except (json.JSONDecodeError, ValueError, KeyError) as e:
-                    log.debug(f"Parse error: {e}")
-                domain_str = ", ".join(domains[:2]) if domains else "?"
-                val_str  = f"{val:g}" if val is not None else "?"
-                unit_str = f" {unit}" if unit else ""
-                lines.append(
-                    f"[OUTLIER] {val_str}{unit_str} — {ctx} "
-                    f"(tylko {src_count} źródło, {domain_str})"
-                )
-        else:
-            lines.append("Brak wartości odstających.")
-        lines.append("")
-
-        # ── Citations ────────────────────────────────────────────────────────
-        lines.append("=== CYTOWANIA (TOP 30) ===")
-        if honey["citations"]:
-            for row in honey["citations"][:30]:
-                claim, url, domain, title, author, pub_date, conf, cross_val, sup_src = row
-                year    = pub_date[:4] if pub_date and len(pub_date) >= 4 else "?"
-                cv_mark = " ✓" if cross_val else ""
-                try:
-                    conf_val = f"{float(conf):.2f}"
-                except Exception as e:
-                    log.debug(f"Suppressed in synth.py: {e}")
-                    conf_val = str(conf)
-                lines.append(
-                    f"• {claim} [{domain}, {year}]{cv_mark} "
-                    f"(pewność: {conf_val}, wspierające źródła: {sup_src})"
-                )
-        else:
-            lines.append("Brak cytowań.")
-        lines.append("")
-
-        # ── Research gaps ────────────────────────────────────────────────────
-        # Quality warnings (priority=10, type=quality_warning) go FIRST
-        quality_warnings = [row for row in (honey["gaps"] or [])
-                            if row[1] == 'quality_warning']
-        regular_gaps     = [row for row in (honey["gaps"] or [])
-                            if row[1] != 'quality_warning']
-
-        if quality_warnings:
-            lines.append("⚠️  === OSTRZEŻENIA JAKOŚCI DANYCH ===")
-            for row in quality_warnings:
-                gap_query, gap_type, priority = row
-                lines.append(gap_query)
-            lines.append("")
-
-        lines.append("=== LUKI BADAWCZE ===")
-        if regular_gaps:
-            for i, row in enumerate(regular_gaps, 1):
-                gap_query, gap_type, priority = row
-                lines.append(f"{i}. [{gap_type or 'unknown'}, prio={priority}] {gap_query}")
-        else:
-            lines.append("Brak zidentyfikowanych luk badawczych.")
-        lines.append("")
-
-        # ════════════════════════════════════════════════════════════════════
-        # NEW INTELLIGENCE LAYERS
-        # ════════════════════════════════════════════════════════════════════
-
-        # ── TOP CLAIMS (hive_claims with deduplication) ───────────────────
-        lines.append("=== TOP CLAIMS (hive_claims — deduplicated, top 30) ===")
-        if honey.get("raw_claims"):
-            seen_claims: set = set()
-            added = 0
-            for row in honey["raw_claims"]:
-                claim, evidence, src_url, claim_type, conf = row
-                # Deduplicate by first 100 chars of claim
-                dedup_key = (claim or "")[:100].lower().strip()
-                if dedup_key in seen_claims:
-                    continue
-                seen_claims.add(dedup_key)
-                try:
-                    conf_val = f"{float(conf):.2f}"
-                except Exception as e:
-                    log.debug(f"Suppressed in synth.py: {e}")
-                    conf_val = str(conf)
-                domain = ""
-                if src_url:
-                    try:
-                        from urllib.parse import urlparse
-                        domain = urlparse(src_url).netloc.replace("www.", "")
-                    except Exception as e:
-                        log.debug(f"Suppressed: {e}")
-                evidence_snippet = (evidence or "")[:80]
-                lines.append(
-                    f"[{conf_val}] [{claim_type or '?'}] {claim[:150]}"
-                    + (f" | evid: {evidence_snippet}" if evidence_snippet else "")
-                    + (f" | src: {domain}" if domain else "")
-                )
-                added += 1
-                if added >= 60:
-                    break
-        else:
-            lines.append("Brak danych z hive_claims.")
-        lines.append("")
-
-        # ── HYPOTHESIS SPACE (QuantumBee — tier ≥ 12) ────────────────────
-        lines.append("=== HYPOTHESIS SPACE (QuantumBee / tier≥12) ===")
-        if honey.get("quantum_hypotheses"):
-            hypothesis_count = 0
-            for row in honey["quantum_hypotheses"]:
-                op_id, op_name, tier, conf, output_json_raw, bee_mission = row
-                try:
-                    oj = json.loads(output_json_raw) if output_json_raw else {}
-                except Exception as e:
-                    log.debug(f"Suppressed in synth.py: {e}")
-                    oj = {}
-
-                # Extract hypotheses from various output_json shapes
-                extracted = []
-                if "hypotheses" in oj and isinstance(oj["hypotheses"], list):
-                    for h in oj["hypotheses"][:3]:
-                        if isinstance(h, dict):
-                            hyp_text = h.get("hypothesis", h.get("text", ""))
-                            prob     = h.get("probability", h.get("confidence", conf))
-                            extracted.append((hyp_text, prob))
-                        elif isinstance(h, str):
-                            extracted.append((h, conf))
-                elif "resonances" in oj and isinstance(oj["resonances"], list):
-                    for r_item in oj["resonances"][:2]:
-                        if isinstance(r_item, dict):
-                            r_text = r_item.get("pattern",
-                                       r_item.get("description", str(r_item)[:120]))
-                            extracted.append((r_text, conf))
-                elif "key_finding" in oj:
-                    extracted.append((str(oj["key_finding"])[:200], conf))
-
-                for hyp_text, prob in extracted:
-                    if not hyp_text:
-                        continue
-                    try:
-                        prob_val = f"P={float(prob):.2f}"
-                    except Exception as e:
-                        log.debug(f"Suppressed in synth.py: {e}")
-                        prob_val = f"P=?"
-                    lines.append(
-                        f"{prob_val} — {str(hyp_text)[:200]} "
-                        f"[{op_name}, tier={tier}, mission={bee_mission}]"
-                    )
-                    hypothesis_count += 1
-                    if hypothesis_count >= 15:
-                        break
-                if hypothesis_count >= 15:
-                    break
-            if hypothesis_count == 0:
-                lines.append("Brak wyekstrahowanych hipotez z QuantumBee.")
-        else:
-            lines.append("Brak danych QuantumBee (tier≥12) dla tej misji.")
-        lines.append("")
-
-        # ── CONFIRMED PRIORS (cross-mission) ─────────────────────────────
-        lines.append("=== CONFIRMED PRIORS (cross-mission) ===")
-        if honey.get("cross_mission_priors"):
-            for row in honey["cross_mission_priors"]:
-                fact, domain, confidence, times_confirmed, times_contradicted = row
-                try:
-                    conf_val = f"{float(confidence):.2f}"
-                except Exception as e:
-                    log.debug(f"Suppressed in synth.py: {e}")
-                    conf_val = str(confidence)
-                contra_note = (
-                    f" ⚠️ CONTRADICTED {times_contradicted}×"
-                    if times_contradicted and times_contradicted > 0 else ""
-                )
-                lines.append(
-                    f"[conf={conf_val}, n={times_confirmed}✓{contra_note}] "
-                    f"[{domain}] {fact}"
-                )
-        else:
-            lines.append("Brak potwierdzonych priorów z poprzednich misji.")
-        lines.append("")
-
-        # ── DEAD HYPOTHESES (Graveyard) ───────────────────────────────────
-        lines.append("=== DEAD HYPOTHESES (Graveyard — czego NIE jest prawdą) ===")
-        if honey.get("dead_hypotheses"):
-            for row in honey["dead_hypotheses"]:
-                hypothesis, topic_domain, failure_reason, conf_at_death = row
-                try:
-                    conf_val = f"{float(conf_at_death):.2f}"
-                except Exception as e:
-                    log.debug(f"Suppressed in synth.py: {e}")
-                    conf_val = "?"
-                lines.append(
-                    f"✗ [{topic_domain or '?'}] {hypothesis} "
-                    f"→ OBALONO: {failure_reason} "
-                    f"(conf_at_death={conf_val})"
-                )
-        else:
-            lines.append("Brak obalonych hipotez w Graveyard.")
-
-        return "\n".join(lines)
+        from behive.engine.context_providers import build_honey_context
+        return build_honey_context(honey, mission_id=self.mission_id)
 
     # ── 4-Pass Intelligence Synthesis ────────────────────────────────────────
 
@@ -938,21 +523,15 @@ Format odpowiedzi:
 {honey_context[:12000]}
 ==========================="""
 
-        log.info("[QUEEN] Pass 1 — EVIDENCE HIERARCHY (25%)…")
-        _t0 = time.time()
-        pass1_result = _llm(pass1_prompt, system=system_queen, max_tokens=4096)
-        log.info(f"[QUEEN] Pass 1 done in {time.time()-_t0:.1f}s "
-              f"(~{len(pass1_result)} chars)")
-
         # ════════════════════════════════════════════════════════════════════
-        # PASS 2 — FALSIFICATION CHECK
+        # PASS 2 PROMPT (built here, executed in parallel with Pass 1)
         # ════════════════════════════════════════════════════════════════════
         pass2_prompt = f"""You are a counterintelligence analyst. Your role is active falsification of conclusions.
 
 TEMAT: {topic}
 
-Poniżej podano hierarchię pewności (Pass 1) oraz surowe dane.
-Zidentyfikuj 5 kluczowych twierdzeń z kategorii CONFIRMED lub PROBABLE.
+Poniżej podano surowe dane wywiadowcze. Zidentyfikuj 5 kluczowych twierdzeń o najwyższej pewności
+(popartych wieloma źródłami lub autorytatywnymi domenami).
 
 Dla każdego twierdzenia odpowiedz:
 1. **Twierdzenie**: [treść]
@@ -961,18 +540,24 @@ Dla każdego twierdzenia odpowiedz:
 4. **Ocena po falsyfikacji**: UTRZYMANE / OSŁABIONE / ODRZUCONE
 5. **Rewizja pewności**: [stary poziom] → [nowy poziom]
 
-===== HIERARCHIA PEWNOŚCI (Pass 1) =====
-{pass1_result[:2000]}
-
-===== SUROWE DANE =====
-{honey_context[:8000]}
+===== SUROWE DANE WYWIADOWCZE =====
+{honey_context[:10000]}
 ==========================="""
 
-        log.info("[QUEEN] Pass 2 — FALSIFICATION CHECK (50%)…")
+        # ── PARALLEL EXECUTION: Pass 1 + Pass 2 simultaneously ──────────────
+        import concurrent.futures
+        log.info("[QUEEN] Pass 1+2 — PARALLEL (Evidence + Falsification)…")
         _t0 = time.time()
-        pass2_result = _llm(pass2_prompt, system=system_queen, max_tokens=3072)
-        log.info(f"[QUEEN] Pass 2 done in {time.time()-_t0:.1f}s "
-              f"(~{len(pass2_result)} chars)")
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=2) as _pool:
+            _fut1 = _pool.submit(_llm, pass1_prompt, system_queen, 4096)
+            _fut2 = _pool.submit(_llm, pass2_prompt, system_queen, 3072)
+            pass1_result = _fut1.result()
+            pass2_result = _fut2.result()
+
+        log.info(f"[QUEEN] Pass 1+2 PARALLEL done in {time.time()-_t0:.1f}s "
+              f"(~{len(pass1_result)}+{len(pass2_result)} chars, "
+              f"saved ~{max(len(pass1_result),len(pass2_result))//80}s vs sequential)")
 
         # ════════════════════════════════════════════════════════════════════
         # PASS 3 — MAIN SYNTHESIS (Queen 3.0) — STORM section-aware pattern
@@ -1835,12 +1420,17 @@ Słowa: {m['total_words']} | Encje: {m['total_entities']} | Fakty: {m['total_fac
         log.info(f"[QUEEN] Format raportu zajął {time.time() - _t_fmt:.1f}s")
 
         # Multi-role refinement (Editor → Reviewer → Writer)
-        try:
-            _t_multi = time.time()
-            report = multi_role_synthesis(self.mission_id, report, topic=topic)
-            log.info(f"[QUEEN] Multi-role synthesis: {time.time() - _t_multi:.1f}s")
-        except Exception as _mr_err:
-            log.info(f"[QUEEN] Multi-role synthesis pominięty: {_mr_err}")
+        # Skip in speed mode (BEHIVE_FAST_SYNTH=1) — saves 120-180s
+        _skip_multi = os.environ.get("BEHIVE_FAST_SYNTH", "").strip() in ("1", "true", "yes")
+        if _skip_multi:
+            log.info("[QUEEN] Multi-role synthesis SKIPPED (BEHIVE_FAST_SYNTH=1)")
+        else:
+            try:
+                _t_multi = time.time()
+                report = multi_role_synthesis(self.mission_id, report, topic=topic)
+                log.info(f"[QUEEN] Multi-role synthesis: {time.time() - _t_multi:.1f}s")
+            except Exception as _mr_err:
+                log.info(f"[QUEEN] Multi-role synthesis pominięty: {_mr_err}")
 
         # Save report
         paths = self.save_report(report, self.mission_id, topic)
@@ -1918,19 +1508,8 @@ Słowa: {m['total_words']} | Encje: {m['total_entities']} | Fakty: {m['total_fac
         except Exception as _qme:
             log.warning(f"⚠️  QueenMemory persist pominięty: {_qme}")
 
-        # ── Numerical Falsification hook ─────────────────────────────────────
-        try:
-            import importlib.util as _flu
-            _fspec = _flu.spec_from_file_location("hive2_falsifier", "hive2_falsifier.py")
-            _fmod  = _flu.module_from_spec(_fspec)
-            _fspec.loader.exec_module(_fmod)
-            _fr = _fmod.run_falsification_for_mission(self.mission_id, resolve=True)
-            log.info(
-                f"🔴 NumericalFalsifier: {_fr.get('real_conflicts', 0)} REAL_CONFLICT "
-                f"z {_fr.get('conflicts_detected', 0)} wykrytych"
-            )
-        except Exception as _fe:
-            log.debug(f"NumericalFalsifier hook pominięty: {_fe}")
+        # ── Numerical Falsification — handled by orchestrator Phase 3.5 ──────
+        # (removed: duplicate call that blocked synth for ~20min with no effect on report)
 
         elapsed = time.time() - t0
         log.info(f"\n[QUEEN] Synteza zakończona w {elapsed:.1f}s")

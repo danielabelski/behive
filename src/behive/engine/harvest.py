@@ -970,14 +970,14 @@ class HarvesterBee:
     def _load_pending_sources(self) -> list[dict]:
         try:
             # MAX_HARVEST = 300 top-scoring sources per mission
-            # Filtr: score_relevance >= 2 (at least 2 topic words in title/snippet/snippecie)
+            # Filtr: score_relevance >= 5 (entity anchoring: sources without entity name penalized by -5)
             #        score_total >= 15 (eliminuje losowy szum)
             rows = self.con.execute("""
                 SELECT id, url, source_type, score_total, score_relevance
                 FROM hive_sources
                 WHERE mission_id = ?
                   AND status IN ('pending', 'scouted')
-                  AND score_relevance >= 2
+                  AND score_relevance >= 5
                   AND score_total >= 15
                 ORDER BY score_total DESC NULLS LAST
                 LIMIT 300

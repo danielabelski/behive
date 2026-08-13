@@ -20,7 +20,7 @@ def unmock_synth_connect(monkeypatch):
     def _real_connect(*args, **kwargs):
         conn = psycopg2.connect(
             host="localhost", port=5432, dbname="hive",
-            user="hive_app", password="***REDACTED***"
+            user="hive_app", password=os.environ.get("HIVE_PG_PASSWORD", "test")
         )
         conn.autocommit = True
         return conn

@@ -5,7 +5,7 @@ import pytest
 import psycopg2
 import json
 
-PG_DSN = "host=localhost port=5432 dbname=hive user=hive_app password=***REDACTED***"
+PG_DSN = "host=localhost port=5432 dbname=hive user=hive_app password=test"
 
 
 @pytest.fixture

@@ -20,8 +20,8 @@ os.environ["HIVE_PG_HOST"] = "localhost"
 os.environ["HIVE_PG_PORT"] = "5432"
 os.environ["HIVE_PG_DATABASE"] = "hive"
 os.environ["HIVE_PG_USER"] = "hive_app"
-os.environ["HIVE_PG_PASSWORD"] = "***REDACTED***"
-os.environ["BEHIVE_DB_URL"] = "postgresql://hive_app:***REDACTED***@localhost:5432/hive"
+os.environ.setdefault("HIVE_PG_PASSWORD", os.environ.get("HIVE_PG_PASSWORD", "test"))
+os.environ["BEHIVE_DB_URL"] = "postgresql://hive_app:{os.environ.get("HIVE_PG_PASSWORD", "test")}@localhost:5432/hive"
 os.environ["BEHIVE_PHASE_TIMEOUT"] = "3"
 os.environ["BEHIVE_MAX_CONCURRENT"] = "1"
 
@@ -169,7 +169,7 @@ def _get_conn():
     try:
         return psycopg2.connect(
             host="localhost", port=5432, dbname="hive",
-            user="hive_app", password="***REDACTED***"
+            user="hive_app", password=os.environ.get("HIVE_PG_PASSWORD", "test")
         )
     except Exception:
         return MagicMock()

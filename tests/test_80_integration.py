@@ -181,7 +181,7 @@ class TestPrescoutIntegration:
     def test_ensure_prescout_schema(self, mock_pg):
         import psycopg2
         con = psycopg2.connect(host='localhost', port=5432, dbname='hive', 
-                               user='hive_app', password='***REDACTED***')
+                               user='hive_app', password=os.environ.get('HIVE_PG_PASSWORD', 'test'))
         mock_pg.return_value = con
         from behive.engine.prescout import _ensure_prescout_schema
         try:
@@ -339,7 +339,7 @@ class TestProcessIntegration:
     def test_process_claims_from_real_content(self, mock_db):
         import psycopg2
         con = psycopg2.connect(host='localhost', port=5432, dbname='hive',
-                               user='hive_app', password='***REDACTED***')
+                               user='hive_app', password=os.environ.get('HIVE_PG_PASSWORD', 'test'))
         mock_db.return_value = con
         try:
             from behive.engine.process import ClaimExtractor

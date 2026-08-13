@@ -13,7 +13,7 @@ def _get_conn():
     try:
         return psycopg2.connect(
             host="localhost", port=5432, dbname="hive",
-            user="hive_app", password="***REDACTED***"
+            user="hive_app", password=os.environ.get("HIVE_PG_PASSWORD", "test")
         )
     except Exception:
         return MagicMock()

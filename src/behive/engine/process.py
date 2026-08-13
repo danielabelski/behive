@@ -159,8 +159,8 @@ MODEL_FAST_FALLBACK = MODEL_FAST_PRIMARY
 MODEL_DEEP          = MODEL_FAST_PRIMARY
 
 # Concurrency limits
-BATCH_SIZE         = 20   # docs processed concurrently
-MAX_LLM_CALLS      = 4   # global semaphore cap
+BATCH_SIZE         = int(os.environ.get("BEHIVE_BATCH_SIZE", "40"))  # docs processed concurrently (was 20)
+MAX_LLM_CALLS      = 4   # global semaphore cap (overridden to 40 when SGLang active)
 
 # Dedup threshold (rapidfuzz)
 DEDUP_THRESHOLD = 85
@@ -893,8 +893,18 @@ class BeeWorker:
                 )
             else:
                 template = (
-                    f"Extract structured intelligence from the following text about {topic}. "
-                    "Return results as JSON."
+                    f"You are a research analyst extracting facts specifically about: {topic}\n\n"
+                    "ENTITY RELEVANCE RULE: Only extract claims that DIRECTLY mention or relate to the "
+                    "primary entity/subject in the topic above. If the document discusses general industry "
+                    "trends, regulations, or other companies — SKIP those unless they specifically mention "
+                    "the primary entity.\n\n"
+                    "If the document contains NO relevant information about the primary entity, return: "
+                    '[{"claim": "NO_RELEVANT_DATA", "confidence": 0.0}]\n\n'
+                    "Otherwise, return JSON array:\n"
+                    '[{"claim": "specific fact about the entity", '
+                    '"type": "financial|operational|legal|personnel|infrastructure|market|general", '
+                    '"confidence": 0.5-1.0, "source_context": "brief quote from document"}]\n\n'
+                    "Document text:\n{text}"
                 )
 
         # Substitute known variables

@@ -348,7 +348,7 @@ class TestScoutDeep:
         import psycopg2
         mock_pg.return_value = psycopg2.connect(
             host="localhost", port=5432, dbname="hive",
-            user="hive_app", password="***REDACTED***"
+            user="hive_app", password=os.environ.get("HIVE_PG_PASSWORD", "test")
         )
         from behive.engine.scout import SwarmScout
         try:
@@ -365,7 +365,7 @@ class TestScoutDeep:
         import psycopg2
         conn = psycopg2.connect(
             host="localhost", port=5432, dbname="hive",
-            user="hive_app", password="***REDACTED***"
+            user="hive_app", password=os.environ.get("HIVE_PG_PASSWORD", "test")
         )
         mock_pg.return_value = conn
         from behive.engine.scout import SwarmScout
@@ -389,7 +389,7 @@ class TestScoutDeep:
         import psycopg2
         conn = psycopg2.connect(
             host="localhost", port=5432, dbname="hive",
-            user="hive_app", password="***REDACTED***"
+            user="hive_app", password=os.environ.get("HIVE_PG_PASSWORD", "test")
         )
         mock_pg.return_value = conn
         from behive.engine.scout import SwarmScout

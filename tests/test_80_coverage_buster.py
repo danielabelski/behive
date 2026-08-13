@@ -135,7 +135,7 @@ Growth expected at 23% CAGR through 2030.
         
         con = psycopg2.connect(
             host="localhost", port=5432, dbname="hive",
-            user="hive_app", password="***REDACTED***"
+            user="hive_app", password=os.environ.get("HIVE_PG_PASSWORD", "test")
         )
         try:
             from behive.engine.rag import build_rag_index
@@ -151,7 +151,7 @@ Growth expected at 23% CAGR through 2030.
         mock_embed.return_value = [0.1] * 384
         con = psycopg2.connect(
             host="localhost", port=5432, dbname="hive",
-            user="hive_app", password="***REDACTED***"
+            user="hive_app", password=os.environ.get("HIVE_PG_PASSWORD", "test")
         )
         try:
             from behive.engine.rag import _bm25_search
@@ -173,7 +173,7 @@ Growth expected at 23% CAGR through 2030.
         
         con = psycopg2.connect(
             host="localhost", port=5432, dbname="hive",
-            user="hive_app", password="***REDACTED***"
+            user="hive_app", password=os.environ.get("HIVE_PG_PASSWORD", "test")
         )
         try:
             from behive.engine.rag import hybrid_retrieve
@@ -316,7 +316,7 @@ class TestMasterIntelReal:
     def test_summarize_bee_results(self):
         con = psycopg2.connect(
             host="localhost", port=5432, dbname="hive",
-            user="hive_app", password="***REDACTED***"
+            user="hive_app", password=os.environ.get("HIVE_PG_PASSWORD", "test")
         )
         try:
             from behive.engine.master_intelligence import summarize_bee_results

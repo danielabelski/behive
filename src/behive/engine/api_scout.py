@@ -296,7 +296,100 @@ def _build_url(api: dict, endpoint: dict, topic: str) -> Optional[str]:
     # Detect country code from query
     country_code = _detect_country_code(topic)
     
+    # ── TRADE DATA QUERY BUILDER ──────────────────────────────────
+    # For APIs with trade-specific parameters, extract from topic context
+    topic_lower = topic.lower()
+    
+    # UN M49 country codes for trade APIs
+    M49_CODES = {
+        'poland': '616', 'polish': '616', 'polska': '616',
+        'south africa': '710', 'brazil': '076', 'argentina': '032',
+        'chile': '152', 'paraguay': '600', 'uruguay': '858',
+        'kenya': '404', 'nigeria': '566', 'ethiopia': '231',
+        'tanzania': '834', 'morocco': '504', 'egypt': '818',
+        'ukraine': '804', 'ukrainian': '804', 'ukraina': '804',
+        'kazakhstan': '398', 'uzbekistan': '860',
+        'vietnam': '704', 'philippines': '608', 'indonesia': '360',
+        'germany': '276', 'france': '250', 'uk': '826', 'united kingdom': '826',
+        'usa': '842', 'united states': '842',
+        'turkey': '792', 'india': '356', 'china': '156', 'japan': '392',
+        'canada': '124', 'australia': '036', 'mexico': '484',
+    }
+    
+    # HS codes for agricultural machinery
+    HS_CODES = {
+        'tractor': '8701', 'tractors': '8701', 'ciągnik': '8701',
+        'plow': '8432', 'plough': '8432', 'cultivat': '8432', 'soil': '8432',
+        'maszyn': '8432', 'machin': '8432', 'implement': '8432',
+        'harvester': '8433', 'mower': '8433', 'combine': '8433', 'kosiark': '8433',
+        'milking': '8434', 'dairy equipment': '8434',
+        'seeder': '8436', 'other ag': '8436',
+    }
+    
+    # Detect reporter/partner from topic
+    detected_reporter = '616'  # Default: Poland
+    detected_partner = '0'    # Default: World
+    detected_hs = '8432'      # Default: soil prep machinery
+    detected_flow = 'X'       # Default: exports
+    
+    # Sort by length descending to avoid "uk" matching "ukraine"
+    sorted_countries = sorted(M49_CODES.items(), key=lambda x: -len(x[0]))
+    
+    # First pass: identify all mentioned countries
+    mentioned_countries = []
+    for country, code in sorted_countries:
+        if re.search(r'\b' + re.escape(country) + r'\b', topic_lower):
+            mentioned_countries.append((country, code))
+    
+    # Determine flow direction from explicit verbs near Poland
+    poland_export = bool(re.search(r'pol(?:and|ish|ska).*(?:export|eksport)', topic_lower))
+    poland_import = bool(re.search(r'pol(?:and|ish|ska).*import', topic_lower))
+    
+    if poland_export:
+        detected_flow = 'X'
+        detected_reporter = '616'
+    elif poland_import:
+        detected_flow = 'M'
+        detected_reporter = '616'
+    
+    # Assign partner: first non-Poland country mentioned
+    for country, code in mentioned_countries:
+        if code != '616':
+            # Check explicit patterns
+            from_pattern = re.search(r'from\s+' + re.escape(country) + r'\b', topic_lower)
+            to_pattern = re.search(r'to\s+' + re.escape(country) + r'\b', topic_lower)
+            
+            if from_pattern:
+                detected_partner = code
+            elif to_pattern:
+                detected_partner = code
+            else:
+                # Default: non-Poland country is the partner
+                detected_partner = code
+            break  # Take first non-Poland country as primary partner
+    
+    # Collect ALL non-Poland partners for multi-URL queries (used by Comtrade)
+    _all_partners = [code for _, code in mentioned_countries if code != '616']
+    if not _all_partners:
+        _all_partners = ['0']  # World
+    
+    for keyword, hs in HS_CODES.items():
+        if keyword in topic_lower:
+            detected_hs = hs
+            break
+    
+    # NIP detection for Polish APIs
+    nip_match = re.search(r'\b(\d{10})\b', topic)
+    detected_nip = nip_match.group(1) if nip_match else ''
+    
+    # KRS detection
+    krs_match = re.search(r'\b(\d{7,10})\b', topic)
+    detected_krs = krs_match.group(1).zfill(10) if krs_match else ''
+    
     # Standard substitutions
+    from datetime import date
+    today = date.today().isoformat()
+    
     subs = {
         "{topic}": topic_encoded,
         "{query}": topic_encoded,
@@ -311,15 +404,30 @@ def _build_url(api: dict, endpoint: dict, topic: str) -> Optional[str]:
         "{ip}": topic_encoded,
         "{tag}": topic_encoded,
         "{base}": "USD",
-        "{date}": "2024-01-01",
+        "{date}": today,
         "{from}": "2024-01-01",
         "{to}": "2025-01-01",
-        "{year}": "2024",
-        "{fips}": "06",  # California default
+        "{year}": "2023",
+        "{year_start}": "2020",
+        "{year_end}": "2024",
+        "{start}": "2020",
+        "{end}": "2024",
+        "{fips}": "06",
         "{subreddit}": "technology",
         "{cat}": "technology",
         "{cve_id}": topic_encoded,
         "{code}": country_code,
+        # Trade-specific
+        "{reporter}": detected_reporter,
+        "{partner}": detected_partner,
+        "{hs_code}": detected_hs,
+        "{flow}": detected_flow,
+        "{product}": detected_hs,
+        # Polish APIs
+        "{nip}": detected_nip,
+        "{krs_number}": detected_krs,
+        "{keyword}": topic_encoded,
+        "{var_id}": "217230",  # Default: CPI
     }
     
     for var, val in subs.items():
@@ -338,7 +446,8 @@ def _build_url(api: dict, endpoint: dict, topic: str) -> Optional[str]:
     
     # Any remaining unresolved vars?
     if re.search(r'\{[^}]+\}', path):
-        return None
+        # Try to fill with topic-derived best guess
+        path = re.sub(r'\{[^}]+\}', topic_encoded, path)
     
     # Build full URL
     if path.startswith("http"):
@@ -375,7 +484,17 @@ async def query_api(match: 'APIMatch', topic: str, session: aiohttp.ClientSessio
         
         async with session.get(url, timeout=aiohttp.ClientTimeout(total=timeout),
                                headers=headers) as resp:
-            if resp.status != 200:
+            if resp.status == 429:
+                # Rate limited — wait and retry once
+                log.debug(f"  API {api['name']}: HTTP 429 (rate limited), retrying...")
+                await asyncio.sleep(2.0)
+                async with session.get(url, timeout=aiohttp.ClientTimeout(total=timeout),
+                                       headers=headers) as retry_resp:
+                    if retry_resp.status != 200:
+                        log.debug(f"  API {api['name']}: retry HTTP {retry_resp.status}")
+                        return None
+                    resp = retry_resp
+            elif resp.status != 200:
                 log.debug(f"  API {api['name']}: HTTP {resp.status}")
                 return None
             
@@ -605,8 +724,48 @@ async def scout_apis(query: str, max_results: int = 12,
     # Query matched APIs in parallel
     docs = []
     async with aiohttp.ClientSession() as session:
-        tasks = [query_api(m, query, session, timeout_per_api) for m in matches]
+        tasks = []
+        _comtrade_extra_queries = []  # Sequential to avoid rate limiting
+        for m in matches:
+            tasks.append(query_api(m, query, session, timeout_per_api))
+            # For trade APIs with multiple target countries — collect for sequential execution
+            if m.api.get('name', '') == 'UN Comtrade':
+                # Detect all mentioned partners from query
+                _q_lower = query.lower()
+                _m49 = {
+                    'south africa': '710', 'brazil': '076', 'argentina': '032',
+                    'chile': '152', 'ukraine': '804', 'kenya': '404',
+                    'nigeria': '566', 'ethiopia': '231', 'tanzania': '834',
+                    'kazakhstan': '398', 'turkey': '792', 'egypt': '818',
+                    'morocco': '504', 'vietnam': '704', 'indonesia': '360',
+                    'canada': '124', 'australia': '036', 'india': '356',
+                }
+                _partners_found = []
+                for cname, ccode in sorted(_m49.items(), key=lambda x: -len(x[0])):
+                    if re.search(r'\b' + re.escape(cname) + r'\b', _q_lower):
+                        _partners_found.append((cname, ccode))
+                # If >1 partner mentioned, queue additional queries
+                if len(_partners_found) > 1:
+                    for cname, ccode in _partners_found[1:]:  # Skip first (already in default)
+                        _comtrade_extra_queries.append((m, f"Poland export {cname} HS 8432 agricultural machinery"))
+        
         results = await asyncio.gather(*tasks, return_exceptions=True)
+        
+        # Run Comtrade fan-out queries sequentially with delay to avoid rate limiting
+        for _ct_match, _ct_query in _comtrade_extra_queries:
+            await asyncio.sleep(1.5)  # 1.5s between requests (Comtrade rate limit ~1req/s)
+            for _retry in range(2):
+                try:
+                    _ct_result = await query_api(_ct_match, _ct_query, session, timeout_per_api)
+                    if _ct_result:
+                        results.append(_ct_result)
+                        break
+                    elif _retry == 0:
+                        await asyncio.sleep(2.0)  # Extra wait on None (might be soft 429)
+                except Exception as _ct_err:
+                    if _retry == 0:
+                        await asyncio.sleep(2.0)
+                    results.append(_ct_err)
         
         for i, result in enumerate(results):
             if isinstance(result, Exception):

@@ -14,7 +14,7 @@ from unittest.mock import patch, MagicMock
 # SINGLETON PgConnection — ONE connection for ALL tests
 # ═══════════════════════════════════════════════════════════════════════════════
 
-PG_DSN = "host=localhost port=5432 dbname=hive user=hive_app password=***REDACTED***"
+PG_DSN = f"host=localhost port=5432 dbname=hive user=hive_app password={os.environ.get('HIVE_PG_PASSWORD', 'test')}"
 
 # Module-level singleton — created once, reused everywhere
 _SHARED_PGCONN = None
@@ -224,8 +224,8 @@ def set_pg_env(monkeypatch):
     monkeypatch.setenv("HIVE_PG_PORT", "5432")
     monkeypatch.setenv("HIVE_PG_DATABASE", "hive")
     monkeypatch.setenv("HIVE_PG_USER", "hive_app")
-    monkeypatch.setenv("HIVE_PG_PASSWORD", "***REDACTED***")
-    monkeypatch.setenv("BEHIVE_DB_URL", "postgresql://hive_app:***REDACTED***@localhost:5432/hive")
+    monkeypatch.setenv("HIVE_PG_PASSWORD", "test")
+    monkeypatch.setenv("BEHIVE_DB_URL", "postgresql://hive_app:{os.environ.get("HIVE_PG_PASSWORD", "test")}@localhost:5432/hive")
     # Disable external calls
     monkeypatch.setenv("BEHIVE_MAX_CONCURRENT", "1")
     monkeypatch.setenv("BEHIVE_PHASE_TIMEOUT", "5")

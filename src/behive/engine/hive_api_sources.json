@@ -764,7 +764,7 @@
       {
         "path": "/en/search/result?q={topic}",
         "returns": "EU procurement notices HTML (need scraping)",
-        "use_when": "EU tender search \u2014 not API-accessible, fallback to web scout"
+        "use_when": "EU tender search — not API-accessible, fallback to web scout"
       }
     ],
     "notes": "TED REST API broken/gated. Use web scraping or OJEU via EUR-Lex instead."
@@ -972,12 +972,20 @@
     "query_type": "trade_data",
     "endpoints": [
       {
-        "path": "/public/v1/preview/C/A/HS?reporterCode=842&period=2023&partnerCode=0&cmdCode=TOTAL&flowCode=M",
-        "returns": "US total imports by partner country",
-        "use_when": "trade flows, import/export data"
+        "path": "/public/v1/preview/C/A/HS?reporterCode={reporter}&period={year}&partnerCode={partner}&cmdCode={hs_code}&flowCode={flow}",
+        "returns": "bilateral trade flows: value in USD, quantity, weight for specific HS commodity between two countries",
+        "use_when": "import/export value between countries, trade statistics, bilateral trade, commodity flows, market size",
+        "params": {
+          "reporter": "UN M49 code (616=Poland, 710=South Africa, 076=Brazil, 032=Argentina, 152=Chile, 404=Kenya, 566=Nigeria, 804=Ukraine, 398=Kazakhstan, 704=Vietnam, 608=Philippines)",
+          "partner": "0=World, or specific M49 code",
+          "year": "2020-2024",
+          "hs_code": "8432=soil prep, 8433=harvesting, 8434=milking, 8436=other ag, 8701=tractors, TOTAL=all",
+          "flow": "M=imports, X=exports"
+        },
+        "example": "Poland machinery exports: reporterCode=616&period=2022&partnerCode=0&cmdCode=8432&flowCode=X"
       }
     ],
-    "notes": "Free preview limited. Full access requires subscription key."
+    "notes": "Free preview: 500 records/call, no auth. Country codes: 616=PL, 710=ZA, 076=BR, 032=AR, 152=CL, 600=PY, 858=UY, 404=KE, 566=NG, 231=ET, 834=TZ, 504=MA, 818=EG, 804=UA, 398=KZ, 860=UZ, 704=VN, 608=PH, 360=ID, 276=DE, 250=FR, 826=GB, 842=US."
   },
   {
     "name": "ACLED",
@@ -1188,5 +1196,139 @@
       }
     ],
     "notes": "USGS real-time feed. Always has data."
+  },
+  {
+    "name": "Eurostat Data API",
+    "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0",
+    "category": "statistics",
+    "auth": "none",
+    "query_type": "trade_data",
+    "endpoints": [
+      {
+        "path": "/data/nama_10_gdp?geo={country}&time={year}&unit=CLV10_MEUR&na_item=B1GQ",
+        "returns": "GDP in millions EUR (chain linked volumes) for a country",
+        "use_when": "GDP, economic size, macroeconomic context for European countries",
+        "params": {
+          "country": "ISO2 (PL, DE, FR, IT, ES, ZA)",
+          "year": "2020-2024"
+        }
+      },
+      {
+        "path": "/data/nama_10_a64?geo={country}&time={year}&unit=PC_TOT&nace_r2=A&na_item=B1G",
+        "returns": "Agriculture share of GDP (%)",
+        "use_when": "agriculture GDP share, farming sector importance, agricultural economy size"
+      }
+    ],
+    "notes": "Free, no auth. New JSON stat API (2024+). Trade datasets (DS-045409) deprecated — use UN Comtrade for bilateral trade. Eurostat useful for macro context (GDP, sector shares)."
+  },
+  {
+    "name": "KRS API (Polish Court Registry)",
+    "url": "https://api-krs.ms.gov.pl",
+    "category": "company_data",
+    "auth": "none",
+    "query_type": "company_data",
+    "endpoints": [
+      {
+        "path": "/api/krs/OdpisAktualny/{krs_number}?rejestr=P&format=json",
+        "returns": "Full company extract: name, address, capital, board, shareholders, PKD, financials",
+        "use_when": "Polish company KRS lookup, board members, shareholders, capital, PKD codes"
+      }
+    ],
+    "notes": "Free, no auth. Search by KRS number ONLY (10-digit with zeros). rejestr=P for entrepreneurs."
+  },
+  {
+    "name": "Biala Lista VAT (Polish Tax Registry)",
+    "url": "https://wl-api.mf.gov.pl",
+    "category": "company_data",
+    "auth": "none",
+    "query_type": "company_data",
+    "endpoints": [
+      {
+        "path": "/api/search/nip/{nip}?date={date}",
+        "returns": "VAT status, company name, REGON, KRS, bank accounts",
+        "use_when": "Polish company by NIP, VAT verification, find KRS from NIP"
+      }
+    ],
+    "notes": "Free, no auth. NIP=10 digits no dashes. date=YYYY-MM-DD (today). PRIMARY for Polish company lookup."
+  },
+  {
+    "name": "GUS BDL (Polish Statistics)",
+    "url": "https://bdl.stat.gov.pl/api/v1",
+    "category": "statistics",
+    "auth": "none",
+    "query_type": "statistics",
+    "endpoints": [
+      {
+        "path": "/data/by-variable/{var_id}?year={year}&format=json",
+        "returns": "Statistical data per region",
+        "use_when": "Polish statistics, demographics, agriculture, construction, industry"
+      },
+      {
+        "path": "/variables?name={keyword}&format=json",
+        "returns": "Variable IDs matching keyword",
+        "use_when": "find what GUS stats exist for a topic"
+      }
+    ],
+    "notes": "Free, NO auth header. Sending X-ClientId with invalid key causes 403. Variable IDs are numeric."
+  },
+  {
+    "name": "TED EU Tenders",
+    "url": "https://ted.europa.eu",
+    "category": "tenders",
+    "auth": "none",
+    "query_type": "tenders",
+    "endpoints": [
+      {
+        "path": "/api/v3.0/notices/search?q={query}&pageSize=50",
+        "returns": "EU procurement notices: titles, values, buyers, CPV codes",
+        "use_when": "EU tenders, public procurement, government contracts, CPV codes"
+      }
+    ],
+    "notes": "Free. CPV 16000000=agricultural machinery. TED query: TA=[supply], CY=[PL], CPV=[code]."
+  },
+  {
+    "name": "FAOSTAT",
+    "url": "https://www.fao.org/faostat/en",
+    "category": "statistics",
+    "auth": "none",
+    "query_type": "statistics",
+    "endpoints": [
+      {
+        "path": "/api/v2/data/TCL?area={country}&item={item}&year={year}",
+        "returns": "Agricultural trade: import/export quantities and values",
+        "use_when": "agricultural trade statistics, food imports/exports, farming output"
+      }
+    ],
+    "notes": "Free. M49 country codes. Primarily food/crop/livestock data."
+  },
+  {
+    "name": "OECD Trade Data",
+    "url": "https://sdmx.oecd.org/public/rest",
+    "category": "statistics",
+    "auth": "none",
+    "query_type": "trade_data",
+    "endpoints": [
+      {
+        "path": "/data/OECD.SDD.TPS,DSD_TRADE@DF_TRADE,1.0/{flow}.{reporter}.{partner}.{product}.A?startPeriod={year}",
+        "returns": "OECD bilateral trade in USD",
+        "use_when": "OECD trade data, developed country bilateral trade"
+      }
+    ],
+    "notes": "Free, no auth. SDMX format. Covers OECD members."
+  },
+  {
+    "name": "e-Zamowienia (Polish Public Procurement)",
+    "url": "https://ezamowienia.gov.pl",
+    "category": "tenders",
+    "auth": "none",
+    "query_type": "tenders",
+    "endpoints": [
+      {
+        "path": "/mo-board/api/v1/notice?SearchText={query}&PageSize=50&PageNumber=1",
+        "returns": "Polish public procurement notices",
+        "use_when": "Polish tenders, zamowienia publiczne, przetargi"
+      }
+    ],
+    "notes": "Free. Mostly zamawiajacy (buyers) data. Wykonawcy (suppliers) not exposed via API."
   }
 ]

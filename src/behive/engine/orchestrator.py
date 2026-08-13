@@ -470,6 +470,10 @@ STEP 4 — ASSIGN search method logically:
   - Academic papers → ddg_academic
   - Community discussions → ddg_reddit
   - Standard web → ddg_text
+  - Known URL (API endpoint, registry, company website) → direct_url (requires "url" field with full URL)
+    Use direct_url for: KRS API (https://api-krs.ms.gov.pl/api/krs/OdpisAktualny/NNNNNNNNNN?rejestr=P&format=json),
+    Biała Lista VAT (https://wl-api.mf.gov.pl/api/search/nip/NNNNNNNNNN?date=YYYY-MM-DD),
+    Company websites (http://www.company-domain.com), eZamówienia API, CEIDG, etc.
 
 STEP 5 — CHECK against memory block below.
   Do NOT re-generate tasks for queries already covered.
@@ -527,10 +531,25 @@ Each task MUST have:
 }}
 
 For ddg_site method, add: "site": "domain.com"
+For direct_url method, add: "url": "https://full-url-to-fetch.com/path?params=value"
 
 CRITICAL: The "purpose" and "expected_output" fields are MANDATORY. They prove you THOUGHT about why each task exists. A task without clear purpose is WORTHLESS.
 {("CRITICAL: If FUIR directives are listed above — your tasks MUST directly address them. These are KNOWN GAPS that need filling." if ctx.get('memory_block') else "")}
 {("CRITICAL: Do NOT generate tasks that duplicate already-covered queries listed above." if ctx.get('memory_block') else "")}
+
+═══════════════════════════════════════════════════
+ENTITY ANCHORING RULE (MANDATORY):
+═══════════════════════════════════════════════════
+Extract the PRIMARY ENTITY (company name, person name, organization) from the MISSION TOPIC above.
+- At least 12 out of 20 tasks (60%) MUST contain the EXACT entity name (or its known aliases) in the query string.
+- At least 3 tasks MUST target the entity's OWN website/domain using ddg_site method (if domain is detectable from topic).
+- At least 2 tasks MUST query official registries (KRS, Companies House, SEC, etc.) with the entity's registration number if mentioned in the topic.
+- NEVER generate 20 generic industry/regulatory queries with zero mention of the entity. That is a CRITICAL FAILURE.
+- If the topic mentions a specific company: queries like "site:eur-lex.europa.eu alcohol directive" are FORBIDDEN unless the entity name also appears in the query.
+
+BAD (entity drift): topic="Lech-Pol Gniezno" → query="EU alcohol distribution regulation"
+GOOD (entity anchored): topic="Lech-Pol Gniezno" → query="site:lech-pol.com oferta handel zagraniczny"
+GOOD: topic="Lech-Pol Gniezno" → query="\"Lech-Pol\" Gniezno eksport import handel zagraniczny"
 
 Return ONLY the JSON array."""
 
@@ -540,6 +559,34 @@ Return ONLY the JSON array."""
         tasks = json.loads(text)
         for i, t in enumerate(tasks):
             t['id'] = id_offset + i + 1
+
+        # ═══ ENTITY ANCHORING VALIDATION ═══
+        # Extract entity keywords from topic (first 3 significant words)
+        _stop = {'the','a','an','of','in','for','and','or','is','to','from','with','on','at','by',
+                 'que','de','la','el','les','des','du','von','und','i','z','w','na','do','o','sp',
+                 'sp.','z','o.o.','o.o','sa','ltd','inc','gmbh','llc','polska','poland'}
+        _topic_words = [w.strip('",.:;()[]') for w in self.topic.split()
+                       if len(w) > 2 and w.lower().strip('",.:;()[]') not in _stop]
+        _entity_tokens = _topic_words[:4]  # first 4 significant words = likely entity
+        
+        if _entity_tokens:
+            _entity_pattern = _entity_tokens[0].lower()  # primary token (company name)
+            anchored = sum(1 for t in tasks if _entity_pattern in t.get('query', '').lower())
+            anchored_pct = anchored / max(len(tasks), 1)
+            if anchored_pct < 0.4:
+                log.warning(f'  ⚠️  ENTITY DRIFT DETECTED: only {anchored}/{len(tasks)} tasks '
+                           f'({anchored_pct:.0%}) mention "{_entity_pattern}". '
+                           f'Injecting entity into unanchored tasks.')
+                # Fix: inject entity name into unanchored queries
+                for t in tasks:
+                    if _entity_pattern not in t.get('query', '').lower():
+                        q = t.get('query', '')
+                        entity_str = ' '.join(_entity_tokens[:2])
+                        t['query'] = f'"{entity_str}" {q}'
+                        anchored += 1
+                        if anchored / len(tasks) >= 0.6:
+                            break
+
         return tasks
 
     def plan(self) -> list[dict]:
@@ -743,10 +790,12 @@ Return ONLY the JSON array."""
         # Nazwa firmy (wzorce: "for QA10", "QA10 competitive", "QA10 sp.", itp.)
         if not subject_url:
             name_patterns = [
-                r'(?:dla|for|of|about)\s+([A-Z][A-Za-z0-9\.\-]+)',
-                r'^([A-Z][A-Za-z0-9]+)\s+(?:competitive|competitor|market|analysis)',
-                r'([A-Z][A-Za-z0-9]+)\s+(?:sp\.|S\.A\.|GmbH|Ltd|Inc)',
+                r'(?:dla|for|of|about)\s+([A-Z][A-Za-z0-9\.\-]+(?:\s+[A-Z][A-Za-z0-9\.\-]+)?)',
+                r'^([A-Z][A-Za-z0-9\-]+(?:\-[A-Za-z]+)?)\s+(?:competitive|competitor|market|analysis)',
+                r'([A-Z][A-Za-z0-9\-]+(?:\-[A-Za-z]+)?)\s+(?:sp\.|S\.A\.|GmbH|Ltd|Inc)',
                 r'competitors\s+of\s+([A-Z][A-Za-z0-9\.\-]+)',
+                # Polish-style: "Lech-Pol Gniezno" at start of topic
+                r'^([A-Z][A-Za-z0-9\-]+(?:\-[A-Za-z]+)?)\s+[A-ZŻŹĆŁ]',
             ]
             for pat in name_patterns:
                 m = re.search(pat, topic)
@@ -756,6 +805,26 @@ Return ONLY the JSON array."""
 
         if not subject_url and not subject_name:
             return ''
+
+        # ── 1b. If we have a name but no URL, try common domain patterns ──
+        if not subject_url and subject_name:
+            # Try: name.com, name.pl, www.name.com (lowercased, hyphens preserved)
+            domain_candidate = subject_name.lower().replace(' ', '-')
+            for proto_dom in [
+                f'http://www.{domain_candidate}.com',
+                f'http://{domain_candidate}.com',
+                f'https://www.{domain_candidate}.pl',
+                f'https://{domain_candidate}.pl',
+            ]:
+                try:
+                    test_resp = requests.head(proto_dom, timeout=5, allow_redirects=True,
+                                             headers={'User-Agent': 'Mozilla/5.0'}, verify=False)
+                    if test_resp.status_code < 400:
+                        subject_url = proto_dom
+                        log.debug(f'  👑 Subject recon: auto-detected URL {subject_url} from name "{subject_name}"')
+                        break
+                except Exception:
+                    continue
 
         # ── 2. Scraping podmiotu ────────────────────────────────────────
         raw_text = ''
@@ -779,12 +848,25 @@ Return ONLY the JSON array."""
             try:
                 resp = requests.get(subject_url, timeout=10, headers={
                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-                })
+                }, verify=False)
                 if resp.status_code == 200:
                     # Primitive HTML tag removal
                     text = re.sub(r'<[^>]+>', ' ', resp.text)
                     text = re.sub(r'\s+', ' ', text)
                     raw_text = text[:8000]
+                    
+                    # Auto-discover internal links for direct_url tasks
+                    from urllib.parse import urljoin, urlparse
+                    base_domain = urlparse(subject_url).netloc
+                    links = re.findall(r'href=["\']([^"\']+)["\']', resp.text)
+                    discovered_urls = set()
+                    for link in links:
+                        full_url = urljoin(subject_url, link)
+                        if base_domain in full_url and full_url != subject_url:
+                            discovered_urls.add(full_url)
+                    if discovered_urls:
+                        raw_text += f"\n\nDISCOVERED SUBPAGES ({len(discovered_urls)}):\n"
+                        raw_text += "\n".join(sorted(discovered_urls)[:30])
             except Exception as e:
                 log.debug(f"Suppressed: {e}")
 
@@ -1538,9 +1620,15 @@ def _run_pipeline_phases(mission_id: str, topic: str, plan: list, timings: dict,
         _bm_mode   = "manual" if _os.environ.get("HIVE_BM_MANUAL") else "auto"
         _seeds_raw = _os.environ.get("HIVE_BM_SEEDS", "")
         _seed_urls = json.loads(_seeds_raw) if _seeds_raw else None
-        _routing   = _aio.run(run_prescout_pipeline(
-            mission_id, bm_mode=_bm_mode, seed_urls=_seed_urls
-        ))
+        
+        # Use thread to avoid blocking in nested event loop
+        import concurrent.futures
+        def _run_prescout():
+            return _aio.run(run_prescout_pipeline(
+                mission_id, bm_mode=_bm_mode, seed_urls=_seed_urls
+            ))
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as _pool:
+            _routing = _pool.submit(_run_prescout).result(timeout=120)
         timings['prescout'] = time.time() - t_prescout
         # Zapisz routing_map do pliku tymczasowego — HarvesterBee go odczyta
         _routing_path = f'/tmp/hive_routing_{mission_id}.json'
@@ -1554,6 +1642,80 @@ def _run_pipeline_phases(mission_id: str, topic: str, plan: list, timings: dict,
         log.info(f'    ⚠  PreScout error (non-fatal): {_e}')
         timings['prescout'] = time.time() - t_prescout
     log.info(f'  └─ done · {timings.get("prescout", 0):.1f}s ─────────────────────────────┘\n')
+
+    # ═══ PHASE 1.8: API SCOUT — Structured data from curated APIs ═══════════
+    log.debug('  ┌─ PHASE 1.8 · API SCOUT (structured data) ─────────────┐')
+    t_api = time.time()
+    _api_docs = 0
+    try:
+        import subprocess as _sp
+        # Run API scout as a separate script file to avoid f-string escaping hell
+        _api_script_path = f'/tmp/hive_api_scout_{mission_id}.py'
+        with open(_api_script_path, 'w') as _sf:
+            _sf.write('''
+import sys, json, asyncio, logging
+logging.basicConfig(level=logging.WARNING)
+sys.path.insert(0, '/home/ubuntu/behive-pkg/src')
+from behive.engine.api_scout import scout_apis
+
+topic = sys.argv[1]
+results = asyncio.run(scout_apis(topic, max_results=15, timeout_per_api=25))
+output = []
+for r in results:
+    raw = r.get('raw_text','')
+    source = r.get('source','')
+    # Pre-parse Comtrade JSON into human-readable format
+    if 'comtrade' in source.lower() and raw.startswith('{'):
+        try:
+            cdata = json.loads(raw)
+            if cdata.get('data'):
+                parsed_lines = []
+                for rec in cdata['data'][:20]:
+                    reporter = rec.get('reporterDesc') or f"country code {rec.get('reporterCode','?')}"
+                    partner = rec.get('partnerDesc') or f"country code {rec.get('partnerCode','?')}"
+                    flow = 'exports to' if rec.get('flowCode') == 'X' else 'imports from'
+                    value = rec.get('primaryValue', 0)
+                    period = rec.get('period','?')
+                    cmd = rec.get('cmdDesc') or f"HS {rec.get('cmdCode','?')}"
+                    parsed_lines.append(f"{reporter} {flow} {partner}: ${value:,.0f} USD in {period} for {cmd}")
+                raw = "UN Comtrade Trade Data:\\n" + "\\n".join(parsed_lines)
+        except Exception:
+            pass
+    output.append({'url': r.get('url',''), 'title': r.get('title', r.get('source','')), 'raw_text': raw, 'source': source})
+print(json.dumps(output))
+''')
+        _api_proc = _sp.run(
+            [sys.executable, _api_script_path, topic],
+            capture_output=True, text=True, timeout=60,
+            env={**os.environ}
+        )
+        if _api_proc.returncode == 0 and _api_proc.stdout.strip():
+            api_results = json.loads(_api_proc.stdout.strip())
+            if api_results:
+                _con = _connect_db()
+                for doc in api_results:
+                    try:
+                        _con.execute(
+                            """INSERT INTO hive_content (id, mission_id, url, title, raw_text, harvest_method, domain)
+                               VALUES ((SELECT COALESCE(MAX(id),0)+1 FROM hive_content), %s, %s, %s, %s, 'api_scout', %s)""",
+                            [mission_id, doc.get('url', '')[:1000], doc.get('title', '')[:500],
+                             doc.get('raw_text', '')[:50000], doc.get('source', 'api')[:200]]
+                        )
+                        _api_docs += 1
+                    except Exception as _insert_err:
+                        log.debug(f'    API Scout insert error: {_insert_err}')
+                _con.commit()
+                _con.close()
+                log.info(f'    ✓ API Scout: {_api_docs} structured docs from {len(api_results)} API hits')
+            else:
+                log.info(f'    ⚠  API Scout: no matching APIs for topic')
+        else:
+            _err_msg = (_api_proc.stderr or '')[:200]
+            log.info(f'    ⚠  API Scout subprocess: exit={_api_proc.returncode} err={_err_msg}')
+    except Exception as _e:
+        log.info(f'    ⚠  API Scout error (non-fatal): {_e}')
+    timings['api_scout'] = time.time() - t_api
+    log.info(f'  └─ done · {timings.get("api_scout", 0):.1f}s · {_api_docs} docs ──────────┘\n')
 
     # ═══ PHASE 2: HARVEST ════════════════════════════════════════
     log.debug('  ┌─ PHASE 2 · HARVEST ────────────────────────────────┐')
@@ -1836,16 +1998,30 @@ Return JSON array of 5 strings only."""
     except Exception as _e:
         log.info(f'  ⚠️  Intel summary update skipped: {_e}')
 
-    # ═══ PHASE 5b: KNOWLEDGE GRAPH REBUILD (background) ════
+    # ═══ PHASE 5b: KNOWLEDGE GRAPH REBUILD (background, single-instance) ════
     try:
         import subprocess as _subp2
-        _subp2.Popen(
+        from pathlib import Path as _Path
+        _graph_lock = _Path('/tmp/hive_graph_build.lock')
+        # Single-instance guard: skip if another graph_engine is already running
+        if _graph_lock.exists():
+            try:
+                _lock_pid = int(_graph_lock.read_text().strip())
+                if _Path(f'/proc/{_lock_pid}').exists():
+                    log.debug('  🕸️   Graph rebuild skipped — already running (PID %d)', _lock_pid)
+                    raise RuntimeError('already running')
+                else:
+                    _graph_lock.unlink(missing_ok=True)
+            except (ValueError, OSError):
+                _graph_lock.unlink(missing_ok=True)
+        _graph_proc = _subp2.Popen(
             _resolve_cmd('hive2_graph_engine.py') + ['build'],
             stdout=open('/tmp/hive_graph_build.log', 'a'),
             stderr=subprocess.STDOUT,
-            env={**os.environ, 'PATH': f'{os.environ.get("PATH","")}'}
+            env={**os.environ, 'PATH': f'{os.environ.get("PATH","")}'}\
         )
-        log.debug('  🕸️   Knowledge Graph rebuild triggered (background)')
+        _graph_lock.write_text(str(_graph_proc.pid))
+        log.debug('  🕸️   Knowledge Graph rebuild triggered (background, PID %d)', _graph_proc.pid)
     except Exception as _e:
         log.info(f'  ⚠️  Graph rebuild skipped: {_e}')
 

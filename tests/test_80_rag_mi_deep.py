@@ -7,7 +7,7 @@ import json
 import psycopg2
 from unittest.mock import patch, MagicMock
 
-PG_DSN = "host=localhost port=5432 dbname=hive user=hive_app password=***REDACTED***"
+PG_DSN = "host=localhost port=5432 dbname=hive user=hive_app password=test"
 
 
 @pytest.fixture

@@ -122,6 +122,30 @@ class SwarmScout:
         matches = sum(1 for w in topic_words if w in combined)
         score_relevance = min(25, int(matches / max(len(topic_words), 1) * 25))
 
+        # ═══ ENTITY ANCHORING BOOST ═══
+        # Extract primary entity from topic (first significant token, usually company name)
+        _stop_scoring = {'the','a','an','of','in','for','and','or','is','to','from','with','on','at',
+                        'by','i','z','w','na','do','o','sp','polska','poland','handel','eksport',
+                        'import','zagraniczny','infrastruktura','logistyczna','dystrybutor'}
+        _topic_tokens = [w.strip('",.:;()[]').lower() for w in self.topic.split()
+                        if len(w) > 2 and w.strip('",.:;()[]').lower() not in _stop_scoring]
+        _entity_name = _topic_tokens[0] if _topic_tokens else ""
+        
+        if _entity_name and len(_entity_name) > 3:
+            if _entity_name in combined:
+                score_relevance = min(25, score_relevance + 10)  # entity match bonus
+            else:
+                score_relevance = max(0, score_relevance - 5)    # penalty for no entity
+        
+        # Entity domain boost: if URL contains entity-name pattern, it's almost certainly relevant
+        _entity_domain_patterns = [_entity_name] if _entity_name else []
+        # Add hyphenated form (lech-pol → lech-pol in URL)
+        if _entity_name and '-' not in _entity_name and len(_topic_tokens) > 1:
+            _entity_domain_patterns.append(f"{_entity_name}-{_topic_tokens[1]}")
+        url_lower = url.lower()
+        if any(pat in url_lower for pat in _entity_domain_patterns if pat):
+            score_relevance = 25  # max relevance for entity's own URLs
+
         # Freshness — default 8 (neutral, nie kara za brak roku w snippecie)
         score_freshness = 0
         for pattern, pts in FRESHNESS_PATTERNS:
@@ -473,6 +497,63 @@ class SwarmScout:
                 log.debug(f"  [curl_sitesearch] '{query[:60]}' site={site}: {e}")
                 return []
 
+    # ── Scout method: Direct URL fetch (API endpoints, known pages) ─────────
+
+    async def _direct_url(self, url: str, title: str = "") -> list[dict]:
+        """Fetch a known URL directly — bypasses search engines entirely.
+        
+        Use for: KRS API, Biała Lista VAT, company websites, registry endpoints,
+        any URL that search engines won't surface but is known from the topic.
+        """
+        async with self._http_sem:
+            try:
+                import aiohttp
+                headers = {
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                                  "AppleWebKit/537.36 (KHTML, like Gecko) "
+                                  "Chrome/120.0.0.0 Safari/537.36",
+                    "Accept": "text/html,application/json,application/xhtml+xml,*/*",
+                }
+                timeout = aiohttp.ClientTimeout(total=15)
+                async with aiohttp.ClientSession(timeout=timeout) as session:
+                    async with session.get(url, headers=headers, ssl=False) as resp:
+                        if resp.status == 200:
+                            content_type = resp.headers.get("Content-Type", "")
+                            # For JSON APIs — the URL itself is the result
+                            # For HTML pages — the URL itself is the result
+                            snippet = ""
+                            if "json" in content_type:
+                                body = await resp.text()
+                                snippet = body[:512]
+                            elif "html" in content_type:
+                                body = await resp.text()
+                                # Extract title from HTML if not provided
+                                if not title:
+                                    m = re.search(r"<title>([^<]+)</title>", body, re.I)
+                                    if m:
+                                        title = m.group(1).strip()
+                                snippet = re.sub(r"<[^>]+>", " ", body)[:512]
+                            
+                            return [{"url": url, "title": title or url, "snippet": snippet}]
+                        else:
+                            log.debug(f"  [direct_url] {url} → HTTP {resp.status}")
+                            return []
+            except Exception as e:
+                log.debug(f"  [direct_url] {url}: {e}")
+                return []
+
+    # ── Scout method: Direct URL batch (multiple known endpoints) ─────────
+
+    async def _direct_url_batch(self, urls: list[str]) -> list[dict]:
+        """Fetch multiple known URLs concurrently."""
+        coros = [self._direct_url(u) for u in urls[:10]]  # cap at 10
+        results_nested = await asyncio.gather(*coros, return_exceptions=True)
+        all_results = []
+        for r in results_nested:
+            if isinstance(r, list):
+                all_results.extend(r)
+        return all_results
+
     # ── Task dispatcher ───────────────────────────────────────────────────────
 
     async def _run_task(self, task: dict) -> int:
@@ -502,6 +583,8 @@ class SwarmScout:
                 "wayback_cdx":    lambda: self._wayback_cdx(site, query),
                 "jina_search":    lambda: self._jina_search(query),
                 "curl_sitesearch":lambda: self._curl_sitesearch(query, site),
+                "direct_url":     lambda: self._direct_url(task.get("url", query), task.get("title", "")),
+                "direct_url_batch": lambda: self._direct_url_batch(task.get("urls", [query])),
             }
             if method in primary_map:
                 fan_coros.append(primary_map[method]())

@@ -16,7 +16,7 @@ try:
     import psycopg2
     conn = psycopg2.connect(
         host="127.0.0.1", port=5432,
-        user="hive_app", password=os.environ.get("HIVE_PG_PASSWORD", "***REDACTED***"),
+        user="hive_app", password=os.environ.get("HIVE_PG_PASSWORD", "test"),
         dbname="hive"
     )
     conn.close()
