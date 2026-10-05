@@ -75,7 +75,11 @@ with sync_playwright() as pw:
             text = page.locator('body').inner_text()
             for claim in ['53K', '127K', 'Benchmarks', 'Zero hallucination', '500K units', 'works everywhere']:
                 assert claim not in text, claim
-            assert 'Schematic example — not a research result' in text
+            assert 'Recorded illustration — not a live research result' in text
+            demo = page.locator('img[src="/images/demo.gif"]')
+            expect(demo).to_be_visible()
+            assert demo.evaluate('(img) => img.complete && img.naturalWidth === 688 && img.naturalHeight === 646')
+            record['checks'].append('original CLI demo GIF loaded')
             record['checks'].append('content, image loading, anchors, no horizontal overflow')
             page.get_by_role('button', name='Scroll to top').click()
             page.wait_for_function('window.scrollY < 10')

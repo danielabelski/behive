@@ -3,6 +3,13 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 const page = readFileSync(new URL('../src/pages/index.astro', import.meta.url), 'utf8');
+test('hero restores the original animated CLI demo instead of schematic text', () => {
+  const hero = page.split('<!-- ═══ Separator ═══ -->')[0];
+  assert.match(hero, /<img[^>]*src="\/images\/demo\.gif"/);
+  assert.doesNotMatch(hero, /Illustration only\. No live mission runs on this page/);
+  const gif = readFileSync(new URL('../public/images/demo.gif', import.meta.url));
+  assert.match(gif.subarray(0, 6).toString(), /^GIF8[79]a$/);
+});
 test('landing identifies the actual 0.6.0 engine', () => {
   assert.match(page, /v0\.6\.0 — Open Source \(MIT\)/);
   assert.doesNotMatch(page, /v0\.4\.0/);
@@ -12,9 +19,8 @@ test('marketing avoids unsourced results and truth guarantees', () => {
   for (const unsupported of [/CountUp/, /53K|127K|64 APIs|64 API sources|60\+|1000\+/, /Benchmarks|No cherry-picking|Zero hallucination|verified claims/, /500K units|\$35\.1B|CoWoS-L/, /GPT-Researcher|\$29\/mo|\$20\/mo\+/]) {
     assert.equal(unsupported.test(page), false, `Unsupported claim remains: ${unsupported}`);
   }
-  assert.match(page, /Schematic example — not a research result/);
+  assert.match(page, /Recorded illustration — not a live research result/);
   assert.match(page, /not a probability of truth/);
-  assert.doesNotMatch(page, /src="\/images\/demo\.gif"/);
 });
 
 test('setup documents real CLI, REST, and MCP contracts with prerequisites', () => {
