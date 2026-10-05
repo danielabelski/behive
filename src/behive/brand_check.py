@@ -56,9 +56,9 @@ def _rate_check(client_ip: str) -> bool:
 @router.post("", response_model=BrandCheckResponse)
 async def check_brand_visibility(req: BrandCheckRequest):
     """
-    Check how visible a brand is to AI assistants (ChatGPT, Claude, Gemini).
-    
-    Free tool — no API key required. Rate limited to 10 checks per hour per IP.
+    Check how visible a brand is to the configured BeHive model (BEHIVE_MODEL).
+    Not ChatGPT/Claude unless that model is configured.
+    Free tool — no API key required. Rate limited.
     """
     from fastapi import Request as _Req
     # Rate limiting would use request.client.host in production
@@ -187,6 +187,6 @@ Be honest. If you don't know the brand, say so. Don't hallucinate facts."""
             "assessment": analysis.get("visibility_assessment", ""),
         },
         recommendations=recommendations[:6],
-        checked_models=["claude-sonnet"],  # Will be dynamic based on config
+        checked_models=[os.environ.get("BEHIVE_MODEL") or "unconfigured"],
         timestamp=datetime.now(timezone.utc).isoformat(),
     )

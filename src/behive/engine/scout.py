@@ -210,8 +210,9 @@ class SwarmScout:
 
         # ── SUPERSCOUT BLACKLIST — zero garbage, tylko premium sources ──────────
         _BLACKLISTED_DOMAINS = {
-            # Encyclopedic noise
-            "wikipedia.org", "wiktionary.org", "wikimedia.org", "wikisource.org",
+            # Encyclopedic: wikipedia.org is ALLOWED — on this host Google/DDG/Brave
+            # are CAPTCHA/429, MediaWiki is the only search that returns URLs.
+            "wiktionary.org", "wikimedia.org", "wikisource.org",
             "britannica.com", "encyclopedia.com", "wikihow.com",
             # Office / productivity apps
             "outlook.com", "office.com", "microsoft.com",
@@ -251,6 +252,9 @@ class SwarmScout:
             "emarketer.com", "idc.com", "pwc.com", "deloitte.com",
             "hbr.org", "techcrunch.com", "wired.com", "venturebeat.com",
             "businessinsider.com", "forbes.com", "wsj.com",
+            "europa.eu", "ec.europa.eu", "eur-lex.europa.eu", "consilium.europa.eu",
+            "oecd.org", "fao.org", "wto.org", "un.org", "arxiv.org",
+            "wikipedia.org",
             # PL premium
             "gov.pl", "stat.gov.pl", "nask.pl", "computerworld.pl",
             "spidersweb.pl", "antyweb.pl", "telepolis.pl",
@@ -269,10 +273,13 @@ class SwarmScout:
                 break
         # Filter weak sources at scout stage (threshold = 5)
         if _pre_score < 5 and source_type not in ("rss_gov", "rss_industry", "gov_stat"):
-            # Sources without any quality signals → skip
-            if not any(x in _combined_pre for x in ["saas", "tiktok", "social media", "marketing",
+            if _domain == "wikipedia.org" or _domain.endswith(".wikipedia.org"):
+                pass
+            elif not any(x in _combined_pre for x in ["saas", "tiktok", "social media", "marketing",
                                                       "b2b", "consulting", "poland", "polska",
-                                                      "turkey", "georgia", "linkedin", "roi"]):
+                                                      "turkey", "georgia", "linkedin", "roi",
+                                                      "mercosur", "tariff", "quota", "trade",
+                                                      "lithium", "beef", "cattle"]):
                 return False
 
         self._seen_urls.add(url)

@@ -190,34 +190,43 @@ Priority: `BEHIVE_MODEL_{STAGE}` > `BEHIVE_MODEL` > config.yaml > defaults
 
 Or pass any [litellm-compatible](https://docs.litellm.ai/docs/providers) model string directly.
 
+The CLI reads `~/.behive_runtime.env` for the current account. Set
+`BEHIVE_ENV_FILE` to use a different explicit file. Existing environment values
+win over that file. BeHive does not import credentials from Hermes auth files.
+
+For a source checkout, graph support has its own dependency extra:
+`pip install -e '.[graph]'`. Harvesting and processing extras are separate.
+These local metadata changes have not been published to PyPI.
+
+API providers requiring keys are skipped when configuration is missing; these
+notices are diagnostics, not research evidence. LEX also requires its contracted
+`LEX_API_BASE` endpoint: BeHive does not query the SIP login portal as an API.
+BYOK Discord notifications are off by default. To enable them, explicitly set
+`BEHIVE_BYOK_NOTIFICATIONS=1` and supply the bot credentials and destination in
+the environment; no Hermes credential file is read.
+
 ---
 
-## Benchmarks
+## Verification and scoring
 
-Real results. No cherry-picking. Scale 30 (standard depth).
+No benchmark table is published here without a reproducible run receipt.
+Claim counts, runtime and scores vary with the topic, sources, configured model,
+provider availability and pipeline options. Quality scores are internal ranking
+signals, not calibrated probabilities or a guarantee of factual correctness.
 
-| Topic | Claims | Avg Quality | Duration | Sources |
-|:------|-------:|:-----------:|---------:|--------:|
-| NVIDIA GPU market 2026 | 290 | **0.797** | 8 min | 234 |
-| OpenAI o3 capabilities | 574 | **0.789** | 12 min | 174 |
-| EU AI Act enforcement | 267 | **0.759** | 6 min | 130 |
-| Meta Llama 4 architecture | 568 | **0.821** | 11 min | 198 |
-| SpaceX Starship timeline | 312 | **0.804** | 9 min | 187 |
-
-**Quality scoring:**
-- `0.90+` — Exceptional: specific numbers, dates, fully verifiable
-- `0.82+` — Excellent: multi-source corroboration, publication-ready
-- `0.75+` — Good: useful intelligence with specifics
-- `0.65+` — Acceptable: general facts
-- `<0.55` — Rejected: too vague, not stored
-
-> Honest scoring. No sigmoid rescaling, no artificial inflation.
+The repository contains regression tests for provider configuration, source
+admission, entity handling and deterministic synthesis. PostgreSQL persistence,
+public-provider checks and browser tests must be reported separately from
+controlled-provider unit tests. Never run database-writing tests against a shared
+research database: use a disposable cluster and retain the raw results.
 
 ---
 
 ## Drone Arsenal
 
-BeHive's scout phase uses **70+ APIs** across 37 categories — no single source dependency:
+BeHive's API registry contains **83 provider entries**. Registered does not mean
+configured or available: some providers require credentials or contracts, and
+public endpoints can fail or return no relevant results.
 
 | Category | Examples | Method |
 |----------|----------|--------|

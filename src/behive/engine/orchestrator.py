@@ -35,35 +35,31 @@ def _emit(mission_id: str, phase: str, event_type: str, data=None, **kw):
         log.debug(f"Suppressed: {e}")
 
 DB_PATH  = ''
-PYTHON   = 'python3'
+PYTHON   = sys.executable
 HIVE_DIR = Path(os.environ.get('BEHIVE_HOME', os.path.expanduser('~')))
+
+# Package modules win. ~/hive2_*.py is the old Ubuntu tree (/home/ubuntu/behive-pkg).
+_SCRIPT_TO_MODULE = {
+    'hive2_scout.py': 'behive.engine.scout',
+    'hive2_harvest.py': 'behive.engine.harvest',
+    'hive2_process.py': 'behive.engine.process',
+    'hive2_synth.py': 'behive.engine.synth',
+    'hive2_falsifier.py': 'behive.engine.falsifier',
+    'hive2_master_intelligence.py': 'behive.engine.master_intelligence',
+    'hive2_intel_summary.py': 'behive.engine.intel_summary',
+    'hive2_graph_engine.py': 'behive.engine.graph_engine',
+    'hive2_prescout.py': 'behive.engine.prescout',
+    'hive2_drones.py': 'behive.engine.drones',
+}
 
 
 def _resolve_cmd(script: str) -> list[str]:
-    """Resolve hive2_X.py to subprocess command list [PYTHON, ...].
-    
-    Priority: local file > package module (-m invocation).
-    """
-    local_path = HIVE_DIR / script
-    if local_path.exists():
-        return [PYTHON, str(local_path)]
-    # Package module fallback
-    _MODULE_MAP = {
-        'hive2_scout.py': 'behive.engine.scout',
-        'hive2_harvest.py': 'behive.engine.harvest',
-        'hive2_process.py': 'behive.engine.process',
-        'hive2_synth.py': 'behive.engine.synth',
-        'hive2_falsifier.py': 'behive.engine.falsifier',
-        'hive2_master_intelligence.py': 'behive.engine.master_intelligence',
-        'hive2_intel_summary.py': 'behive.engine.intel_summary',
-        'hive2_graph_engine.py': 'behive.engine.graph_engine',
-        'hive2_prescout.py': 'behive.engine.prescout',
-        'hive2_drones.py': 'behive.engine.drones',
-    }
-    module_name = _MODULE_MAP.get(script)
+    """Resolve hive2_X.py to [python, -m, package] — never ~/hive2_scout.py."""
+    module_name = _SCRIPT_TO_MODULE.get(script)
     if module_name:
         return [PYTHON, '-m', module_name]
-    return [PYTHON, str(local_path)]  # will error naturally
+    local_path = HIVE_DIR / script
+    return [PYTHON, str(local_path)]
 
 # ---------------------------------------------------------------------------
 # Inline PostgreSQL schema (sourced from hive2_schema.sql)
@@ -590,11 +586,12 @@ Return ONLY the JSON array."""
         return tasks
 
     def plan(self) -> list[dict]:
-        """
-        QUEEN STRATEGIC PLANNING — Two-phase intelligence:
-        Phase 1: Decompose topic into 5 research axes (what to investigate)
-        Phase 2: Generate 40 precision tasks per axis (how to investigate)
-        """
+        """Scout tasks without LLM. Gemini 429 is not a planner."""
+        log.info('  Queen plan: fallback (no LLM)')
+        return self._fallback_plan()
+
+    def _plan_with_llm(self) -> list[dict]:
+        """Optional model-backed planning; never invoked by the default plan."""
         ctx = self._detect_context()
         type_cfg = self.TASK_TYPES.get(self.task_type, self.TASK_TYPES['geopolitical_osint'])
 
@@ -721,7 +718,11 @@ Return ONLY the JSON array."""
                         batch_results[bid] = fut.result()
                         log.info(f'     ✓ Axis {bid+1}/{len(axes)}: {len(batch_results[bid])} tasks')
                     except Exception as e:
+                        err = str(e).lower()
                         log.error(f'     ✗ Axis {bid+1}/{len(axes)} failed: {e} — retrying...')
+                        if '429' in err or 'quota' in err or 'resource exhausted' in err:
+                            log.error('  👑 Queen LLM quota — fallback plan, no retry storm')
+                            return self._fallback_plan()
                         import time as _time
                         _time.sleep(5)  # backoff before retry (429/throttle)
                         try:
@@ -1214,62 +1215,15 @@ def new_mission_id(topic: str) -> str:
 # Phase runner
 # ---------------------------------------------------------------------------
 
-# Map from hive2_X.py filenames to package module paths
-_SCRIPT_TO_MODULE = {
-    'hive2_scout.py': 'behive.engine.scout',
-    'hive2_harvest.py': 'behive.engine.harvest',
-    'hive2_process.py': 'behive.engine.process',
-    'hive2_synth.py': 'behive.engine.synth',
-    'hive2_falsifier.py': 'behive.engine.falsifier',
-    'hive2_master_intelligence.py': 'behive.engine.master_intelligence',
-    'hive2_intel_summary.py': 'behive.engine.intel_summary',
-    'hive2_graph_engine.py': 'behive.engine.graph_engine',
-    'hive2_prescout.py': 'behive.engine.prescout',
-    'hive2_drones.py': 'behive.engine.drones',
-}
-
-
 def run_phase(script: str, args: list[str], phase_name: str, 
               timeout: int = 600) -> float:
-    """Run a HIVE bee script as subprocess, return elapsed seconds.
-    
-    Resolution order:
-    1. HIVE_DIR / script (local development — script file on disk)
-    2. Package module (-m behive.engine.X — pip install users)
-    
-    Args:
-        timeout: Max seconds for this phase (default 600 = 10 min).
-                 Synth phases get 900s. Override via BEHIVE_PHASE_TIMEOUT env.
-    """
-    # Allow env override for timeout
+    """Run a HIVE bee as subprocess. Package module, not ~/hive2_*.py."""
     timeout = int(os.environ.get("BEHIVE_PHASE_TIMEOUT", str(timeout)))
-    
-    # Resolve script path — prefer local file, fallback to package module
-    local_path = HIVE_DIR / script
-    if local_path.exists():
-        script_path = str(local_path)
-    else:
-        # Try package module
-        module_name = _SCRIPT_TO_MODULE.get(script)
-        if module_name:
-            # Verify module exists
-            try:
-                import importlib
-                importlib.import_module(module_name)
-                script_path = None  # Signal to use -m invocation
-            except ImportError:
-                script_path = str(local_path)  # Fall through — will error naturally
-        else:
-            script_path = str(local_path)
-    pid_file = f"/tmp/hive_{phase_name.replace('/', '_')}.pid"
-    log_file = f"/tmp/hive_{phase_name.replace('/', '_')}_proc.log"
-    
-    # Build command — either direct script or -m module invocation
-    if script_path is not None:
-        cmd = [PYTHON, script_path] + args
-    else:
-        module_name = _SCRIPT_TO_MODULE[script]
-        cmd = [PYTHON, '-m', module_name] + args
+    cmd = _resolve_cmd(script) + list(args)
+    _tag = "".join(c if c.isalnum() or c in "-_" else "_" for c in (args[0] if args else "na"))[:48]
+    _phase = phase_name.replace("/", "_")
+    pid_file = f"/tmp/hive_{_phase}_{_tag}.pid"
+    log_file = f"/tmp/hive_{_phase}_{_tag}_proc.log"
     t0 = time.time()
     log.debug(f"\n{'='*60}")
     log.debug(f"🐝  [{phase_name.upper()}] Uruchamiam: {' '.join(cmd)}")
@@ -1364,7 +1318,7 @@ def run_phase(script: str, args: list[str], phase_name: str,
         if result.returncode != 0:
             raise subprocess.CalledProcessError(result.returncode, cmd)
     except FileNotFoundError:
-        log.info(f"[HIVE] UWAGA: Skrypt {script_path} nie istnieje — faza pominięta.")
+        log.info(f"[HIVE] UWAGA: Skrypt {cmd} nie istnieje — faza pominięta.")
     except subprocess.TimeoutExpired:
         log.warning(f"[HIVE] ⏱️ TIMEOUT: Phase {phase_name} exceeded {timeout}s — killing.")
         # Try to kill the child process
@@ -1401,6 +1355,7 @@ def _bar(phase: str, elapsed: float, width: int = 20) -> str:
 
 def cmd_run(topic: str, think: bool = False, deep: bool = False, force: bool = False, scale: int = 200) -> None:
     """Full pipeline with Queen-first planning: plan → scout → harvest → process → synth."""
+    from behive.hygiene import SQL_COMPLETION_CLAIM, is_empty_mission
     _init_db(None)  # No-ops on PostgreSQL, creates tables on PostgreSQL legacy
     
     # Cleanup zombie missions from previous crashed runs
@@ -1497,7 +1452,51 @@ def cmd_run(topic: str, think: bool = False, deep: bool = False, force: bool = F
     for attempt in range(max_attempts):
         try:
             _run_pipeline_phases(mission_id, topic, plan, timings, total_t0, think, deep, scale, query, _specificity, plan_file)
-            return  # Success — exit
+            _con_fin = None
+            try:
+                from behive.engine.claims_fallback import salvage_claims_from_content
+                try:
+                    salvage_claims_from_content(mission_id)
+                except Exception as _fb:
+                    log.debug(f"claims fallback skipped: {_fb}")
+                _con_fin = _connect_db(read_only=True)
+                _row_s = _con_fin.execute(
+                    "SELECT COUNT(*) FROM hive_sources WHERE mission_id=?", [mission_id]
+                ).fetchone()
+                _row_c = _con_fin.execute(
+                    f"SELECT COUNT(*) FROM hive_claims c WHERE c.mission_id=? AND {SQL_COMPLETION_CLAIM}", [mission_id]
+                ).fetchone()
+                _n_src = (_row_s[0] if _row_s else 0) or 0
+                _n_cl = (_row_c[0] if _row_c else 0) or 0
+            except Exception as evidence_error:
+                # Missing evidence is not evidence of an empty mission.
+                raise RuntimeError("completion evidence unavailable") from evidence_error
+            finally:
+                if _con_fin is not None:
+                    _con_fin.close()
+            if is_empty_mission(_n_src, _n_cl, sourced_claims=_n_cl):
+                _mark_mission_error(mission_id, f"empty_mission sources={_n_src} claims={_n_cl}")
+                sys.exit(1)
+            # Synth's legacy count guard can mark API-only missions error. The
+            # final authority is the sourced product, rechecked in the UPDATE.
+            _con_done = _connect_db()
+            try:
+                _con_done.execute(
+                    f"""UPDATE hive_missions SET status='done', phase='done'
+                        WHERE id=%s AND status NOT IN ('done', 'cancelled')
+                          AND EXISTS (SELECT 1 FROM hive_claims c
+                              WHERE c.mission_id = hive_missions.id
+                                AND {SQL_COMPLETION_CLAIM})
+                        RETURNING id""",
+                    [mission_id],
+                ).fetchone()
+                _con_done.commit()
+            except Exception:
+                _con_done.rollback()
+                raise
+            finally:
+                _con_done.close()
+            return
         except KeyboardInterrupt:
             log.info(f'\n  ⚠️  Mission interrupted by user: {mission_id}')
             _mark_mission_error(mission_id, "User interrupted (Ctrl+C)")
@@ -1512,29 +1511,48 @@ def cmd_run(topic: str, think: bool = False, deep: bool = False, force: bool = F
                 total_t0 = time.time()
             else:
                 log.warning(f'\n  ❌  MISSION FAILED after {max_attempts} attempts: {mission_id} — {pipeline_err}')
-                _mark_mission_error(mission_id, str(pipeline_err)[:500])
-                _emit(mission_id, 'error', 'error', data={'error': str(pipeline_err)[:200]})
-                return  # Don't re-raise — graceful exit
+                if _mark_mission_error(mission_id, str(pipeline_err)[:500]):
+                    _emit(mission_id, 'error', 'error', data={'error': str(pipeline_err)[:200]})
+                sys.exit(1)
 
 
-def _mark_mission_error(mission_id: str, error_msg: str) -> None:
-    """Mark a mission as error in the database with the error message."""
+def _mark_mission_error(mission_id: str, error_msg: str) -> bool:
+    """Commit an error transition; only proven-empty products may correct done."""
+    from behive.hygiene import SQL_COMPLETION_CLAIM
+    con = None
     try:
         con = _connect_db()
         # Determine if it was a timeout
         is_timeout = 'timed out' in error_msg.lower() or 'timeout' in error_msg.lower()
-        phase_val = 'timeout' if is_timeout else 'error'
-        con.execute(
-            """UPDATE hive_missions 
-               SET status='error', phase=%s,
-                   quality_metrics = COALESCE(quality_metrics, '{}'::jsonb) || jsonb_build_object('error_message', %s)
-               WHERE id=%s AND status NOT IN ('done','cancelled')""",
-            [phase_val, error_msg[:500], mission_id]
-        )
+        is_empty = error_msg.startswith('empty_mission')
+        if is_empty:
+            status_val, phase_val = 'empty', 'empty_scout'
+        elif is_timeout:
+            status_val, phase_val = 'error', 'timeout'
+        else:
+            status_val, phase_val = 'error', 'error'
+        changed = con.execute(
+            f"""UPDATE hive_missions
+               SET status=%s, phase=%s,
+                   quality_metrics = COALESCE(quality_metrics, '{{}}'::jsonb) || jsonb_build_object('error_message', %s)
+               WHERE id=%s AND status <> 'cancelled'
+                 AND CASE WHEN %s THEN NOT EXISTS (
+                     SELECT 1 FROM hive_claims c WHERE c.mission_id = hive_missions.id
+                       AND {SQL_COMPLETION_CLAIM})
+                     ELSE status <> 'done' END
+               RETURNING id""",
+            [status_val, phase_val, error_msg[:500], mission_id, is_empty]
+        ).fetchone()
         con.commit()
-        con.close()
+        return bool(changed)
     except Exception as e:
+        if con is not None:
+            con.rollback()
         log.debug(f"Failed to mark mission as error: {e}")
+        return False
+    finally:
+        if con is not None:
+            con.close()
 
 
 def _run_pipeline_phases(mission_id: str, topic: str, plan: list, timings: dict, 
@@ -1830,7 +1848,7 @@ Return JSON array of 5 strings only."""
                     for _fqi, _fqq in enumerate(_fq[:3]):  # max 3 to avoid timeout
                         try:
                             _sp.run(
-                                ['python3', 'hive2_scout.py', mission_id, '--followup', _fqq],
+                                _resolve_cmd('hive2_scout.py') + [mission_id, '--followup', _fqq],
                                 timeout=60, capture_output=True
                             )
                         except Exception as e:
@@ -1914,57 +1932,40 @@ Return JSON array of 5 strings only."""
         log.debug(f"  ⚠️  Quality gate skipped: {e_qg}")
     log.info(f'  └─ done ──────────────────────────────────────────────┘\n')
 
-    # ═══ PHASE 4: QUEEN MASTER INTELLIGENCE ══════════════════════
-    log.debug('  ┌─ PHASE 4 · QUEEN SYNTHESIS ────────────────────────┐')
+    # ═══ PHASE 4: FACT SYNTHESIS (no LLM) ══════════════════════
+    log.debug('  ┌─ PHASE 4 · FACT SYNTHESIS ─────────────────────────┐')
     _emit(mission_id, 'synth', 'started')
-    import gc as _gc
-    _gc.collect()
+    _fact_ok = False
     try:
-        timings['synth'] = run_phase(
-            'hive2_master_intelligence.py', [mission_id, query], 'queen-synthesis'
-        )
-    except Exception as e:
-        log.info(f'  ⚠️  Queen MI failed: {e} — fallback synth')
+        from behive.engine.fact_synth import persist_fact_synthesis
+        _fs = persist_fact_synthesis(mission_id)
+        if _fs.get("claims", 0) >= 3:
+            timings['synth'] = 0.0
+            _fact_ok = True
+            log.info(f'  ✓ Fact synth: { _fs }')
+    except Exception as _fse:
+        log.info(f'  ⚠️  Fact synth failed: {_fse}')
+    if not _fact_ok:
+        import gc as _gc
         _gc.collect()
         try:
-            timings['synth'] = run_phase('hive2_synth.py', [mission_id], 'synth-fallback')
-        except Exception as e2:
-            log.info(f'  ✗ Fallback synth failed: {e2}')
-            _emit(mission_id, 'synth', 'error', data={'error': str(e2)})
-            # Graceful degradation: if we have claims, mark as done with partial synthesis
+            timings['synth'] = run_phase(
+                'hive2_master_intelligence.py', [mission_id, query], 'queen-synthesis'
+            )
+        except Exception as e:
+            log.info(f'  ⚠️  Queen MI failed: {e} — fallback synth')
+            _gc.collect()
             try:
-                _con_int = _connect_db()
-                _claims_count = _con_int.execute(
-                    "SELECT COUNT(*) FROM hive_claims WHERE mission_id=%s", [mission_id]
-                ).fetchone()[0]
-                if _claims_count >= 3:
-                    # We have useful data — generate minimal synthesis from claims
-                    _top_claims = _con_int.execute(
-                        "SELECT claim FROM hive_claims WHERE mission_id=%s AND (is_garbage = false OR is_garbage IS NULL) ORDER BY quality_score DESC NULLS LAST LIMIT 20",
-                        [mission_id]
-                    ).fetchall()
-                    _partial_synthesis = f"# Research: {query[:100]}\n\n"
-                    _partial_synthesis += f"*Partial results — synthesis engine timed out but {_claims_count} claims were extracted.*\n\n"
-                    _partial_synthesis += "## Key Findings\n\n"
-                    for _tc in _top_claims:
-                        _partial_synthesis += f"- {_tc[0]}\n"
-                    _con_int.execute(
-                        "UPDATE hive_missions SET status='done', synthesis=%s, synth_done_at=NOW() WHERE id=%s",
-                        [_partial_synthesis, mission_id]
-                    )
-                    _con_int.commit()
-                    log.info(f'  ⚠️  Synth failed but {_claims_count} claims saved — marked DONE (partial)')
-                else:
-                    _con_int.execute(
-                        "UPDATE hive_missions SET status='interrupted' WHERE id=%s AND status NOT IN ('done','cancelled')",
-                        [mission_id]
-                    )
-                    _con_int.commit()
-                    log.info(f'  ⚠️  Synth failed, only {_claims_count} claims — marked interrupted')
-                _con_int.close()
-            except Exception as e:
-                log.debug(f"Suppressed: {e}")
+                timings['synth'] = run_phase('hive2_synth.py', [mission_id], 'synth-fallback')
+            except Exception as e2:
+                log.info(f'  Fallback synth failed: {e2}')
+                try:
+                    from behive.engine.fact_synth import persist_fact_synthesis as _pfs2
+                    _pfs2(mission_id)
+                except Exception as _e3:
+                    log.debug(f"Suppressed: {_e3}")
     _emit(mission_id, 'synth', 'completed')
+
     log.info(f'  └─ done · {timings.get("synth", 0):.1f}s ──────────────────────────────┘\n')
 
     # ── REC-05b: QMP Primer flush ─────────────────────────────────
@@ -2281,7 +2282,8 @@ def cmd_synth(mission_id: str) -> None:
     row = con.execute("SELECT topic FROM hive_missions WHERE id=%s", [mission_id]).fetchone()
     con.close()
     if row:
-        run_phase('hive2_synth.py', [mission_id], 'synth', timeout=900)
+        from behive.engine.fact_synth import persist_fact_synthesis
+        persist_fact_synthesis(mission_id)
 
 
 def cleanup_stuck_missions(max_age_hours: int = 2) -> int:
@@ -2292,15 +2294,30 @@ def cleanup_stuck_missions(max_age_hours: int = 2) -> int:
     
     Returns number of missions marked as error.
     """
+    from behive.hygiene import SQL_COMPLETION_CLAIM
     try:
         con = _connect_db()
-        cur = con.execute("""
-            UPDATE hive_missions 
+        con.execute(
+            f"""
+            UPDATE hive_missions m
+            SET status = 'done', phase = 'done'
+            WHERE m.status IN ('scout', 'harvest', 'process', 'synth', 'planning', 'running')
+            AND m.created_at < NOW() - make_interval(hours := %s)
+            AND (SELECT COUNT(*) FROM hive_claims c
+                 WHERE c.mission_id = m.id AND {SQL_COMPLETION_CLAIM}) >= 3
+            """,
+            [max_age_hours],
+        )
+        cur = con.execute(
+            """
+            UPDATE hive_missions
             SET status = 'error', phase = 'timeout'
             WHERE status IN ('scout', 'harvest', 'process', 'synth', 'planning', 'running')
             AND created_at < NOW() - make_interval(hours := %s)
             RETURNING id
-        """, [max_age_hours])
+            """,
+            [max_age_hours],
+        )
         stuck = cur.fetchall()
         con.commit()
         con.close()

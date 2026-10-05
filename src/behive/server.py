@@ -12,6 +12,7 @@ from typing import Optional, AsyncGenerator
 
 from fastapi import FastAPI, HTTPException, Request, Depends, Query
 from behive import __version__ as BEHIVE_VERSION
+from behive.hygiene import MIN_CLAIMS_FOR_DONE, SQL_CLAIM_NOT_BLOB, SQL_COMPLETION_CLAIM, has_salvageable_claims, is_empty_mission, is_structured_blob
 
 # ─── Concurrency control ──────────────────────────────────────────────────────
 _MAX_CONCURRENT_MISSIONS = int(os.environ.get("BEHIVE_MAX_CONCURRENT", "3"))
@@ -162,7 +163,12 @@ app.add_middleware(
 # ─── Free Tools Routers ──────────────────────────────────────────────────────
 try:
     from behive.brand_check import router as brand_check_router
+    from behive.brand_check import BrandCheckRequest, check_brand_visibility
     app.include_router(brand_check_router)
+
+    @app.post("/brand-check")
+    async def brand_check_alias(req: BrandCheckRequest):
+        return await check_brand_visibility(req)
 except ImportError:
     pass
 
@@ -219,7 +225,7 @@ class ResearchRequest(BaseModel):
     query: str = Field(default="", description="Research topic or question")
     topic: str = Field(default="", description="Alias for query (backward compat)")
     depth: int = Field(default=3, ge=1, le=5, description="1=quick, 3=standard, 5=deep")
-    scale: int = Field(default=200, ge=10, le=500, description="Max sources to scout")
+    scale: int = Field(default=30, ge=10, le=500, description="Max sources to scout")
     force: bool = Field(True, description="Skip dedup check")
     
     @property
@@ -231,6 +237,10 @@ class HealthResponse(BaseModel):
     status: str = "ok"
     version: str = BEHIVE_VERSION
     missions_total: int = 0
+    missions_engine: int = 0
+    missions_empty: int = 0
+    missions_error: int = 0
+    missions_error_empty: int = 0
     claims_total: int = 0
     avg_quality: float = 0.0
     db: str = ""
@@ -255,11 +265,7 @@ _STOP_ENTITIES = {
 
 
 def extract_entities(text: str) -> list[str]:
-    """Extract entity names from claim text.
-    
-    Primary: uses hive_entities table (LLM-extracted, typed).
-    Fallback: improved regex for when DB lookup isn't available.
-    """
+    """Regex Title-Case tokens from a string. Does NOT read hive_entities."""
     entities = set()
     for match in _ENTITY_PATTERN.finditer(text):
         entity = match.group(0).strip()
@@ -299,18 +305,47 @@ async def health():
         cur = conn.cursor()
         cur.execute("SELECT COUNT(*) FROM hive_missions")
         missions = cur.fetchone()[0]
+        cur.execute(
+            """SELECT COUNT(*) FROM hive_missions m
+               WHERE status='done' AND EXISTS (
+                 SELECT 1 FROM hive_claims c WHERE c.mission_id=m.id
+                   AND (is_garbage=false OR is_garbage IS NULL))"""
+        )
+        missions_engine = cur.fetchone()[0]
+        cur.execute("SELECT COUNT(*) FROM hive_missions WHERE status='empty'")
+        missions_empty = cur.fetchone()[0]
+        cur.execute("SELECT COUNT(*) FROM hive_missions WHERE status='error'")
+        missions_error = cur.fetchone()[0]
+        cur.execute(
+            """SELECT COUNT(*) FROM hive_missions m
+               WHERE status IN ('empty','error')
+                 AND NOT EXISTS (SELECT 1 FROM hive_content x WHERE x.mission_id=m.id)
+                 AND NOT EXISTS (SELECT 1 FROM hive_claims c WHERE c.mission_id=m.id)"""
+        )
+        missions_error_empty = cur.fetchone()[0]
         cur.execute("SELECT COUNT(*), COALESCE(AVG(quality_score), 0) FROM hive_claims WHERE is_garbage = false")
         row = cur.fetchone()
         claims, avg_q = row[0], row[1] or 0
         conn.close()
         return HealthResponse(
             missions_total=missions,
+            missions_engine=missions_engine,
+            missions_empty=missions_empty,
+            missions_error=missions_error,
+            missions_error_empty=missions_error_empty,
             claims_total=claims,
             avg_quality=round(float(avg_q), 4),
             db=get_db_url().split("@")[-1] if "@" in get_db_url() else "connected",
         )
     except Exception as e:
         return HealthResponse(status="degraded", db=str(e)[:200])
+
+
+@app.get("/byok")
+async def byok_status():
+    """Which vendor keys are missing and how to obtain them. Never returns secret values."""
+    from behive.engine.byok import status_list
+    return {"byok": status_list()}
 
 
 # ─── 2. Start Research ────────────────────────────────────────────────────────
@@ -337,7 +372,7 @@ async def start_research(req: ResearchRequest):
     except Exception as e:
         raise HTTPException(500, f"DB error: {e}")
 
-    asyncio.create_task(_run_pipeline(mission_id, req.effective_query, req.depth))
+    asyncio.create_task(_run_pipeline(mission_id, req.effective_query, req.depth, req.scale))
 
     return {
         "job_id": mission_id,
@@ -356,26 +391,46 @@ async def research_status(mission_id: str):
     try:
         conn = get_db()
         cur = conn.cursor()
-        cur.execute("SELECT status, phase, topic FROM hive_missions WHERE id = %s", (mission_id,))
+        cur.execute(
+            """SELECT status, phase, topic, sources_found, sources_harvested, sources_processed,
+                      harvest_done_at, process_done_at
+               FROM hive_missions WHERE id = %s""",
+            (mission_id,),
+        )
         row = cur.fetchone()
         if not row:
             conn.close()
             raise HTTPException(404, f"Mission {mission_id} not found")
-        status, phase, topic = row
-        # Get current claims count
+        status, phase, topic, n_found, n_harv, n_proc, harvest_done, process_done = row
         cur.execute(
             "SELECT COUNT(*), COALESCE(AVG(quality_score), 0) FROM hive_claims WHERE mission_id = %s AND (is_garbage = false OR is_garbage IS NULL)",
             (mission_id,)
         )
-        crow = cur.fetchone()
+        crow = cur.fetchone() or (0, 0)
+        cur.execute("SELECT COUNT(*) FROM hive_content WHERE mission_id = %s", (mission_id,))
+        n_content = int((cur.fetchone() or (0,))[0] or 0)
+        cur.execute("SELECT COUNT(*) FROM hive_facts WHERE mission_id = %s", (mission_id,))
+        n_facts = int((cur.fetchone() or (0,))[0] or 0)
         conn.close()
+        derived = phase
+        if process_done and phase in ("harvest", "scout", "process", "queued"):
+            derived = "synth"
+        elif harvest_done and phase in ("harvest", "scout", "queued"):
+            derived = "process"
         return {
             "mission_id": mission_id,
             "status": status,
-            "phase": phase,
+            "phase": derived,
             "topic": topic,
             "claims_so_far": crow[0] or 0,
             "avg_quality": round(float(crow[1] or 0), 4),
+            "sources_found": int(n_found or 0),
+            "sources_harvested": int(n_harv or 0),
+            "sources_processed": int(n_proc or 0),
+            "n_content": n_content,
+            "n_facts": n_facts,
+            "harvest_done_at": harvest_done.isoformat() if harvest_done else None,
+            "process_done_at": process_done.isoformat() if process_done else None,
         }
     except HTTPException:
         raise
@@ -501,16 +556,19 @@ async def search_claims(q: str, limit: int = Query(20, ge=1, le=100)):
     try:
         conn = get_db()
         cur = conn.cursor()
-        cur.execute("""
+        cur.execute(f"""
             SELECT claim, quality_score, source_url, mission_id, claim_type, confidence
             FROM hive_claims
-            WHERE claim ILIKE %s AND (is_garbage = false OR is_garbage IS NULL)
+            WHERE claim ILIKE %s
+              AND (is_garbage = false OR is_garbage IS NULL)
+              AND {SQL_CLAIM_NOT_BLOB}
             ORDER BY quality_score DESC
             LIMIT %s
         """, (f"%{q}%", limit))
         results = [
             {"text": r[0], "quality_score": r[1], "source_url": r[2], "mission_id": r[3], "type": r[4], "confidence": r[5]}
             for r in cur.fetchall()
+            if not is_structured_blob(r[0])
         ]
         conn.close()
         return {"query": q, "results": results, "total": len(results)}
@@ -659,18 +717,47 @@ async def intelligence_entity(name: str, limit: int = Query(50, ge=1, le=200)):
 
 @app.get("/intelligence/network/{name}")
 async def intelligence_network(name: str, depth: int = Query(2, ge=1, le=3)):
-    """Entity relationship network — from knowledge graph or hive_entities co-occurrence.
-    
-    Uses LLM-extracted typed entities (72K+ records) to build relationship networks.
-    Edges represent co-occurrence within the same mission (semantically related).
-    """
-    # Try Neo4j first
+    """Attested facts (≥2 domains, same number) first. Else hive_triples co-occurrence."""
     try:
-        from behive.knowledge_graph import entity_network
-        neo4j_result = entity_network(name, depth=depth)
-        if neo4j_result:
-            return neo4j_result
-    except (ImportError, Exception):
+        from behive.engine.fact_synth import attested_network
+        att = attested_network(name)
+        if att.get("attested"):
+            att["depth"] = depth
+            return att
+    except Exception:
+        pass
+
+    try:
+        from behive.engine.triples import triples_for_entity
+        stored = triples_for_entity(name, limit=40)
+        if stored:
+            nodes = {name: {"type": "center", "weight": 0}}
+            edges = []
+            for t in stored:
+                other = t["object"] if name.lower() in (t["subject"] or "").lower() else t["subject"]
+                if other == name:
+                    other = t["object"] if t["object"] != name else t["subject"]
+                nodes[other] = {"type": "entity", "weight": t["source_count"]}
+                nodes[name]["weight"] += t["source_count"]
+                edges.append({
+                    "source": t["subject"],
+                    "target": t["object"],
+                    "weight": t["source_count"],
+                    "relation": "co_occurs_in_research",
+                })
+            node_list = [{"name": n, "type": info["type"], "weight": info["weight"]} for n, info in nodes.items()]
+            return {
+                "center": name,
+                "depth": depth,
+                "nodes": node_list,
+                "edges": edges,
+                "node_count": len(nodes),
+                "edge_count": len(edges),
+                "source": "hive_triples",
+                "predicate": "co_occurs_in_research",
+                "knowledge_graph": False,
+            }
+    except Exception:
         pass
 
     # Primary: hive_entities co-occurrence within missions
@@ -752,6 +839,7 @@ async def intelligence_network(name: str, depth: int = Query(2, ge=1, le=3)):
             "node_count": len(nodes),
             "edge_count": len(edges),
             "source": "hive_entities",
+            "knowledge_graph": False,
         }
     except Exception as e:
         raise HTTPException(500, str(e))
@@ -761,17 +849,10 @@ async def intelligence_network(name: str, depth: int = Query(2, ge=1, le=3)):
 
 @app.get("/intelligence/stats")
 async def intelligence_stats():
-    """System-wide intelligence statistics including knowledge graph."""
-    result = {}
-    
-    # Neo4j graph stats
-    try:
-        from behive.knowledge_graph import graph_stats
-        gs = graph_stats()
-        if gs:
-            result["knowledge_graph"] = gs
-    except ImportError:
-        pass
+    """System-wide stats. Not a knowledge graph."""
+    result = {"knowledge_graph": False}
+
+    # Neo4j is not the product. Do not attach a knowledge_graph blob.
 
     try:
         conn = get_db()
@@ -808,6 +889,9 @@ async def intelligence_stats():
 
         top_entities = [{"entity": e, "mentions": c} for e, c in entity_counter.most_common(30)]
 
+        cur.execute("SELECT COUNT(*) FROM hive_triples")
+        triples_total = int(cur.fetchone()[0] or 0)
+
         # Quality distribution
         cur.execute("""
             SELECT
@@ -833,17 +917,145 @@ async def intelligence_stats():
             "claims_by_type": claims_by_type,
             "quality_distribution": quality_distribution,
             "top_entities": top_entities,
+            "top_entities_method": "regex Title-Case on 500 claims, not hive_entities",
+            "hive_triples": triples_total,
+            "knowledge_graph": False,
+            "graph_kind": "qdrant_index + cooccurrence triples + attested facts",
         })
         return result
     except Exception as e:
         raise HTTPException(500, str(e))
 
 
+@app.get("/intelligence/graph")
+async def intelligence_graph():
+    """Qdrant collection + NetworkX graph.json from payloads. Not a knowledge graph."""
+    from behive.engine.qdrant_claims import collection_stats
+    st = collection_stats()
+    st["knowledge_graph"] = False
+    st["kind"] = "qdrant_index_plus_payload_graph"
+    st["graph_json"] = False
+    st["graph_engine"] = "networkx in venv; graph.json from Qdrant payloads"
+    try:
+        from behive.engine.graph_engine import GRAPH_FILE, META_FILE
+        st["graph_json"] = GRAPH_FILE.exists()
+        st["graph_path"] = str(GRAPH_FILE)
+        if META_FILE.exists():
+            nxm = json.loads(META_FILE.read_text())
+            tops = nxm.get("top_entities_by_degree") or nxm.get("top_entities_by_pagerank") or []
+            honest = []
+            for t in tops:
+                honest.append({
+                    "entity": t.get("entity"),
+                    "degree_norm": t.get("degree_norm", t.get("pagerank")),
+                })
+            nxm["top_entities_by_degree"] = honest
+            nxm.pop("top_entities_by_pagerank", None)
+            nxm["centrality"] = "degree/n (not PageRank; scipy absent)"
+            nxm["rebuild"] = "Qdrant payload copy; not live HDBSCAN"
+            nxm["knowledge_graph"] = False
+            st["networkx"] = nxm
+    except Exception as e:
+        st["graph_error"] = str(e)[:200]
+    return st
+
+
+_G_CACHE = None
+
+
+def _cached_graph():
+    global _G_CACHE
+    if _G_CACHE is None:
+        from behive.engine.graph_engine import load_graph
+        _G_CACHE = load_graph()
+    return _G_CACHE
+
+
+def _slim_node(n: dict) -> dict:
+    out = {
+        "node_id": n.get("node_id") or n.get("canonical_name"),
+        "node_type": n.get("node_type"),
+        "canonical_name": n.get("canonical_name"),
+        "text": (n.get("text") or "")[:240],
+        "mission_id": n.get("mission_id"),
+        "confidence": n.get("confidence"),
+        "community_c0": n.get("community_c0"),
+        "community_id": n.get("community_id"),
+    }
+    return {k: v for k, v in out.items() if v is not None and v != ""}
+
+
+@app.get("/intelligence/graph/query")
+async def intelligence_graph_query(term: str = Query(..., min_length=2), top_n: int = Query(12, ge=1, le=40)):
+    from behive.engine.graph_engine import query_graph
+    G = _cached_graph()
+    hits = await asyncio.to_thread(query_graph, term, G, top_n, True)
+    return {
+        "term": term,
+        "count": len(hits),
+        "method": "substring scan of graph.json nodes (not GraphRAG)",
+        "knowledge_graph": False,
+        "hits": [_slim_node(h) for h in hits],
+    }
+
+
+@app.get("/intelligence/graph/communities")
+async def intelligence_graph_communities(level: str = Query("C0"), top_n: int = Query(15, ge=1, le=50)):
+    from behive.engine.graph_engine import get_communities
+    lvl = "C0" if level.upper() == "C0" else "C1"
+    G = _cached_graph()
+    rows = await asyncio.to_thread(get_communities, G, top_n, lvl)
+    claim_n = 0
+    try:
+        from behive.engine.graph_engine import META_FILE
+        if META_FILE.exists():
+            claim_n = int((json.loads(META_FILE.read_text()) or {}).get("claim_nodes") or 0)
+    except Exception:
+        pass
+    largest = int((rows[0] or {}).get("node_count") or 0) if rows else 0
+    share = (largest / claim_n) if claim_n else 0.0
+    return {
+        "level": lvl,
+        "count": len(rows),
+        "communities": rows,
+        "clustering": "copied Qdrant community_c0/c1 labels, not live HDBSCAN",
+        "claim_nodes": claim_n,
+        "largest_share": round(share, 4),
+        "skewed": share >= 0.5,
+        "knowledge_graph": False,
+    }
+
+
+@app.get("/intelligence/graph/path")
+async def intelligence_graph_path(a: str = Query(...), b: str = Query(...)):
+    from behive.engine.graph_engine import shortest_path
+    G = _cached_graph()
+    path = await asyncio.to_thread(shortest_path, a, b, G)
+    return {
+        "a": a,
+        "b": b,
+        "hops": max(0, len(path) - 1),
+        "path": [_slim_node(p) for p in path],
+        "method": "shortest_path on graph.json co-occurrence (not causal)",
+        "knowledge_graph": False,
+    }
+
+
+@app.get("/intelligence/semantic")
+async def intelligence_semantic(query: str = Query(..., min_length=3), top_k: int = Query(8, ge=1, le=30)):
+    """Semantic search over existing Qdrant hive_intelligence (95k MiniLM vectors)."""
+    from behive.engine.qdrant_claims import semantic_search
+    result = await asyncio.to_thread(semantic_search, query, top_k)
+    if not result.get("ok"):
+        raise HTTPException(503, result.get("error") or "semantic search failed")
+    return result
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # PIPELINE RUNNER
 # ═══════════════════════════════════════════════════════════════════════════════
 
-async def _run_pipeline(mission_id: str, topic: str, depth: int):
+async def _run_pipeline(mission_id: str, topic: str, depth: int, scale: int = 30):
     """Run research pipeline as subprocess, stream progress via SSE events."""
     import sys
     
@@ -854,22 +1066,29 @@ async def _run_pipeline(mission_id: str, topic: str, depth: int):
         _update_phase(mission_id, "queued")
     
     async with sem:
-        await _run_pipeline_inner(mission_id, topic, depth)
+        await _run_pipeline_inner(mission_id, topic, depth, scale)
 
 
-async def _run_pipeline_inner(mission_id: str, topic: str, depth: int):
+async def _run_pipeline_inner(mission_id: str, topic: str, depth: int, scale: int = 30):
     """Actual pipeline execution (called within semaphore)."""
     import sys
 
+    conn = None
     try:
-        _emit_event(mission_id, "start", {"topic": topic, "status": "scout"})
-
         conn = get_db()
         cur = conn.cursor()
-        cur.execute("UPDATE hive_missions SET status = 'running', phase = 'scout' WHERE id = %s", (mission_id,))
+        cur.execute(
+            "UPDATE hive_missions SET status = 'running', phase = 'scout' "
+            "WHERE id = %s AND status NOT IN ('done', 'cancelled', 'empty', 'error') RETURNING id",
+            (mission_id,),
+        )
+        started = cur.fetchone()
         conn.commit()
         conn.close()
-
+        conn = None
+        if not started:
+            return
+        _emit_event(mission_id, "start", {"topic": topic, "status": "scout"})
         _emit_event(mission_id, "phase", {"phase": "scout", "event": "started"})
 
         # Run orchestrator as subprocess with line-buffered output for SSE
@@ -878,6 +1097,7 @@ async def _run_pipeline_inner(mission_id: str, topic: str, depth: int):
             "run", topic,
             "--mission-id", mission_id,
             "--depth", str(depth),
+            "--scale", str(scale),
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.STDOUT,
             env={**os.environ, "BEHIVE_MISSION_ID": mission_id, "PYTHONUNBUFFERED": "1"},
@@ -908,33 +1128,97 @@ async def _run_pipeline_inner(mission_id: str, topic: str, depth: int):
 
         await proc.wait()
 
-        # Gather final results
-        conn = get_db()
-        cur = conn.cursor()
-        if proc.returncode == 0:
-            cur.execute("UPDATE hive_missions SET status = 'done', phase = 'done' WHERE id = %s", (mission_id,))
-            cur.execute(
-                "SELECT COUNT(*), COALESCE(AVG(quality_score), 0) FROM hive_claims WHERE mission_id = %s AND (is_garbage = false OR is_garbage IS NULL)",
-                (mission_id,)
-            )
-            row = cur.fetchone()
-            _emit_event(mission_id, "done", {"total_claims": row[0] or 0, "avg_quality": round(float(row[1] or 0), 4)})
-        else:
-            cur.execute("UPDATE hive_missions SET status = 'error', phase = 'error' WHERE id = %s", (mission_id,))
-            _emit_event(mission_id, "error", {"message": f"Pipeline exited with code {proc.returncode}"})
-        conn.commit()
-        conn.close()
-
-    except Exception as e:
-        _emit_event(mission_id, "error", {"message": str(e)})
+        # Harvested text without LLM claims is still a product.
         try:
-            conn = get_db()
-            cur = conn.cursor()
-            cur.execute("UPDATE hive_missions SET status = 'error', phase = 'error' WHERE id = %s", (mission_id,))
-            conn.commit()
-            conn.close()
+            from behive.engine.claims_fallback import salvage_claims_from_content
+            await asyncio.to_thread(salvage_claims_from_content, mission_id)
         except Exception:
             pass
+
+        # Gather final results. Exit 0 is not done — empty scout/claims is error.
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute("SELECT COUNT(*) FROM hive_sources WHERE mission_id = %s", (mission_id,))
+        row_src = cur.fetchone() or (0,)
+        n_src = int(row_src[0] or 0)
+        cur.execute(
+            f"SELECT COUNT(*), COALESCE(AVG(c.quality_score), 0) FROM hive_claims c WHERE c.mission_id = %s AND {SQL_COMPLETION_CLAIM}",
+            (mission_id,),
+        )
+        row_cl = cur.fetchone() or (0, 0)
+        n_cl = int(row_cl[0] or 0)
+        avg_q = row_cl[1] or 0
+        empty = is_empty_mission(n_src, n_cl, sourced_claims=n_cl)
+        if not empty and (has_salvageable_claims(n_cl) or proc.returncode == 0):
+            new_status, new_phase = "done", "done"
+            event_data = {"total_claims": n_cl, "avg_quality": round(float(avg_q or 0), 4), "salvaged": proc.returncode != 0}
+        else:
+            reason = (
+                f"empty_mission sources={n_src} claims={n_cl}"
+                if empty
+                else f"Pipeline exited with code {proc.returncode}"
+            )
+            new_status = "empty" if empty else "error"
+            new_phase = "empty_scout" if empty else "error"
+            event_data = {"message": reason, "sources": n_src, "claims": n_cl}
+        # This invocation claimed a nonterminal mission before spawning. Synth
+        # may write provisional done: confirm its sourced product here, or correct
+        # empty done. Never downgrade a real done product for a later worker error.
+        # Calls that start after completion are rejected by the initial claim.
+        cur.execute(
+            f"""UPDATE hive_missions SET status = %s, phase = %s WHERE id = %s
+                AND status <> 'cancelled' AND (status <> 'done' OR %s IN ('done', 'empty'))
+                AND (%s <> 'done' OR (SELECT COUNT(*) FROM hive_claims c
+                    WHERE c.mission_id = hive_missions.id AND {SQL_COMPLETION_CLAIM}) >= %s)
+                AND (%s <> 'empty' OR NOT EXISTS (SELECT 1 FROM hive_claims c
+                    WHERE c.mission_id = hive_missions.id AND {SQL_COMPLETION_CLAIM}))
+                RETURNING id""",
+            (new_status, new_phase, mission_id, new_status, new_status,
+             1 if proc.returncode == 0 else MIN_CLAIMS_FOR_DONE, new_status),
+        )
+        transitioned = cur.fetchone()
+        conn.commit()
+        conn.close()
+        conn = None
+        if not transitioned:
+            return
+        _emit_event(mission_id, new_status, event_data)
+
+        if new_status == "done":
+            try:
+                await asyncio.to_thread(_bridge_done_mission, mission_id)
+            except Exception as e:
+                _emit_event(mission_id, "bridge_error", {"message": str(e)[:240]})
+
+    except Exception as e:
+        try:
+            # Discard any failed finalization before attempting an error transition.
+            if conn is not None:
+                conn.rollback()
+                conn.close()
+            conn = get_db()
+            cur = conn.cursor()
+            cur.execute(
+                "UPDATE hive_missions SET status = 'error', phase = 'error' WHERE id = %s "
+                "AND status NOT IN ('done', 'cancelled', 'empty', 'error') RETURNING id",
+                (mission_id,),
+            )
+            transitioned = cur.fetchone()
+            conn.commit()
+            conn.close()
+            if transitioned:
+                _emit_event(mission_id, "error", {"message": str(e)})
+        except Exception:
+            pass
+
+
+def _bridge_done_mission(mission_id: str) -> None:
+    """Push mission claims to SR. Must not raise into the API loop."""
+    import sys
+    if "/root" not in sys.path:
+        sys.path.insert(0, "/root")
+    from sr_bridge import bridge_mission
+    bridge_mission(mission_id)
 
 
 def _update_phase(mission_id: str, phase: str):
@@ -942,7 +1226,7 @@ def _update_phase(mission_id: str, phase: str):
     try:
         conn = get_db()
         cur = conn.cursor()
-        cur.execute("UPDATE hive_missions SET phase = %s WHERE id = %s", (phase, mission_id))
+        cur.execute("UPDATE hive_missions SET phase = %s WHERE id = %s AND status NOT IN ('done', 'cancelled', 'empty', 'error')", (phase, mission_id))
         conn.commit()
         conn.close()
     except Exception:

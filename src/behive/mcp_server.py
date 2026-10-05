@@ -1,13 +1,15 @@
 """BeHive MCP Server — Model Context Protocol endpoint for AI assistants."""
 
 import os
+from behive import __version__ as BEHIVE_VERSION
+from behive.hygiene import SQL_CLAIM_NOT_BLOB, is_structured_blob
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional
 
 
-app = FastAPI(title="BeHive MCP", version="0.3.0")
+app = FastAPI(title="BeHive MCP", version=BEHIVE_VERSION)
 
 # Alias for user convenience: `from behive.mcp_server import mcp`
 mcp = app
@@ -46,7 +48,7 @@ async def mcp_endpoint(request: MCPRequest):
             "result": {
                 "protocolVersion": "2024-11-05",
                 "capabilities": {"tools": {}},
-                "serverInfo": {"name": "behive", "version": "0.3.0"},
+                "serverInfo": {"name": "behive", "version": BEHIVE_VERSION},
             }
         }
 
@@ -170,14 +172,16 @@ async def _tool_search(req_id, args):
     try:
         conn = get_db()
         cur = conn.cursor()
-        cur.execute("""
+        cur.execute(f"""
             SELECT claim, quality_score, source_url, mission_id
             FROM hive_claims
-            WHERE claim ILIKE %s AND (is_garbage = false OR is_garbage IS NULL)
+            WHERE claim ILIKE %s
+              AND (is_garbage = false OR is_garbage IS NULL)
+              AND {SQL_CLAIM_NOT_BLOB}
             ORDER BY quality_score DESC
             LIMIT %s
         """, (f"%{query}%", limit))
-        rows = cur.fetchall()
+        rows = [r for r in cur.fetchall() if not is_structured_blob(r[0])]
         conn.close()
 
         if not rows:

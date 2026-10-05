@@ -33,8 +33,8 @@ def main() -> None:
                         help="Enable deep research mode")
     parser.add_argument("--force", action="store_true",
                         help="Force re-run even if mission exists")
-    parser.add_argument("--scale", type=int, default=200,
-                        help="Max sources to scout (default: 200)")
+    parser.add_argument("--scale", type=int, default=30,
+                        help="Max sources to scout (default: 30)")
 
     args = parser.parse_args()
 

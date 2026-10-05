@@ -994,8 +994,11 @@ def graph_stats(G: Optional[nx.DiGraph] = None) -> dict:
         "claim_count":  sum(1 for _, d in G.nodes(data=True) if d.get("node_type") == "claim"),
         "mission_count": sum(1 for _, d in G.nodes(data=True) if d.get("node_type") == "mission"),
         "built_at": meta.get("built_at", "unknown"),
-        "top_entities_by_pagerank": [{"entity": n.replace("entity:", ""), "pagerank": d.get("pagerank", 0)}
-                                      for n, d in top_pr]
+        "top_entities_by_degree": [
+            {"entity": n.replace("entity:", ""), "degree_norm": d.get("pagerank", 0)}
+            for n, d in top_pr
+        ],
+        "centrality": "degree/n (not PageRank)",
     }
 
 def query_graph(term: str, G: Optional[nx.DiGraph] = None,
@@ -1033,8 +1036,9 @@ def get_communities(G: Optional[nx.DiGraph] = None, top_n: int = 20,
     sizes: dict[int, int] = defaultdict(int)
     for _, d in G.nodes(data=True):
         cid = d.get(cid_attr, -1)
-        if cid >= 0:
-            sizes[cid] += 1
+        if not isinstance(cid, int) or cid < 0:
+            continue
+        sizes[cid] += 1
     result = []
     for cid, size in sorted(sizes.items(), key=lambda x: -x[1])[:top_n]:
         entry: dict[str, Any] = {"community_id": cid, "node_count": size, "level": level}

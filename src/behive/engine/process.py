@@ -1183,6 +1183,12 @@ class BeeWorker:
                                 items.append(("organization", v[:500], ctx[:300], 0.75))
 
         _extract_entities_from(parsed)
+        from behive.engine.entity_remap import remap_entity_type
+        items = [
+            (nt, value, context, conf)
+            for etype, value, context, conf in items
+            if (nt := remap_entity_type(etype, value)) != "noise"
+        ]
 
         # Batch insert with executemany for throughput
         rows_to_insert = [
@@ -2104,6 +2110,10 @@ class ProcessingDrones:
         text = doc.get("raw_text", "") or ""
 
         entities = _regex_extract_entities(text, url)
+        from behive.engine.entity_remap import remap_entity_type
+        for ent in entities:
+            ent["entity_type"] = remap_entity_type(ent.get("entity_type") or "", ent.get("value") or "")
+        entities = [e for e in entities if e.get("entity_type") != "noise"]
         facts    = _regex_extract_facts(text, url)
 
         ent_saved = 0
@@ -2223,6 +2233,20 @@ class ProcessingDrones:
             ])
         except Exception as exc:
             log.warning(f"Could not update hive_missions: {exc}")
+
+        try:
+            from behive.engine.facts_to_claims import persist_facts_as_claims
+            n_fc = persist_facts_as_claims(self.mission_id, self._get_mission_topic())
+            log.info(f"Facts→claims (no LLM): {n_fc}")
+        except Exception as _fc:
+            log.warning(f"Facts→claims skipped: {_fc}")
+        try:
+            from behive.engine.claims_fallback import salvage_claims_from_content
+            n_fb = salvage_claims_from_content(self.mission_id)
+            if n_fb:
+                log.info(f"Content→claims (no LLM): {n_fb}")
+        except Exception as _fb:
+            log.warning(f"Content→claims skipped: {_fb}")
 
         # ── Knowledge Graph ingest (Neo4j) ────────────────────────────────────
         try:

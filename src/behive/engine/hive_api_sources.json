@@ -968,7 +968,7 @@
     "name": "UN Comtrade",
     "url": "https://comtradeapi.un.org",
     "category": "trade",
-    "auth": "apiKey",
+    "auth": "none",
     "query_type": "trade_data",
     "endpoints": [
       {
@@ -1330,5 +1330,187 @@
       }
     ],
     "notes": "Free. Mostly zamawiajacy (buyers) data. Wykonawcy (suppliers) not exposed via API."
+  },
+  {
+    "name": "SAOS (Polish Court Judgments)",
+    "url": "https://www.saos.org.pl",
+    "category": "regulatory",
+    "auth": "none",
+    "query_type": "regulations",
+    "endpoints": [
+      {
+        "path": "/api/search/judgments?all={query}&pageSize=20&pageNumber=0",
+        "returns": "Polish court judgments: case number, court, date, judges, text excerpt",
+        "use_when": "orzeczenie, wyrok, SN, NSA, SAOS, sąd, Polish case law"
+      }
+    ],
+    "notes": "Public, no auth. Open SAOS API. Search by keywords."
+  },
+  {
+    "name": "Orbis (Moody's BvD)",
+    "url": "https://api.bvdinfo.com",
+    "category": "company_data",
+    "auth": "apiKey",
+    "auth_header": "Authorization",
+    "auth_scheme": "Bearer",
+    "query_type": "company_data",
+    "endpoints": [
+      {
+        "path": "/v1/orbis/companies?q={query}",
+        "returns": "Global private company financials, ownership, identifiers",
+        "use_when": "Orbis, Bureau van Dijk, private company financials, ownership structure"
+      }
+    ],
+    "notes": "BYOK. Set ORBIS_API_KEY or BVD_API_KEY (Moody's). Live GET /v1/orbis/companies without token = 401 error.token.rejected. No key = skip. Not a paywall bypass."
+  },
+  {
+    "name": "LEX Wolters Kluwer",
+    "url": "https://sip.lex.pl",
+    "category": "regulatory",
+    "auth": "apiKey",
+    "auth_header": "Authorization",
+    "auth_scheme": "Bearer",
+    "query_type": "regulations",
+    "endpoints": [
+      {
+        "path": "/v1/search?q={query}",
+        "returns": "Polish legal acts and commentary from LEX",
+        "use_when": "LEX, Wolters Kluwer, komentarz, akt prawny, orzecznictwo LEX"
+      }
+    ],
+    "notes": "BYOK. api.lex.wolterskluwer.pl has no DNS. sip.lex.pl = Borg login, not REST. Key+LEX_API_BASE from pl-handel@wolterskluwer.com. No key = skip. Do not scrape SIP."
+  },
+  {
+    "name": "Bisnode D&B",
+    "url": "https://api.bisnode.com/bbc/v2",
+    "category": "company_data",
+    "auth": "apiKey",
+    "auth_header": "Authorization",
+    "auth_scheme": "Bearer",
+    "query_type": "company_data",
+    "endpoints": [
+      {
+        "path": "/companies?name={query}",
+        "returns": "Nordic/PL company identity and credit attributes (D&B Direct / Bisnode)",
+        "use_when": "Bisnode, Dun Bradstreet, DUNS, company credit, firmografia"
+      }
+    ],
+    "notes": "BYOK. Set BISNODE_API_KEY or DNB_API_KEY. Live api.bisnode.com/bbc/v2 and plus.dnb.com/v1 = 401 without token. No key = skip."
+  },
+  {
+    "name": "EUR-Lex Cellar",
+    "url": "https://publications.europa.eu/webapi/rdf/sparql",
+    "category": "regulatory",
+    "auth": "none",
+    "query_type": "eu_law",
+    "endpoints": [
+      {
+        "path": "?query={query}",
+        "returns": "CELEX numbers, titles, Cellar URIs of EU legal acts and case-law",
+        "use_when": "EUR-Lex, Eurolaw, CELEX, EU directive, EU regulation, Official Journal, TSUE, Cellar"
+      }
+    ],
+    "notes": "Public Cellar SPARQL. Do NOT use eur-lex.europa.eu (AWS WAF). No API key."
+  },
+  {
+    "name": "CURIA CJEU",
+    "url": "https://publications.europa.eu/webapi/rdf/sparql",
+    "category": "regulatory",
+    "auth": "none",
+    "query_type": "eu_law",
+    "endpoints": [
+      {
+        "path": "/resource/celex/{CELEX}.POL",
+        "returns": "CJEU judgment XHTML (CELEX 6YYYYCJnnnn)",
+        "use_when": "CURIA, TSUE, CJEU, C-128/21, wyrok Trybunału, InfoCuria"
+      }
+    ],
+    "notes": "InfoCuria/RPEX is SPA (no public JSON; /api/search 403). Phrase = Cellar bif:contains CELEX 6…. C-n/yy → 6YYYYCJnnnn. Front eur-lex 202."
+  },
+  {
+    "name": "BOE Spain Official Gazette",
+    "url": "https://www.boe.es/datosabiertos/api",
+    "category": "regulatory",
+    "auth": "none",
+    "query_type": "eu_law",
+    "endpoints": [
+      {
+        "path": "/legislacion-consolidada",
+        "returns": "Spanish consolidated legislation identifiers and update timestamps",
+        "use_when": "BOE, Boletin Oficial, Spanish official gazette, legislacion consolidada"
+      }
+    ],
+    "notes": "Public JSON API. EUR-Lex-like national gazette. Live 200."
+  },
+  {
+    "name": "Dziennik Ustaw ELI",
+    "url": "https://api.sejm.gov.pl/eli",
+    "category": "regulatory",
+    "auth": "none",
+    "query_type": "regulations",
+    "endpoints": [
+      {
+        "path": "/acts/search?title={query}",
+        "returns": "Dz.U. search JSON",
+        "use_when": "Dziennik Ustaw, ISAP, ELI, Dz.U., dziennikustaw.gov.pl"
+      },
+      {
+        "path": "/acts/DU/{year}/{pos}/text.html",
+        "returns": "Act HTML",
+        "use_when": "Dz.U. pozycja, tekst aktu"
+      }
+    ],
+    "notes": "Public Sejm ELI REST. Not isap.sejm.gov.pl ByYear. title= search; text.html when textHTML=true."
+  },
+  {
+    "name": "HUDOC ECHR",
+    "url": "https://hudoc.echr.coe.int",
+    "category": "regulatory",
+    "auth": "none",
+    "query_type": "regulations",
+    "endpoints": [
+      {
+        "path": "/app/query/results",
+        "returns": "ECHR judgment search JSON (Lucene query + rankingModelId)",
+        "use_when": "HUDOC, ECHR, European Court of Human Rights, Strasbourg"
+      },
+      {
+        "path": "/app/conversion/docx/html/body?library=ECHR&id={itemid}",
+        "returns": "ECHR judgment HTML by item id",
+        "use_when": "HUDOC, ECHR, itemid"
+      }
+    ],
+    "notes": "Public. Bare /app/query/results is 404. Full query=contentsitename:ECHR AND (term) AND collection GRANDCHAMBER|CHAMBER + rankingModelId works over urllib."
+  },
+  {
+    "name": "WTO Documents Online",
+    "url": "https://docs.wto.org/dol2fe/Pages/FE_Search/FE_S_S006.aspx",
+    "category": "trade",
+    "auth": "none",
+    "query_type": "trade_data",
+    "endpoints": [
+      {
+        "path": "?Query=(@Title = {query})",
+        "returns": "WTO document symbol + title + catalogue id",
+        "use_when": "WTO, World Trade Organization, safeguard, WT/DS, G/SG"
+      }
+    ],
+    "notes": "Public Documents Online Query. Old FE_S_S001 timeout was the empty search shell. Timeseries API is separate BYOK (WTO_API_KEY, 401 without key)."
+  },
+  {
+    "name": "WTO Timeseries API",
+    "url": "https://api.wto.org/timeseries/v1",
+    "category": "trade",
+    "auth": "apiKey",
+    "auth_header": "Ocp-Apim-Subscription-Key",
+    "query_type": "trade_data",
+    "endpoints": [
+      {
+        "path": "/data?i={indicator}&r={reporter}",
+        "returns": "WTO official trade time series JSON",
+        "use_when": "WTO timeseries, WTO stats API"
+      }
+    ],
+    "notes": "BYOK. Set WTO_API_KEY from apiportal.wto.org signup. No key = skip. Live 401 without key."
   }
 ]

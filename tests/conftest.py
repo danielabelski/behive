@@ -225,7 +225,7 @@ def set_pg_env(monkeypatch):
     monkeypatch.setenv("HIVE_PG_DATABASE", "hive")
     monkeypatch.setenv("HIVE_PG_USER", "hive_app")
     monkeypatch.setenv("HIVE_PG_PASSWORD", "test")
-    monkeypatch.setenv("BEHIVE_DB_URL", "postgresql://hive_app:{os.environ.get("HIVE_PG_PASSWORD", "test")}@localhost:5432/hive")
+    monkeypatch.setenv("BEHIVE_DB_URL", "postgresql://hive_app:test@localhost:5432/hive")
     # Disable external calls
     monkeypatch.setenv("BEHIVE_MAX_CONCURRENT", "1")
     monkeypatch.setenv("BEHIVE_PHASE_TIMEOUT", "5")

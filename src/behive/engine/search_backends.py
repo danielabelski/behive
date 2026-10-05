@@ -17,6 +17,7 @@ Usage:
 """
 
 import os
+import re
 import logging
 import asyncio
 import aiohttp
@@ -201,48 +202,62 @@ class SearXNGBackend(SearchBackend):
         if not self.url:
             return []
         
-        params = {
-            "q": query,
-            "format": "json",
-            "pageno": 1,
-            "categories": "general",
-            "language": "en",
-        }
-        
         own_session = session is None
         if own_session:
             session = aiohttp.ClientSession()
-        
         try:
-            results = []
-            # Fetch up to 3 pages to get enough results
-            pages_needed = (max_results + 9) // 10
-            for page in range(1, min(pages_needed + 1, 4)):
-                params["pageno"] = page
-                async with session.get(
-                    f"{self.url}/search",
-                    params=params,
-                    timeout=aiohttp.ClientTimeout(total=10),
-                ) as resp:
-                    if resp.status != 200:
-                        break
-                    data = await resp.json(content_type=None)
-                    for r in data.get("results", []):
-                        results.append({
-                            "url": r.get("url", ""),
-                            "title": r.get("title", ""),
-                            "snippet": r.get("content", ""),
-                            "source": "searxng",
-                        })
-                    if len(results) >= max_results:
-                        break
-            return results[:max_results]
+            web = await self._fetch_engines(
+                session, query, "yep,wikipedia,wikidata", max_results
+            )
+            if len(web) >= min(8, max_results):
+                return web[:max_results]
+            acad = await self._fetch_engines(
+                session, query, "pubmed,google scholar,arxiv,crossref", max_results
+            )
+            seen = {r.get("url") for r in web}
+            merged = list(web)
+            for r in acad:
+                if r.get("url") not in seen:
+                    seen.add(r.get("url"))
+                    merged.append(r)
+            return merged[:max_results]
         except Exception as e:
             log.debug(f"SearXNG error: {e}")
             return []
         finally:
             if own_session:
                 await session.close()
+
+    async def _fetch_engines(self, session, query: str, engines: str, max_results: int) -> list[dict]:
+        params = {
+            "q": query,
+            "format": "json",
+            "pageno": 1,
+            "language": "en",
+            "engines": engines,
+        }
+        results = []
+        pages_needed = (max_results + 9) // 10
+        for page in range(1, min(pages_needed + 1, 3)):
+            params["pageno"] = page
+            async with session.get(
+                f"{self.url}/search",
+                params=params,
+                timeout=aiohttp.ClientTimeout(total=10),
+            ) as resp:
+                if resp.status != 200:
+                    break
+                data = await resp.json(content_type=None)
+                for r in data.get("results", []):
+                    results.append({
+                        "url": r.get("url", ""),
+                        "title": r.get("title", ""),
+                        "snippet": r.get("content", ""),
+                        "source": "searxng",
+                    })
+                if len(results) >= max_results:
+                    break
+        return results[:max_results]
 
 
 class BraveBackend(SearchBackend):
@@ -403,6 +418,84 @@ class TavilyBackend(SearchBackend):
                 await session.close()
 
 
+class WikipediaBackend(SearchBackend):
+    """MediaWiki search — works when Google/DDG/SearXNG are CAPTCHA'd."""
+    name = "wikipedia"
+    priority = 2
+    _sem = asyncio.Semaphore(2)
+    _cache: dict = {}
+    _JUNK = re.compile(
+        r"\bsite:\S+|\bfiletype:\S+|\bOR\b|\b(news|raport|dane|whitepaper|"
+        r"overview|discussion|filetype|pdf)\b",
+        re.I,
+    )
+
+    @classmethod
+    def _norm(cls, query: str) -> str:
+        q = cls._JUNK.sub(" ", query or "")
+        q = " ".join(q.split())
+        return q or (query or "").strip()
+
+    def _check_available(self) -> bool:
+        return True
+
+    async def search(self, query: str, max_results: int = 30,
+                     session: Optional[aiohttp.ClientSession] = None) -> list[dict]:
+        key = WikipediaBackend._norm(query).lower()
+        if not key:
+            return []
+        if key in WikipediaBackend._cache:
+            return WikipediaBackend._cache[key][:max_results]
+        own = session is None
+        if own:
+            session = aiohttp.ClientSession(
+                headers={"User-Agent": "BeHive/0.6 (https://api.behive.site; wikipedia-fallback)"}
+            )
+        try:
+            async with WikipediaBackend._sem:
+                params = {
+                    "action": "query",
+                    "list": "search",
+                    "srsearch": WikipediaBackend._norm(query),
+                    "srlimit": str(min(max(max_results, 1), 10)),
+                    "format": "json",
+                    "utf8": "1",
+                }
+                async with session.get(
+                    "https://en.wikipedia.org/w/api.php",
+                    params=params,
+                    timeout=aiohttp.ClientTimeout(total=15),
+                ) as resp:
+                    if resp.status == 429:
+                        await asyncio.sleep(1.0)
+                        return []
+                    if resp.status != 200:
+                        return []
+                    data = await resp.json(content_type=None)
+            out = []
+            for hit in (data.get("query") or {}).get("search") or []:
+                title = hit.get("title") or ""
+                if not title:
+                    continue
+                slug = title.replace(" ", "_")
+                snippet = hit.get("snippet") or ""
+                snippet = re.sub(r"<[^>]+>", "", snippet)
+                out.append({
+                    "url": f"https://en.wikipedia.org/wiki/{quote_plus(slug)}",
+                    "title": title,
+                    "snippet": snippet,
+                    "source": "wikipedia",
+                })
+            WikipediaBackend._cache[key] = out
+            return out[:max_results]
+        except Exception as e:
+            log.debug(f"Wikipedia search error: {e}")
+            return []
+        finally:
+            if own:
+                await session.close()
+
+
 class DuckDuckGoBackend(SearchBackend):
     """DuckDuckGo — always available fallback. Slow, rate-limited."""
     name = "duckduckgo"
@@ -441,12 +534,27 @@ class DuckDuckGoBackend(SearchBackend):
 
 # ─── Search Engine (auto-selects best backend) ────────────────────────────────
 
+_STOP = {
+    "the", "and", "of", "for", "in", "to", "a", "an", "on", "at", "by", "with",
+    "from", "or", "its", "as", "is", "are",
+}
+
+
+def _relax_query(query: str) -> str:
+    toks = [
+        t for t in re.findall(r"[A-Za-z][A-Za-z\-]+", query)
+        if t.lower() not in _STOP
+    ]
+    return " ".join(toks[:6])
+
+
 ALL_BACKENDS = [
     PlaywrightBackend,
     SearXNGBackend,
     BraveBackend,
     SerperBackend,
     TavilyBackend,
+    WikipediaBackend,
     DuckDuckGoBackend,
 ]
 
@@ -504,18 +612,40 @@ class SearchEngine:
             others = [b for b in self.backends if b.name != preferred_backend]
             backends = preferred + others
         
+        collected: list[dict] = []
         for backend in backends:
             try:
                 results = await backend.search(query, max_results, session)
-                if results:
-                    log.debug(f"  Search [{backend.name}] '{query[:40]}': {len(results)} results")
-                    return results
-                # Empty results — try next backend
-                log.debug(f"  Search [{backend.name}] '{query[:40]}': empty, trying next...")
+                if not results:
+                    log.debug(f"  Search [{backend.name}] '{query[:40]}': empty, trying next...")
+                    continue
+                arxiv_n = sum(1 for r in results if "arxiv.org" in (r.get("url") or "").lower())
+                share = arxiv_n / max(len(results), 1)
+                if share >= 0.5 and backend.name == "searxng":
+                    log.debug(f"  Search [searxng] arxiv-heavy {share:.0%} — keep web mix, try next")
+                    collected.extend(results)
+                    continue
+                log.debug(f"  Search [{backend.name}] '{query[:40]}': {len(results)} results")
+                if collected:
+                    seen = {r.get("url") for r in results}
+                    extra = [r for r in collected if r.get("url") not in seen]
+                    return (results + extra)[:max_results]
+                return results
             except Exception as e:
                 log.debug(f"  Search [{backend.name}] error: {e}, trying next...")
                 continue
-        
+        if collected:
+            return collected[:max_results]
+        relaxed = _relax_query(query)
+        if relaxed and relaxed.lower() != (query or "").lower():
+            log.info(f"  Search retry relaxed: '{relaxed}'")
+            for backend in backends:
+                try:
+                    results = await backend.search(relaxed, max_results, session)
+                    if results:
+                        return results
+                except Exception:
+                    continue
         log.warning(f"  All search backends failed for: '{query[:60]}'")
         return []
     

@@ -1316,13 +1316,15 @@ Słowa: {m['total_words']} | Encje: {m['total_entities']} | Fakty: {m['total_fac
     # ── Update mission status ────────────────────────────────────────────────
 
     def _mark_done(self, report_text: str = None, synthesis: dict = None):
-        """Mark mission done. Also saves synthesis text + quality metrics to DB."""
+        """Persist synthesis metrics; guarded lifecycle finalization owns status."""
         import time as _t
 
         # ── Oblicz quality metrics ──────────────────────────────────────────
         quality_coverage   = None
         quality_depth      = None
         quality_confidence = None
+        total_src = 0
+        total_claims = 0
 
         try:
             con_r = self._db_connect(read_only=True)
@@ -1361,14 +1363,12 @@ Słowa: {m['total_words']} | Encje: {m['total_entities']} | Fakty: {m['total_fac
             try:
                 con = self._connect_rw()
                 con.execute(
-                    "UPDATE hive_missions SET status='done', "
-                    "phase='done', "
-                    "synth_done_at=NOW(), "
+                    "UPDATE hive_missions SET synth_done_at=NOW(), "
                     "synthesis=?, "
                     "quality_coverage=?, "
                     "quality_depth=?, "
                     "quality_confidence=? "
-                    "WHERE id=?",
+                    "WHERE id=? AND status NOT IN ('cancelled', 'error')",
                     [synthesis_text, quality_coverage, quality_depth,
                      quality_confidence, self.mission_id]
                 )

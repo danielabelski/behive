@@ -1,13 +1,7 @@
-"""Federated Knowledge Network — shared intelligence layer.
+"""Local claim pool — NOT a multi-instance network.
 
-Enables BeHive instances to contribute verified claims to a shared pool
-and query collective knowledge. "Backlink exchange for intelligence."
-
-Architecture:
-- Contributor: anonymized by hashed API key
-- Claims: only high-confidence, sourced claims are shared
-- Reputation: earn trust by contributing quality findings
-- Enrichment: pre-scout your research with network knowledge
+seed_from_hive() copies this host's hive_claims (quality>=0.85).
+Contribute still needs an API key. Search is local FTS.
 """
 
 import os
@@ -19,15 +13,24 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 from fastapi import APIRouter, HTTPException, Header, Query
+from fastapi.responses import JSONResponse
 
 
-router = APIRouter(prefix="/federation", tags=["federation"])
+router = APIRouter(prefix="/federation", tags=["local_seed"])
+
+_OFF_PRODUCT = {
+    "ok": False,
+    "product": False,
+    "mode": "local_seed",
+    "remote_peers": 0,
+    "reason": "No peer network. Contribute/confirm are off. GET /federation/stats is the local hive_claims mirror.",
+}
 
 
 # ─── Models ───────────────────────────────────────────────────────────────────
 
 class FederatedClaim(BaseModel):
-    """A claim shared to the federated knowledge network."""
+    """Row in the local federated_claims pool. Not a remote network."""
     claim_hash: str = Field(..., description="SHA256 of normalized claim text")
     text: str = Field(..., min_length=10, max_length=2000)
     confidence: float = Field(..., ge=0, le=1)
@@ -42,7 +45,7 @@ class FederatedClaim(BaseModel):
 
 
 class ContributeRequest(BaseModel):
-    """Request to contribute claims to the network."""
+    """Unused: contribute is off the product (no peers)."""
     claims: list[FederatedClaim] = Field(..., min_length=1, max_length=100)
 
 
@@ -56,6 +59,10 @@ class NetworkSearchResult(BaseModel):
     claims: list[FederatedClaim]
     total: int
     query: str
+    mode: str = "local_seed"
+    remote_peers: int = 0
+    product: bool = False
+    source: str = "local federated_claims (hive_claims copy)"
 
 
 class ConfirmRequest(BaseModel):
@@ -70,6 +77,10 @@ class NetworkStats(BaseModel):
     avg_confidence: float
     top_domains: list[dict]
     last_contribution: Optional[str] = None
+    mode: str = "local_seed"
+    remote_peers: int = 0
+    source: str = "local hive_claims (quality>=0.85 cap)"
+    product: bool = False
 
 
 # ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -162,6 +173,7 @@ def _ensure_tables():
 
 # Initialize tables on import
 _tables_ready = False
+_LOCAL_CONTRIBUTOR = "local-hive-seed"
 
 
 def _init_tables():
@@ -171,111 +183,94 @@ def _init_tables():
     return _tables_ready
 
 
-# ─── Endpoints ────────────────────────────────────────────────────────────────
-
-@router.post("/contribute", response_model=ContributeResponse)
-async def contribute_claims(
-    req: ContributeRequest,
-    x_api_key: str = Header(None, alias="X-API-Key"),
-    authorization: str = Header(None),
-):
-    """
-    Contribute verified claims to the Federated Knowledge Network.
-    
-    Requirements:
-    - Claims must have confidence >= 0.7
-    - Claims must have at least 1 source URL
-    - Claims must be at least 10 characters
-    - Max 100 claims per request
-    """
-    token = x_api_key or ""
-    if not token and authorization and authorization.startswith("Bearer "):
-        token = authorization[7:]
-    if not token:
-        raise HTTPException(401, "API key required to contribute")
-
+def seed_from_hive(limit: int = 3000, min_quality: float = 0.85) -> dict:
+    """Copy local high-quality hive_claims into federated_claims. Not a remote network."""
     if not _init_tables():
-        raise HTTPException(503, "Federation database not available")
-
-    contributor_hash = _hash_contributor(token)
-    accepted = 0
-    rejected = 0
-    reasons = []
-
+        return {"ok": False, "error": "db"}
     conn = _get_db()
     if not conn:
-        raise HTTPException(503, "Database connection failed")
-
+        return {"ok": False, "error": "connect"}
+    contributor = _hash_contributor(_LOCAL_CONTRIBUTOR)
+    inserted = 0
+    skipped = 0
     try:
         with conn.cursor() as cur:
-            # Ensure contributor exists
-            cur.execute("""
+            cur.execute(
+                """
                 INSERT INTO federated_contributors (contributor_hash)
                 VALUES (%s)
                 ON CONFLICT (contributor_hash) DO UPDATE SET last_active = NOW()
-            """, (contributor_hash,))
-
-            for claim in req.claims:
-                # Quality gate
-                if claim.confidence < 0.7:
-                    rejected += 1
-                    reasons.append(f"Claim too low confidence ({claim.confidence:.2f} < 0.7)")
+                """,
+                (contributor,),
+            )
+            cur.execute(
+                """
+                SELECT claim, quality_score, source_url, claim_type
+                FROM hive_claims
+                WHERE (is_garbage = false OR is_garbage IS NULL)
+                  AND length(claim) >= 10
+                  AND coalesce(source_url, '') <> ''
+                  AND coalesce(quality_score, 0) >= %s
+                  AND left(ltrim(claim), 1) NOT IN ('{', '[')
+                ORDER BY quality_score DESC
+                LIMIT %s
+                """,
+                (float(min_quality), int(limit)),
+            )
+            rows = cur.fetchall()
+            for text, quality, url, ctype in rows:
+                h = _hash_claim(text)
+                tags = [ctype] if ctype else []
+                cur.execute("SELECT 1 FROM federated_claims WHERE claim_hash = %s", (h,))
+                if cur.fetchone():
+                    skipped += 1
                     continue
-                if not claim.source_urls:
-                    rejected += 1
-                    reasons.append("Claim has no source URLs")
-                    continue
-
-                claim_hash = _hash_claim(claim.text)
-                now = datetime.now(timezone.utc).isoformat()
-
-                # Dedup — if claim already exists, treat as confirmation
-                cur.execute("SELECT claim_hash FROM federated_claims WHERE claim_hash = %s", (claim_hash,))
-                existing = cur.fetchone()
-
-                if existing:
-                    # Boost confirmation count
-                    cur.execute("""
-                        UPDATE federated_claims 
-                        SET confirmations = confirmations + 1,
-                            network_confidence = LEAST(1.0, confidence + (confirmations + 1) * 0.05)
-                        WHERE claim_hash = %s AND contributor_hash != %s
-                    """, (claim_hash, contributor_hash))
-                    accepted += 1
+                cur.execute(
+                    """
+                    INSERT INTO federated_claims
+                        (claim_hash, text, confidence, network_confidence, source_urls,
+                         domain_tags, entity_refs, contributor_hash)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                    ON CONFLICT (claim_hash) DO NOTHING
+                    """,
+                    (
+                        h,
+                        text[:2000],
+                        float(quality or 0),
+                        float(quality or 0),
+                        [url],
+                        tags,
+                        [],
+                        contributor,
+                    ),
+                )
+                if cur.rowcount:
+                    inserted += 1
                 else:
-                    # New claim
-                    cur.execute("""
-                        INSERT INTO federated_claims 
-                            (claim_hash, text, confidence, network_confidence, source_urls, 
-                             domain_tags, entity_refs, contributor_hash, contributed_at)
-                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-                        ON CONFLICT (claim_hash) DO NOTHING
-                    """, (
-                        claim_hash, claim.text, claim.confidence, claim.confidence,
-                        claim.source_urls, claim.domain_tags, claim.entity_refs,
-                        contributor_hash, now,
-                    ))
-                    accepted += 1
-
-            # Update contributor stats
-            cur.execute("""
-                UPDATE federated_contributors 
+                    skipped += 1
+            cur.execute(
+                """
+                UPDATE federated_contributors
                 SET claims_contributed = claims_contributed + %s
                 WHERE contributor_hash = %s
-            """, (accepted, contributor_hash))
-
+                """,
+                (inserted, contributor),
+            )
         conn.commit()
     except Exception as e:
         conn.rollback()
-        raise HTTPException(500, f"Contribution failed: {str(e)[:100]}")
+        return {"ok": False, "error": str(e)[:200], "inserted": inserted, "skipped": skipped}
     finally:
         conn.close()
+    return {"ok": True, "inserted": inserted, "skipped": skipped, "limit": limit}
 
-    return ContributeResponse(
-        accepted=accepted,
-        rejected=rejected,
-        reasons=reasons[:5],  # Limit reasons shown
-    )
+
+# ─── Endpoints ────────────────────────────────────────────────────────────────
+
+@router.post("/contribute")
+async def contribute_claims():
+    """Off the product. No peer network to contribute to."""
+    return JSONResponse(status_code=501, content=_OFF_PRODUCT)
 
 
 @router.get("/search", response_model=NetworkSearchResult)
@@ -288,17 +283,9 @@ async def search_network(
     authorization: str = Header(None),
 ):
     """
-    Search the Federated Knowledge Network for existing verified claims.
-    
-    Use this before starting a research mission to leverage collective knowledge.
-    Requires contributor token (must contribute to consume — "give to get").
+    Search the local federated claim pool.
+    No remote BeHive network exists — auth not required to read.
     """
-    token = x_api_key or ""
-    if not token and authorization and authorization.startswith("Bearer "):
-        token = authorization[7:]
-    if not token:
-        raise HTTPException(401, "API key required to search the network")
-
     if not _init_tables():
         raise HTTPException(503, "Federation database not available")
 
@@ -375,91 +362,16 @@ async def search_network(
 
 
 @router.post("/confirm")
-async def confirm_or_contradict(
-    req: ConfirmRequest,
-    x_api_key: str = Header(None, alias="X-API-Key"),
-    authorization: str = Header(None),
-):
-    """
-    Vote on a claim: confirm (your research agrees) or contradict (you found counter-evidence).
-    
-    Confirmations boost network_confidence.
-    Contradictions decrease it and flag for review.
-    """
-    token = x_api_key or ""
-    if not token and authorization and authorization.startswith("Bearer "):
-        token = authorization[7:]
-    if not token:
-        raise HTTPException(401, "API key required to vote")
-
-    if not _init_tables():
-        raise HTTPException(503, "Federation database not available")
-
-    voter_hash = _hash_contributor(token)
-    conn = _get_db()
-    if not conn:
-        raise HTTPException(503, "Database connection failed")
-
-    try:
-        with conn.cursor() as cur:
-            # Check claim exists
-            cur.execute("SELECT contributor_hash FROM federated_claims WHERE claim_hash = %s", (req.claim_hash,))
-            claim = cur.fetchone()
-            if not claim:
-                raise HTTPException(404, "Claim not found")
-
-            # Can't vote on your own claim
-            if claim[0] == voter_hash:
-                raise HTTPException(400, "Cannot vote on your own claim")
-
-            # Insert vote (upsert)
-            cur.execute("""
-                INSERT INTO federated_votes (claim_hash, voter_hash, confirmed)
-                VALUES (%s, %s, %s)
-                ON CONFLICT (claim_hash, voter_hash) DO UPDATE SET confirmed = %s, voted_at = NOW()
-            """, (req.claim_hash, voter_hash, req.confirmed, req.confirmed))
-
-            # Update claim counters
-            if req.confirmed:
-                cur.execute("""
-                    UPDATE federated_claims 
-                    SET confirmations = confirmations + 1,
-                        network_confidence = LEAST(1.0, confidence + (confirmations + 1) * 0.03)
-                    WHERE claim_hash = %s
-                """, (req.claim_hash,))
-            else:
-                cur.execute("""
-                    UPDATE federated_claims 
-                    SET contradictions = contradictions + 1,
-                        network_confidence = GREATEST(0.0, network_confidence - 0.1)
-                    WHERE claim_hash = %s
-                """, (req.claim_hash,))
-
-            # Update contributor reputation
-            cur.execute("""
-                UPDATE federated_contributors
-                SET claims_confirmed = claims_confirmed + 1
-                WHERE contributor_hash = %s
-            """, (claim[0],))  # Original contributor gets credit
-
-        conn.commit()
-    except HTTPException:
-        raise
-    except Exception as e:
-        conn.rollback()
-        raise HTTPException(500, f"Vote failed: {str(e)[:100]}")
-    finally:
-        conn.close()
-
-    return {"status": "ok", "action": "confirmed" if req.confirmed else "contradicted"}
+async def confirm_or_contradict():
+    """Off the product. No peer network to vote on."""
+    return JSONResponse(status_code=501, content=_OFF_PRODUCT)
 
 
 @router.get("/stats", response_model=NetworkStats)
 async def network_stats():
     """
-    Get Federated Knowledge Network statistics.
-    
-    Public endpoint — no auth required. Shows network health and scale.
+    Local federated_claims pool stats. Not a remote BeHive network.
+    Public — no auth.
     """
     if not _init_tables():
         raise HTTPException(503, "Federation database not available")
@@ -504,4 +416,7 @@ async def network_stats():
         avg_confidence=round(avg_confidence, 3),
         top_domains=top_domains,
         last_contribution=last,
+        mode="local_seed",
+        remote_peers=0,
+        source="local hive_claims (quality>=0.85 cap)",
     )

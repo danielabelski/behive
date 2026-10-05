@@ -40,6 +40,7 @@ _PROVIDER_SUGGESTIONS = {
     "deepseek": "deepseek/deepseek-chat",
     "bedrock": "bedrock/eu.anthropic.claude-sonnet-4-5-20250929-v1:0",
     "local": "openai/local-model",
+    "gemini": "gemini/gemini-3.6-flash",
 }
 
 # API key env vars → provider name
@@ -50,6 +51,8 @@ _KEY_TO_PROVIDER = {
     "TOGETHER_API_KEY": "together",
     "MISTRAL_API_KEY": "mistral",
     "DEEPSEEK_API_KEY": "deepseek",
+    "GOOGLE_API_KEY": "gemini",
+    "GEMINI_API_KEY": "gemini",
 }
 
 
@@ -133,6 +136,7 @@ def _check_keys() -> str:
 
 # ─── Completion functions ───────────────────────────────────────────────────
 
+
 def complete(
     prompt: str,
     stage: str = "process",
@@ -183,6 +187,7 @@ def complete(
             "messages": messages,
             "max_tokens": max_tokens,
             "temperature": temperature,
+            "timeout": 25,
         }
         
         # Local LLM: set api_base
@@ -209,7 +214,9 @@ def complete(
                 # Don't retry on auth errors or invalid model
                 if any(k in err_str for k in ('auth', 'invalid_api_key', 'permission', 'not found')):
                     raise
-                # Retry on rate limit, timeout, server error
+                if any(k in err_str for k in ('429', 'quota', 'resource exhausted', 'rate limit')):
+                    raise
+                # Retry on timeout, server error
                 if attempt < 2:
                     wait = (attempt + 1) * 2  # 2s, 4s
                     log.debug(f"LLM retry {attempt+1}/3 after {wait}s: {retry_err}")

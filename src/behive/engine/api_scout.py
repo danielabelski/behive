@@ -27,7 +27,30 @@ from pathlib import Path
 from typing import Optional
 from dataclasses import dataclass, field
 
+from behive.engine.entity_resolver import (
+    api_allowed,
+    classify_domain,
+    enrich_query,
+    resolve_entity,
+)
+
 log = logging.getLogger("hive.api_scout")
+
+_STOPWORDS = {
+    "query", "data", "format", "api", "json", "the", "and", "for", "with", "from",
+    "http", "www", "com", "org", "pl", "en", "v1", "v2", "v3", "to", "of", "in",
+    "a", "an", "on", "by", "or", "at",
+}
+
+
+def _kw_in_query(kw: str, query_lower: str) -> bool:
+    """Substring is how 'war' matched Warszawa. Require a token boundary."""
+    if not kw:
+        return False
+    kw = kw.lower()
+    if " " in kw:
+        return kw in query_lower
+    return re.search(r"(?<![a-z0-9ąćęłńóśźż])" + re.escape(kw) + r"(?![a-z0-9ąćęłńóśźż])", query_lower) is not None
 
 # ── Registry ────────────────────────────────────────────────────────────────
 
@@ -183,69 +206,107 @@ def _select_best_endpoint(api: dict, query: str) -> dict:
     return best
 
 
-def match_apis(query: str, registry: list[dict], top_k: int = 8) -> list[APIMatch]:
-    """Match a research query to relevant APIs from registry."""
+def match_apis(query: str, registry: list[dict], top_k: int = 8,
+               domain: Optional[str] = None) -> list[APIMatch]:
+    """Match a research query to relevant APIs from registry.
+
+    Domain gate first (company_pl / judgment / tariff / tender / crypto / general).
+    Keywords use token boundaries — substring 'war' must not match Warszawa.
+    """
     query_lower = query.lower()
-    query_words = set(re.findall(r'\w+', query_lower))
-    
+    query_words = set(re.findall(r'\w+', query_lower)) - _STOPWORDS
+    domain = domain or classify_domain(query)
+
     matches = []
-    
+
     for api in registry:
+        if not api_allowed(api, domain):
+            continue
+
         score = 0.0
         matched_kw = []
-        
-        # 1. Query type keyword matching
+
         api_qtype = api.get("query_type", "")
         if api_qtype in QUERY_TYPE_KEYWORDS:
             for kw in QUERY_TYPE_KEYWORDS[api_qtype]:
-                if kw in query_lower:
+                if _kw_in_query(kw, query_lower):
                     score += 5.0
                     matched_kw.append(kw)
-        
-        # 2. Category keyword matching
+
         api_cat = api.get("category", "")
         if api_cat in CATEGORY_KEYWORDS:
             for kw in CATEGORY_KEYWORDS[api_cat]:
-                if kw in query_lower:
+                if _kw_in_query(kw, query_lower):
                     score += 3.0
                     matched_kw.append(kw)
-        
-        # 3. API name in query
+
         api_name_lower = api.get("name", "").lower()
-        if api_name_lower in query_lower:
+        if api_name_lower and api_name_lower in query_lower:
             score += 10.0
             matched_kw.append(api_name_lower)
-        
-        # 4. Word overlap between query and API name/category/notes
+        else:
+            for tok in api_name_lower.split():
+                if len(tok) >= 4 and tok in query_words:
+                    score += 8.0
+                    matched_kw.append(tok)
+                    break
+
         api_context = f"{api_name_lower} {api_cat} {api_qtype} {api.get('notes', '')}"
-        api_words = set(re.findall(r'\w+', api_context.lower()))
+        api_words = set(re.findall(r'\w+', api_context.lower())) - _STOPWORDS
         overlap = query_words & api_words
         score += len(overlap) * 1.5
-        
-        # 5. Endpoint use_when matching (strong signal)
+
         for ep in api.get("endpoints", []):
             use_when = ep.get("use_when", "").lower()
-            use_words = set(re.findall(r'\w+', use_when))
+            use_words = set(re.findall(r'\w+', use_when)) - _STOPWORDS
             ep_overlap = query_words & use_words
             if len(ep_overlap) >= 2:
                 score += len(ep_overlap) * 2.0
                 matched_kw.extend(list(ep_overlap)[:3])
-        
-        # 6. Penalty for auth required (prefer free APIs)
+
         if api.get("auth") == "apiKey":
-            score *= 0.7  # mild penalty — many have free tiers
+            score *= 0.7
         elif api.get("auth") == "OAuth":
-            score *= 0.3  # strong penalty — can't use without setup
-        
-        if score > 4.0:  # minimum threshold to avoid false positives
+            score *= 0.3
+
+        # Domain-forced APIs (KRS on company_pl) get a floor so they survive threshold
+        if domain in ("company_pl", "tender", "tariff", "judgment", "eu_law") and score < 4.1:
+            allow_names = {
+                "company_pl": {
+                    "KRS API (Polish Court Registry)",
+                    "Biala Lista VAT (Polish Tax Registry)",
+                    "Orbis (Moody's BvD)",
+                    "Bisnode D&B",
+                },
+                "tender": {
+                    "TED EU Tenders",
+                    "e-Zamowienia (Polish Public Procurement)",
+                },
+                "tariff": {"UN Comtrade", "Eurostat Data API"},
+                "judgment": {
+                    "SAOS (Polish Court Judgments)",
+                    "LEX Wolters Kluwer",
+                },
+                "eu_law": {
+                    "EUR-Lex Cellar",
+                    "BOE Spain Official Gazette",
+                    "CURIA CJEU",
+                    "HUDOC ECHR",
+                    "Dziennik Ustaw ELI",
+                },
+            }.get(domain, set())
+            if api.get("name") in allow_names:
+                score = 4.5
+                matched_kw.append("domain:" + domain)
+
+        if score > 4.0:
             best_ep = _select_best_endpoint(api, query)
             matches.append(APIMatch(
-                api=api, score=score, 
+                api=api, score=score,
                 matched_keywords=list(set(matched_kw))[:5],
-                best_endpoint=best_ep
+                best_endpoint=best_ep,
             ))
-    
-    # Sort by score, return top_k
+
     matches.sort(key=lambda m: -m.score)
     return matches[:top_k]
 
@@ -285,13 +346,16 @@ def _detect_country_code(text: str) -> str:
 def _build_url(api: dict, endpoint: dict, topic: str) -> Optional[str]:
     """Build the full URL for an API endpoint with variable substitution."""
     base_url = api["url"]
+    if api.get("name") == "LEX Wolters Kluwer":
+        base_url = os.environ.get("LEX_API_BASE") or base_url
     path = endpoint.get("path", "")
     
     if not path:
         return None
     
     # Substitute variables
-    topic_encoded = topic.replace(" ", "+")
+    from urllib.parse import quote_plus
+    topic_encoded = quote_plus(topic)
     
     # Detect country code from query
     country_code = _detect_country_code(topic)
@@ -378,13 +442,10 @@ def _build_url(api: dict, endpoint: dict, topic: str) -> Optional[str]:
             detected_hs = hs
             break
     
-    # NIP detection for Polish APIs
-    nip_match = re.search(r'\b(\d{10})\b', topic)
-    detected_nip = nip_match.group(1) if nip_match else ''
-    
-    # KRS detection
-    krs_match = re.search(r'\b(\d{7,10})\b', topic)
-    detected_krs = krs_match.group(1).zfill(10) if krs_match else ''
+    from behive.engine.entity_resolver import extract_pl_ids
+    _ids = extract_pl_ids(topic)
+    detected_nip = _ids.get("nip") or ""
+    detected_krs = _ids.get("krs") or ""
     
     # Standard substitutions
     from datetime import date
@@ -431,6 +492,8 @@ def _build_url(api: dict, endpoint: dict, topic: str) -> Optional[str]:
     }
     
     for var, val in subs.items():
+        if var in ("{nip}", "{krs_number}", "{regon}") and not val:
+            continue
         path = path.replace(var, val)
     
     # Skip if has {key} and no key available (or other unresolved vars)
@@ -444,6 +507,10 @@ def _build_url(api: dict, endpoint: dict, topic: str) -> Optional[str]:
         else:
             return None  # Skip — no key available
     
+    # Never stuff a company name into KRS/NIP/REGON placeholders
+    if re.search(r'\{(krs_number|nip|regon)\}', path):
+        return None
+
     # Any remaining unresolved vars?
     if re.search(r'\{[^}]+\}', path):
         # Try to fill with topic-derived best guess
@@ -460,6 +527,23 @@ def _build_url(api: dict, endpoint: dict, topic: str) -> Optional[str]:
         return base_url.rstrip("/") + "/" + path
 
 
+def _vendor_api_key(api: dict) -> str:
+    """BYOK lookup. Empty → caller must skip, never scrape a login wall."""
+    env_map = {
+        "Orbis (Moody's BvD)": ("ORBIS_API_KEY", "BVD_API_KEY"),
+        "LEX Wolters Kluwer": ("LEX_API_KEY", "WOLTERS_KLUWER_API_KEY"),
+        "Bisnode D&B": ("BISNODE_API_KEY", "DNB_API_KEY", "DNB_DIRECT_KEY"),
+        "WTO Timeseries API": ("WTO_API_KEY", "WTO_TIMESERIES_KEY"),
+        "OpenCorporates": ("OPENCORPORATES_API_KEY",),
+    }
+    for k in env_map.get(api.get("name") or "", ()):
+        v = os.environ.get(k)
+        if v:
+            return v
+    name_upper = (api.get("name") or "").upper().replace(" ", "_").replace(".", "_").replace("'", "")
+    return os.environ.get(f"{name_upper}_API_KEY") or ""
+
+
 async def query_api(match: 'APIMatch', topic: str, session: aiohttp.ClientSession,
                     timeout: int = 15) -> Optional[dict]:
     """Query a single API and return structured document."""
@@ -468,6 +552,61 @@ async def query_api(match: 'APIMatch', topic: str, session: aiohttp.ClientSessio
     
     if not endpoint:
         return None
+
+    missing_endpoint = api.get("name") == "LEX Wolters Kluwer" and not os.environ.get("LEX_API_BASE")
+    if api.get("auth") == "apiKey" and (not _vendor_api_key(api) or missing_endpoint):
+        from behive.engine.byok import gap_doc
+        log.info(f"  API {api['name']}: BYOK gap (no API key)")
+        return gap_doc(api, topic)
+
+    if (api.get("name") or "").startswith("EUR-Lex"):
+        try:
+            from behive.engine.cellar import hits_to_doc, search_cellar
+            hits = await asyncio.to_thread(search_cellar, topic)
+            return hits_to_doc(topic, hits)
+        except Exception as e:
+            log.debug(f"  API {api['name']}: cellar error {e}")
+            return None
+
+    if (api.get("name") or "").startswith("SAOS"):
+        try:
+            from behive.engine.cellar import saos_search
+            return await asyncio.to_thread(saos_search, topic)
+        except Exception as e:
+            log.debug(f"  API {api['name']}: saos error {e}")
+            return None
+
+    if (api.get("name") or "").startswith("HUDOC"):
+        try:
+            from behive.engine.cellar import hudoc_search
+            return await asyncio.to_thread(hudoc_search, topic)
+        except Exception as e:
+            log.debug(f"  API {api['name']}: hudoc error {e}")
+            return None
+
+    if (api.get("name") or "").startswith("Dziennik Ustaw"):
+        try:
+            from behive.engine.cellar import eli_search
+            return await asyncio.to_thread(eli_search, topic)
+        except Exception as e:
+            log.debug(f"  API {api['name']}: eli error {e}")
+            return None
+
+    if (api.get("name") or "").startswith("CURIA"):
+        try:
+            from behive.engine.cellar import curia_search
+            return await asyncio.to_thread(curia_search, topic)
+        except Exception as e:
+            log.debug(f"  API {api['name']}: curia error {e}")
+            return None
+
+    if (api.get("name") or "").startswith("WTO Documents"):
+        try:
+            from behive.engine.wto import wto_search
+            return await asyncio.to_thread(wto_search, topic)
+        except Exception as e:
+            log.debug(f"  API {api['name']}: wto error {e}")
+            return None
     
     url = _build_url(api, endpoint, topic)
     if not url:
@@ -475,6 +614,18 @@ async def query_api(match: 'APIMatch', topic: str, session: aiohttp.ClientSessio
     
     try:
         headers = {"User-Agent": "HIVE-Research/2.0 (research-engine; +https://behive.ai)"}
+        if api.get("auth") == "apiKey":
+            key = _vendor_api_key(api)
+            if not key:
+                from behive.engine.byok import gap_doc
+                log.info(f"  API {api['name']}: BYOK gap (no API key)")
+                return gap_doc(api, topic)
+            header = api.get("auth_header") or "X-API-Key"
+            scheme = (api.get("auth_scheme") or "").strip()
+            if scheme.lower() == "bearer" or header == "Authorization":
+                headers["Authorization"] = f"Bearer {key}"
+            else:
+                headers[header] = key
         
         # Some APIs need Accept header
         if "arxiv" in api["name"].lower():
@@ -708,9 +859,16 @@ async def scout_apis(query: str, max_results: int = 12,
     if not registry:
         log.warning("API registry empty — skipping API scout")
         return []
-    
+
+    ent = resolve_entity(query, fetch=True)
+    query = enrich_query(query, ent)
+    log.info(
+        f"  API Scout entity: domain={ent.domain} krs={ent.krs or '-'} "
+        f"nip={ent.nip or '-'} src={ent.source}"
+    )
+
     # Match query to APIs
-    matches = match_apis(query, registry, top_k=10)
+    matches = match_apis(query, registry, top_k=10, domain=ent.domain)
     
     if not matches:
         log.info(f"  API Scout: no matching APIs for '{query[:50]}'")
@@ -768,7 +926,10 @@ async def scout_apis(query: str, max_results: int = 12,
                     results.append(_ct_err)
         
         for i, result in enumerate(results):
-            if isinstance(result, Exception):
+            if not isinstance(result, dict):
+                continue
+            if result and isinstance(result.get("data"), dict) and result["data"].get("skipped"):
+                # Configuration gaps are diagnostics, not harvested evidence.
                 continue
             if result and result.get("raw_text"):
                 # Convert to standard doc format for BeeHive

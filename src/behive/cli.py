@@ -16,7 +16,25 @@ def _install_compat():
         pass
 
 
+def _load_runtime_env() -> None:
+    """Load this account's runtime config without overriding explicit environment."""
+    path = os.environ.get("BEHIVE_ENV_FILE") or os.path.expanduser("~/.behive_runtime.env")
+    if not os.path.isfile(path):
+        return
+    with open(path, encoding="utf-8") as fh:
+        for line in fh:
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, val = line.split("=", 1)
+            key = key.strip()
+            val = val.strip().strip('"').strip("'")
+            if key and key not in os.environ:
+                os.environ[key] = val
+
+
 def main():
+    _load_runtime_env()
     _install_compat()
     parser = argparse.ArgumentParser(
         prog="behive",
