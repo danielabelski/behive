@@ -6,7 +6,6 @@ import MatrixRain from '../components/MatrixRain.tsx'
 import KineticReveal from '../components/KineticReveal.tsx'
 import VelocityScroll from '../components/VelocityScroll.tsx'
 import FadeIn from '../components/FadeIn.tsx'
-import CountUp from '../components/CountUp.tsx'
 import CopyButton from '../components/CopyButton.tsx'
 import TypeWriter from '../components/TypeWriter.tsx'
 ---
@@ -21,7 +20,7 @@ import TypeWriter from '../components/TypeWriter.tsx'
       </a>
       <div class="hidden md:flex items-center gap-8 text-sm font-mono">
         <a href="#how-it-works" class="text-muted hover:text-gold transition-colors link-underline">How It Works</a>
-        <a href="#benchmarks" class="text-muted hover:text-gold transition-colors link-underline">Benchmarks</a>
+        <a href="#capabilities" class="text-muted hover:text-gold transition-colors link-underline">Capabilities</a>
         <a href="#integrations" class="text-muted hover:text-gold transition-colors link-underline">Integrations</a>
         <a href="https://github.com/qa10devteam/behive" target="_blank" rel="noopener" class="text-muted hover:text-gold transition-colors flex items-center gap-1.5">
           <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
@@ -33,16 +32,16 @@ import TypeWriter from '../components/TypeWriter.tsx'
           Get Started
         </a>
         <!-- Mobile menu button -->
-        <button id="mobile-toggle" class="md:hidden text-muted hover:text-gold" aria-label="Menu">
+        <button id="mobile-toggle" class="md:hidden text-muted hover:text-gold" aria-label="Menu" aria-controls="mobile-nav" aria-expanded="false">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
         </button>
       </div>
     </div>
     <!-- Mobile nav -->
-    <div id="mobile-nav" class="mobile-nav fixed top-16 right-0 bottom-0 w-64 bg-surface/95 backdrop-blur-xl border-l border-gold-muted/20 p-6 md:hidden">
+    <div id="mobile-nav" inert class="mobile-nav fixed top-16 right-0 h-[calc(100dvh-4rem)] overflow-y-auto w-64 bg-surface/95 backdrop-blur-xl border-l border-gold-muted/20 p-6 md:hidden">
       <div class="flex flex-col gap-6 font-mono text-sm">
         <a href="#how-it-works" class="text-muted hover:text-gold transition-colors">How It Works</a>
-        <a href="#benchmarks" class="text-muted hover:text-gold transition-colors">Benchmarks</a>
+        <a href="#capabilities" class="text-muted hover:text-gold transition-colors">Capabilities</a>
         <a href="#integrations" class="text-muted hover:text-gold transition-colors">Integrations</a>
         <a href="https://github.com/qa10devteam/behive" target="_blank" class="text-muted hover:text-gold transition-colors">GitHub</a>
         <a href="https://pypi.org/project/behive" target="_blank" class="text-muted hover:text-gold transition-colors">PyPI</a>
@@ -55,7 +54,7 @@ import TypeWriter from '../components/TypeWriter.tsx'
     <HexGrid client:load />
     <MagnetLines client:load rows={8} cols={15} />
     
-    <div class="relative z-10 max-w-5xl mx-auto px-6 text-center">
+    <div class="relative z-10 w-full min-w-0 max-w-5xl mx-auto px-6 text-center">
       <!-- Badge -->
       <FadeIn client:load delay={0}>
         <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-gold-muted/30 bg-surface/50 backdrop-blur-sm mb-8">
@@ -63,7 +62,7 @@ import TypeWriter from '../components/TypeWriter.tsx'
             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75"></span>
             <span class="relative inline-flex rounded-full h-2 w-2 bg-success"></span>
           </span>
-          <span class="text-xs font-mono text-muted">v0.4.0 — Open Source (MIT)</span>
+          <span class="text-xs font-mono text-muted">v0.6.0 — Open Source (MIT)</span>
         </div>
       </FadeIn>
       
@@ -84,9 +83,7 @@ import TypeWriter from '../components/TypeWriter.tsx'
       <!-- Subheadline -->
       <FadeIn client:load delay={1.4}>
         <p class="mt-8 md:mt-10 text-base md:text-xl text-text-dim max-w-2xl mx-auto leading-relaxed">
-          Feed it a question. Get back <span class="text-gold font-medium">scored claims</span>, 
-          <span class="text-info font-medium">entity graphs</span>, and a 
-          <span class="text-success font-medium">synthesized report</span> — using your own LLM.
+          Feed it a question. Get back{' '}<span class="text-gold font-medium">scored claims</span>,{' '}<span class="text-info font-medium">entity graphs</span>, and a{' '}<span class="text-success font-medium">synthesized report</span>{' '}— using your own LLM.
         </p>
       </FadeIn>
       
@@ -102,8 +99,8 @@ import TypeWriter from '../components/TypeWriter.tsx'
         <div class="mt-10 md:mt-12 flex flex-col sm:flex-row items-center justify-center gap-4" id="install">
           <div class="flex items-center gap-3 bg-surface border border-gold-muted/40 rounded px-6 py-3 font-mono text-sm group hover:border-gold/60 transition-all hover:shadow-[0_0_20px_rgba(245,166,35,0.1)]">
             <span class="text-muted">$</span>
-            <code class="text-gold-bright">pip install behive</code>
-            <CopyButton client:load text="pip install behive" />
+            <code class="text-gold-bright">pip install behive==0.6.0</code>
+            <CopyButton client:load text="pip install behive==0.6.0" />
           </div>
           <a href="https://github.com/qa10devteam/behive" target="_blank" rel="noopener" class="flex items-center gap-2 border border-muted/30 rounded px-6 py-3 font-mono text-sm text-muted hover:text-text hover:border-muted/60 transition-all">
             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
@@ -112,16 +109,25 @@ import TypeWriter from '../components/TypeWriter.tsx'
         </div>
       </FadeIn>
       
-      <!-- Demo GIF -->
+      <!-- Schematic terminal -->
       <FadeIn client:load delay={2.0}>
         <div class="mt-12 md:mt-16 rounded border border-gold-muted/30 overflow-hidden shadow-2xl shadow-gold/5 glow-pulse max-w-4xl mx-auto">
           <div class="flex items-center gap-2 px-4 py-2.5 bg-surface/80 border-b border-gold-muted/20">
             <div class="w-3 h-3 rounded-full bg-error/70"></div>
             <div class="w-3 h-3 rounded-full bg-amber/70"></div>
             <div class="w-3 h-3 rounded-full bg-success/70"></div>
-            <span class="ml-3 text-xs font-mono text-muted truncate">behive research "NVIDIA GPU market 2026" --scale 30</span>
+            <span class="ml-3 text-xs font-mono text-muted truncate">Schematic example — not a research result</span>
           </div>
-          <img src="/images/demo.gif" alt="BeHive CLI Demo — animated terminal showing research pipeline with bee flight physics, honeycomb progress bars, and knowledge graph output" class="w-full" loading="eager" />
+          <pre class="p-5 md:p-8 text-left font-mono text-xs md:text-sm text-text-dim overflow-x-auto leading-relaxed"><code>{`$ behive research "your research question" --depth 3 --no-db
+
+Scout → Harvest → Extract → Synthesize
+
+claim       source-linked statement
+score       heuristic quality signal
+entities    extracted names and relationships
+report      model-generated synthesis
+
+Illustration only. No live mission runs on this page.`}</code></pre>
         </div>
       </FadeIn>
     </div>
@@ -135,41 +141,20 @@ import TypeWriter from '../components/TypeWriter.tsx'
   <!-- ═══ Separator ═══ -->
   <div class="gold-separator"></div>
 
-  <!-- ═══════════════════ STATS ═══════════════════ -->
+  <!-- ═══════════════════ OUTPUTS ═══════════════════ -->
   <section class="py-16 px-6 bg-surface/20">
     <div class="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-      <FadeIn client:visible delay={0}>
-        <div>
-          <div class="text-3xl md:text-4xl font-mono font-bold text-gold-bright">
-            <CountUp client:visible end={64} />
-          </div>
-          <p class="text-xs font-mono text-muted mt-2 uppercase tracking-wider">API Sources</p>
-        </div>
-      </FadeIn>
-      <FadeIn client:visible delay={0.1}>
-        <div>
-          <div class="text-3xl md:text-4xl font-mono font-bold text-gold-bright">
-            <CountUp client:visible end={53} suffix="K" />
-          </div>
-          <p class="text-xs font-mono text-muted mt-2 uppercase tracking-wider">Claims Extracted</p>
-        </div>
-      </FadeIn>
-      <FadeIn client:visible delay={0.2}>
-        <div>
-          <div class="text-3xl md:text-4xl font-mono font-bold text-gold-bright">
-            0.<CountUp client:visible end={82} />
-          </div>
-          <p class="text-xs font-mono text-muted mt-2 uppercase tracking-wider">Avg Quality</p>
-        </div>
-      </FadeIn>
-      <FadeIn client:visible delay={0.3}>
-        <div>
-          <div class="text-3xl md:text-4xl font-mono font-bold text-gold-bright">
-            <CountUp client:visible end={127} suffix="K" />
-          </div>
-          <p class="text-xs font-mono text-muted mt-2 uppercase tracking-wider">Entities Mapped</p>
-        </div>
-      </FadeIn>
+      {[
+        { title: 'Claims', detail: 'Scored, source-linked statements' },
+        { title: 'Entities', detail: 'Names and relationships' },
+        { title: 'Reports', detail: 'Model-generated synthesis' },
+        { title: 'History', detail: 'Persisted research missions' },
+      ].map((item, i) => (
+        <FadeIn client:visible delay={i * 0.1}>
+          <div class="text-xl md:text-2xl font-mono font-bold text-gold-bright">{item.title}</div>
+          <p class="text-xs font-mono text-muted mt-2">{item.detail}</p>
+        </FadeIn>
+      ))}
     </div>
   </section>
 
@@ -179,7 +164,7 @@ import TypeWriter from '../components/TypeWriter.tsx'
   <!-- ═══════════════════ VELOCITY SCROLL ═══════════════════ -->
   <VelocityScroll 
     client:visible 
-    texts={['MCP Native', '64 APIs', 'Knowledge Graph', 'Quality Scoring', 'Self-Hosted', 'MIT License', 'SSE Streaming', 'BYOK LLM', 'PostgreSQL', 'Docker Compose', '53K Claims', '127K Entities']}
+    texts={['MCP Native', 'API Sources', 'Knowledge Graph', 'Quality Scoring', 'Self-Hosted', 'MIT License', 'SSE Streaming', 'BYOK LLM', 'PostgreSQL', 'Docker Compose', 'Claim Search', 'Entity Networks']}
     className="py-6 bg-black/50"
   />
 
@@ -187,7 +172,7 @@ import TypeWriter from '../components/TypeWriter.tsx'
   <section class="py-24 md:py-32 px-6">
     <div class="max-w-5xl mx-auto">
       <FadeIn client:visible>
-        <p class="font-mono text-xs text-gold uppercase tracking-[0.3em] mb-4">The Problem</p>
+        <p class="font-mono text-xs text-gold uppercase tracking-[0.3em] mb-4">The Problem — schematic comparison</p>
       </FadeIn>
       <FadeIn client:visible delay={0.1}>
         <h2 class="text-2xl sm:text-3xl md:text-5xl font-mono font-bold text-text leading-tight">
@@ -200,7 +185,7 @@ import TypeWriter from '../components/TypeWriter.tsx'
           <div class="p-6 border border-error/20 rounded bg-error/5 card-hover">
             <div class="flex items-center gap-2 mb-4">
               <span class="w-6 h-6 rounded-full bg-error/20 flex items-center justify-center text-xs">✗</span>
-              <p class="font-mono text-sm text-error font-medium">Without BeHive</p>
+              <p class="font-mono text-sm text-error font-medium">Unstructured answer</p>
             </div>
             <p class="text-text-dim leading-relaxed text-sm md:text-base italic">
               "Based on my training data, NVIDIA's GPU market shows promising growth with several key factors driving demand..."
@@ -216,17 +201,17 @@ import TypeWriter from '../components/TypeWriter.tsx'
           <div class="p-6 border border-success/20 rounded bg-success/5 card-hover">
             <div class="flex items-center gap-2 mb-4">
               <span class="w-6 h-6 rounded-full bg-success/20 flex items-center justify-center text-xs">✓</span>
-              <p class="font-mono text-sm text-success font-medium">With BeHive</p>
+              <p class="font-mono text-sm text-success font-medium">Schematic BeHive artifacts</p>
             </div>
             <div class="text-text-dim leading-relaxed text-sm md:text-base space-y-2">
-              <p><span class="text-gold font-mono font-bold">[0.94]</span> NVIDIA H200 production at 500K units/month as of Q2 2026</p>
-              <p><span class="text-gold font-mono font-bold">[0.91]</span> Data center GPU revenue $35.1B in FY2026 Q2, 87% YoY</p>
-              <p><span class="text-gold font-mono font-bold">[0.88]</span> Blackwell GB200 yield rate: 92% at TSMC CoWoS-L</p>
+              <p><span class="text-gold font-mono font-bold">[claim]</span> Example claim → original source URL</p>
+              <p><span class="text-gold font-mono font-bold">[entity]</span> Example entity → linked research mission</p>
+              <p><span class="text-gold font-mono font-bold">[link]</span> Example relationship → supporting claim</p>
             </div>
             <div class="mt-5 pt-4 border-t border-success/10 flex flex-wrap gap-3 text-xs font-mono text-muted">
-              <span class="px-2 py-0.5 rounded-sm bg-success/10 text-success/70">290 claims</span>
-              <span class="px-2 py-0.5 rounded-sm bg-success/10 text-success/70">234 sources</span>
-              <span class="px-2 py-0.5 rounded-sm bg-success/10 text-success/70">8 min</span>
+              <span class="px-2 py-0.5 rounded-sm bg-success/10 text-success/70">Source links</span>
+              <span class="px-2 py-0.5 rounded-sm bg-success/10 text-success/70">Stored artifacts</span>
+              <span class="px-2 py-0.5 rounded-sm bg-success/10 text-success/70">Review required</span>
             </div>
           </div>
         </FadeIn>
@@ -251,12 +236,12 @@ import TypeWriter from '../components/TypeWriter.tsx'
       
       <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mt-12 md:mt-16">
         {[
-          { icon: '🐝', step: '01', title: 'Scout', desc: 'Queen decomposes your question into research axes. Generates 60+ search queries across 64 APIs. Plans the mission.', color: 'gold' },
-          { icon: '⬡', step: '02', title: 'Harvest', desc: 'Stealth drones fetch 1000+ URLs through a multi-layer evasion stack. Rotates backends: Chromium, SearXNG, Brave, Serper, Tavily.', color: 'amber' },
-          { icon: '⚗️', step: '03', title: 'Extract', desc: 'Your LLM extracts claims from raw content. Every fact scored 0.0–1.0 on specificity, density, uniqueness, verifiability, structure.', color: 'info' },
-          { icon: '🧬', step: '04', title: 'Deduplicate', desc: 'Jaccard similarity at 0.60 threshold merges duplicate facts from different sources. No inflation. Only unique intelligence.', color: 'gold-bright' },
-          { icon: '📊', step: '05', title: 'Synthesize', desc: 'Your LLM weaves verified claims into a structured report. Every statement mapped to a scored source. Zero hallucination.', color: 'success' },
-          { icon: '🕸️', step: '06', title: 'Graph', desc: 'Entities and relationships stored in PostgreSQL. Knowledge compounds across missions. Research builds on research.', color: 'info' },
+          { icon: '🐝', step: '01', title: 'Scout', desc: 'The planner breaks a topic into research tasks. Search backends and topic-specific API adapters discover candidate sources.', color: 'gold' },
+          { icon: '⬡', step: '02', title: 'Harvest', desc: 'Fetch candidate pages and documents with configured HTTP or optional browser backends. Some sources need credentials or extra dependencies.', color: 'amber' },
+          { icon: '⚗️', step: '03', title: 'Extract', desc: 'Your configured model extracts claims from source content. Quality heuristics help rank extracted statements for review.', color: 'info' },
+          { icon: '🧬', step: '04', title: 'Deduplicate', desc: 'Similarity checks reduce repeated claims. Deduplication is heuristic: similar statements can still need human review.', color: 'gold-bright' },
+          { icon: '📊', step: '05', title: 'Synthesize', desc: 'Your configured model synthesizes extracted claims into a report. Check its conclusions against the linked original sources.', color: 'success' },
+          { icon: '🕸️', step: '06', title: 'Graph', desc: 'Persist claims, entities, and relationships. The PostgreSQL-backed API exposes entity and network lookups across missions.', color: 'info' },
         ].map((item, i) => (
           <FadeIn client:visible delay={i * 0.1}>
             <div class="p-6 border border-gold-muted/20 rounded bg-surface/50 card-hover group relative overflow-hidden">
@@ -280,56 +265,44 @@ import TypeWriter from '../components/TypeWriter.tsx'
   <!-- ═══ Separator ═══ -->
   <div class="gold-separator"></div>
 
-  <!-- ═══════════════════ BENCHMARKS ═══════════════════ -->
-  <section id="benchmarks" class="py-24 md:py-32 px-6 bg-surface/30">
+  <!-- ═══════════════════ CAPABILITIES ═══════════════════ -->
+  <section id="capabilities" class="py-24 md:py-32 px-6 bg-surface/30">
     <div class="max-w-5xl mx-auto">
       <FadeIn client:visible>
-        <p class="font-mono text-xs text-gold uppercase tracking-[0.3em] mb-4">Benchmarks</p>
+        <p class="font-mono text-xs text-gold uppercase tracking-[0.3em] mb-4">Capabilities</p>
         <h2 class="text-2xl sm:text-3xl md:text-4xl font-mono font-bold text-text">
-          Real results. <span class="text-muted">No cherry-picking.</span>
+          Research artifacts. <span class="text-muted">Not performance promises.</span>
         </h2>
-        <p class="mt-4 text-text-dim text-sm md:text-base">Depth 3 (standard). Self-hosted PostgreSQL. Your LLM key.</p>
+        <p class="mt-4 text-text-dim text-sm md:text-base">Available interfaces in v0.6.0. Results depend on source access, configuration, and your model.</p>
       </FadeIn>
-      
       <FadeIn client:visible delay={0.2}>
         <div class="mt-10 md:mt-12 overflow-x-auto rounded border border-gold-muted/15">
           <table class="w-full text-sm font-mono">
-            <thead>
-              <tr class="bg-surface/50">
-                <th class="text-left py-3.5 px-4 text-gold text-xs uppercase tracking-wider font-medium">Topic</th>
-                <th class="text-right py-3.5 px-4 text-gold text-xs uppercase tracking-wider font-medium">Claims</th>
-                <th class="text-right py-3.5 px-4 text-gold text-xs uppercase tracking-wider font-medium">Quality</th>
-                <th class="text-right py-3.5 px-4 text-gold text-xs uppercase tracking-wider font-medium hidden sm:table-cell">Duration</th>
-                <th class="text-right py-3.5 px-4 text-gold text-xs uppercase tracking-wider font-medium hidden sm:table-cell">Sources</th>
-              </tr>
-            </thead>
+            <thead><tr class="bg-surface/50">
+              <th class="text-left py-3.5 px-4 text-gold">Artifact</th>
+              <th class="text-left py-3.5 px-4 text-gold">What you can do</th>
+            </tr></thead>
             <tbody>
               {[
-                { topic: 'NVIDIA GPU market 2026', claims: 290, quality: 0.797, time: '8 min', sources: 234 },
-                { topic: 'OpenAI GPT-5 capabilities', claims: 574, quality: 0.789, time: '12 min', sources: 174 },
-                { topic: 'EU AI Act enforcement', claims: 267, quality: 0.759, time: '6 min', sources: 130 },
-                { topic: 'Meta Llama 4 architecture', claims: 568, quality: 0.821, time: '11 min', sources: 198 },
-                { topic: 'SpaceX Starship progress', claims: 412, quality: 0.804, time: '9 min', sources: 167 },
-              ].map((row, i) => (
+                { artifact: 'Claims', detail: 'Search saved claims and inspect their scores and sources.' },
+                { artifact: 'Mission status', detail: 'Poll progress or subscribe to API server-sent events.' },
+                { artifact: 'Report', detail: 'Retrieve the synthesized report for a completed mission.' },
+                { artifact: 'Entity network', detail: 'Explore stored entities and relationships through the API.' },
+                { artifact: 'Mission history', detail: 'List saved missions and reuse the knowledge store.' },
+              ].map(row => (
                 <tr class="border-t border-gold-muted/10 table-row-hover">
-                  <td class="py-3 px-4 text-text">{row.topic}</td>
-                  <td class="text-right py-3 px-4 text-text-dim">{row.claims}</td>
-                  <td class="text-right py-3 px-4">
-                    <span class={`${row.quality >= 0.8 ? 'text-success' : 'text-gold'} font-bold`}>{row.quality.toFixed(3)}</span>
-                  </td>
-                  <td class="text-right py-3 px-4 text-text-dim hidden sm:table-cell">{row.time}</td>
-                  <td class="text-right py-3 px-4 text-text-dim hidden sm:table-cell">{row.sources}</td>
+                  <td class="py-3 px-4 text-text">{row.artifact}</td>
+                  <td class="py-3 px-4 text-text-dim">{row.detail}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       </FadeIn>
-      
       <FadeIn client:visible delay={0.3}>
         <p class="mt-6 text-xs text-muted font-mono text-center leading-relaxed">
-          Honest scoring. No sigmoid rescaling. No artificial inflation.<br class="hidden sm:block"/>
-          Weighted average of specificity, density, uniqueness, verifiability, and structure.
+          A quality score is a heuristic, not a probability of truth.<br class="hidden sm:block"/>
+          Check original sources. Extraction and synthesis can be incomplete or incorrect.
         </p>
       </FadeIn>
     </div>
@@ -350,12 +323,12 @@ import TypeWriter from '../components/TypeWriter.tsx'
       
       <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6 mt-10 md:mt-12">
         {[
-          { name: 'Claude Desktop', method: 'MCP (zero-code)', desc: 'Add one URL to config. Claude calls BeHive natively.', emoji: '🤖' },
-          { name: 'Cursor / Windsurf', method: 'MCP', desc: 'Research from your IDE. No context switching.', emoji: '⌨️' },
-          { name: 'n8n', method: 'Community Node', desc: 'Drag-and-drop BeHive into automation workflows.', emoji: '⚡' },
-          { name: 'Hermes Agent', method: 'MCP + Skill', desc: 'Deep research with autonomous agents.', emoji: '🏛️' },
-          { name: 'OpenClaw', method: 'Skill', desc: 'ClawHub-ready skill for OpenClaw agents.', emoji: '🦞' },
-          { name: 'Any MCP Client', method: 'Streamable HTTP', desc: 'Standard MCP protocol. Any client works.', emoji: '🔌' },
+          { name: 'Terminal', method: 'CLI', desc: 'Run missions with depth, scale, and local or remote storage options.', emoji: '⌨️' },
+          { name: 'HTTP clients', method: 'REST API', desc: 'Start research, poll status, and retrieve reports or stored claims.', emoji: '🔌' },
+          { name: 'Progress viewers', method: 'Server-sent events', desc: 'Subscribe to the API mission events endpoint.', emoji: '⚡' },
+          { name: 'MCP clients', method: 'JSON-RPC over HTTP', desc: 'Connect to the /mcp endpoint using client-specific configuration. Compatibility must be checked with your client.', emoji: '🤖' },
+          { name: 'Python applications', method: 'BeHiveClient', desc: 'Use the packaged client for local or remote research.', emoji: '🐍' },
+          { name: 'Knowledge tools', method: 'Entity + network API', desc: 'Query the PostgreSQL-backed knowledge store across missions.', emoji: '🕸️' },
         ].map((item, i) => (
           <FadeIn client:visible delay={i * 0.08}>
             <div class="p-5 border border-gold-muted/20 rounded bg-surface/30 card-hover group">
@@ -374,16 +347,14 @@ import TypeWriter from '../components/TypeWriter.tsx'
         <div class="mt-10 md:mt-12 p-5 md:p-6 border border-gold-muted/20 rounded bg-surface/30 glow-border">
           <div class="flex items-center gap-2 mb-3">
             <span class="w-2 h-2 rounded-full bg-gold"></span>
-            <p class="font-mono text-sm text-text-dim">MCP Configuration <span class="text-muted">(works everywhere)</span></p>
+            <p class="font-mono text-sm text-text-dim">MCP endpoint <span class="text-muted">(JSON-RPC over HTTP)</span></p>
           </div>
-          <pre class="font-mono text-xs md:text-sm text-gold overflow-x-auto leading-relaxed"><code>{`{
-  "mcpServers": {
-    "behive": {
-      "url": "http://localhost:8090/mcp",
-      "transport": "streamable-http"
-    }
-  }
-}`}</code></pre>
+          <p class="text-sm text-text-dim mb-4">Start the service below, then connect to http://127.0.0.1:8090/mcp. Configuration is client-specific; this is not a universal desktop-client config.</p>
+          <pre class="font-mono text-xs md:text-sm text-gold overflow-x-auto leading-relaxed"><code>{`curl http://127.0.0.1:8090/mcp \
+  -H 'Content-Type: application/json' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'`}</code></pre>
+          <p class="mt-4 text-xs font-mono text-muted">Tools: research_topic, search_knowledge, mission_status, get_report, list_missions. API mission progress uses SSE; the MCP bridge responds with JSON.</p>
+          <p class="mt-3 text-xs font-mono text-muted">Current bridge limitation: it does not forward API credentials, so research_topic cannot start an authenticated API mission when BEHIVE_API_KEY is enabled. Use the authenticated REST API for that setup.</p>
         </div>
       </FadeIn>
     </div>
@@ -393,31 +364,44 @@ import TypeWriter from '../components/TypeWriter.tsx'
   <div class="gold-separator"></div>
 
   <!-- ═══════════════════ SELF-HOSTING ═══════════════════ -->
-  <section class="py-24 md:py-32 px-6 bg-surface/30">
-    <div class="max-w-4xl mx-auto text-center">
+  <section id="setup" class="py-24 md:py-32 px-6 bg-surface/30">
+    <div class="max-w-4xl mx-auto">
       <FadeIn client:visible>
         <p class="font-mono text-xs text-gold uppercase tracking-[0.3em] mb-4">Self-Hosting</p>
         <h2 class="text-2xl sm:text-3xl md:text-4xl font-mono font-bold text-text">
-          Three commands. <span class="text-gold">Your infrastructure.</span>
+          Configure first. <span class="text-gold">Then research.</span>
         </h2>
-        <p class="mt-4 text-text-dim text-sm md:text-base">Docker Compose. PostgreSQL + API + MCP. Zero config.</p>
+        <p class="mt-4 text-text-dim text-sm md:text-base">Python 3.10+ in a virtual environment. Configure your model and provider credentials. Local CLI research can select DuckDB; API + MCP requires PostgreSQL.</p>
       </FadeIn>
-      
       <FadeIn client:visible delay={0.2}>
-        <div class="mt-10 md:mt-12 text-left max-w-2xl mx-auto p-5 md:p-6 border border-gold-muted/30 rounded bg-black glow-pulse">
-          <div class="flex items-center gap-2 mb-5">
-            <div class="w-3 h-3 rounded-full bg-error/70"></div>
-            <div class="w-3 h-3 rounded-full bg-amber/70"></div>
-            <div class="w-3 h-3 rounded-full bg-success/70"></div>
-            <span class="ml-auto text-[10px] font-mono text-muted">bash</span>
-          </div>
-          <pre class="font-mono text-xs md:text-sm leading-loose overflow-x-auto"><code><span class="text-muted">$</span> <span class="text-text">git clone https://github.com/qa10devteam/behive.git</span>
-<span class="text-muted">$</span> <span class="text-text">cp .env.example .env</span>  <span class="text-muted"># add your API key</span>
-<span class="text-muted">$</span> <span class="text-gold font-bold">docker compose up -d</span>
-
-<span class="text-success">✓</span> <span class="text-text-dim">API ready at</span> <span class="text-gold">localhost:8091</span>
-<span class="text-success">✓</span> <span class="text-text-dim">MCP server at</span> <span class="text-gold">localhost:8090</span>
-<span class="text-success">✓</span> <span class="text-text-dim">PostgreSQL</span> <span class="text-success">running</span></code></pre>
+        <div class="mt-10 p-5 md:p-6 border border-gold-muted/30 rounded bg-black glow-pulse">
+          <h3 class="font-mono text-gold mb-4">CLI installation + local research</h3>
+          <pre class="font-mono text-xs md:text-sm leading-loose overflow-x-auto text-text"><code>python -m venv .venv
+source .venv/bin/activate
+pip install behive==0.6.0
+export OPENAI_API_KEY="YOUR_PROVIDER_KEY"
+behive config --quick
+behive research &quot;your research question&quot; --depth 3 --no-db</code></pre>
+          <p class="mt-4 text-xs text-muted">POSIX shell example. Use credentials for your selected model; OPENAI_API_KEY is one provider example. Optional source-processing extras: pip install 'behive[harvest,process]==0.6.0'.</p>
+        </div>
+      </FadeIn>
+      <FadeIn client:visible delay={0.3}>
+        <div class="mt-6 p-5 md:p-6 border border-gold-muted/30 rounded bg-black">
+          <h3 class="font-mono text-gold mb-4">API + MCP service</h3>
+          <p class="mb-4 text-sm text-text-dim">Provision PostgreSQL and create a database and role first. Replace the placeholder connection string with your credentials.</p>
+          <pre class="font-mono text-xs md:text-sm leading-loose overflow-x-auto text-text"><code>export BEHIVE_DB_URL="postgresql://USER:PASSWORD@127.0.0.1:5432/behive"
+behive db init
+behive serve --host 127.0.0.1 --port 8091 --mcp-port 8090</code></pre>
+          <p class="mt-4 text-xs text-muted">API: http://127.0.0.1:8091 · Docs: /docs · MCP: http://127.0.0.1:8090/mcp. Keep local by default; configure authentication and network controls before remote exposure.</p>
+        </div>
+      </FadeIn>
+      <FadeIn client:visible delay={0.4}>
+        <div class="mt-6 p-5 md:p-6 border border-gold-muted/30 rounded bg-black">
+          <h3 class="font-mono text-gold mb-4">Start a mission through REST</h3>
+          <pre class="font-mono text-xs md:text-sm leading-loose overflow-x-auto text-text"><code>{`curl http://127.0.0.1:8091/research \
+  -H 'Content-Type: application/json' \
+  -d '{"query":"your research question","depth": 3}'`}</code></pre>
+          <p class="mt-4 text-xs text-muted">Use the returned mission ID with /research/{'{mission_id}'}/status, /research/{'{mission_id}'}/events, and /research/{'{mission_id}'}/report. When BEHIVE_API_KEY is configured, include its Bearer token on research requests. The MCP bridge does not enforce this API key; keep its endpoint private.</p>
         </div>
       </FadeIn>
     </div>
@@ -426,52 +410,29 @@ import TypeWriter from '../components/TypeWriter.tsx'
   <!-- ═══ Separator ═══ -->
   <div class="gold-separator"></div>
 
-  <!-- ═══════════════════ COMPARISON ═══════════════════ -->
+  <!-- ═══════════════════ REQUIREMENTS ═══════════════════ -->
   <section class="py-24 md:py-32 px-6">
     <div class="max-w-5xl mx-auto">
       <FadeIn client:visible>
-        <p class="font-mono text-xs text-gold uppercase tracking-[0.3em] mb-4">Comparison</p>
+        <p class="font-mono text-xs text-gold uppercase tracking-[0.3em] mb-4">Requirements</p>
         <h2 class="text-2xl sm:text-3xl md:text-4xl font-mono font-bold text-text">
-          Why not just use <span class="text-muted">Perplexity?</span>
+          Your model. <span class="text-muted">Your operating costs.</span>
         </h2>
       </FadeIn>
-      
-      <FadeIn client:visible delay={0.2}>
-        <div class="mt-10 md:mt-12 overflow-x-auto rounded border border-gold-muted/15">
-          <table class="w-full text-sm font-mono">
-            <thead>
-              <tr class="bg-surface/50">
-                <th class="text-left py-3.5 px-3 text-text-dim text-xs"></th>
-                <th class="text-center py-3.5 px-3 text-gold font-bold text-xs uppercase tracking-wider">BeHive</th>
-                <th class="text-center py-3.5 px-3 text-muted text-xs uppercase tracking-wider hidden sm:table-cell">GPT-Researcher</th>
-                <th class="text-center py-3.5 px-3 text-muted text-xs uppercase tracking-wider">Tavily</th>
-                <th class="text-center py-3.5 px-3 text-muted text-xs uppercase tracking-wider">Perplexity</th>
-              </tr>
-            </thead>
-            <tbody class="text-xs md:text-sm">
-              {[
-                { feat: 'Per-claim scoring', b: '✅', g: '—', t: '—', p: '—' },
-                { feat: 'Knowledge graph', b: '✅', g: '—', t: '—', p: '—' },
-                { feat: 'MCP native', b: '✅', g: '—', t: '—', p: '—' },
-                { feat: 'BYOK (any LLM)', b: '✅', g: '✅', t: '—', p: '—' },
-                { feat: '64 API sources', b: '✅', g: '—', t: '—', p: '~' },
-                { feat: 'Self-hosted', b: '✅', g: '~', t: '—', p: '—' },
-                { feat: 'SSE streaming', b: '✅', g: '—', t: '—', p: '—' },
-                { feat: 'Cross-session KG', b: '✅', g: '—', t: '—', p: '—' },
-                { feat: 'Price', b: 'Free', g: 'Free', t: '$29/mo', p: '$20/mo+' },
-              ].map(row => (
-                <tr class="border-t border-gold-muted/10 table-row-hover">
-                  <td class="py-3 px-3 text-text-dim">{row.feat}</td>
-                  <td class="text-center py-3 px-3 text-success font-medium">{row.b}</td>
-                  <td class="text-center py-3 px-3 text-muted hidden sm:table-cell">{row.g}</td>
-                  <td class="text-center py-3 px-3 text-muted">{row.t}</td>
-                  <td class="text-center py-3 px-3 text-muted">{row.p}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </FadeIn>
+      <div class="grid md:grid-cols-2 gap-6 mt-10">
+        <FadeIn client:visible delay={0.2}>
+          <div class="p-6 border border-gold-muted/20 rounded bg-surface/30 card-hover">
+            <h3 class="font-mono text-gold font-bold">Local CLI research</h3>
+            <p class="mt-3 text-sm text-text-dim leading-relaxed">Python 3.10+, a configured LiteLLM-compatible model, and accessible sources. The --no-db option selects local DuckDB storage in ~/.behive/research.duckdb.</p>
+          </div>
+        </FadeIn>
+        <FadeIn client:visible delay={0.3}>
+          <div class="p-6 border border-gold-muted/20 rounded bg-surface/30 card-hover">
+            <h3 class="font-mono text-gold font-bold">API + MCP service</h3>
+            <p class="mt-3 text-sm text-text-dim leading-relaxed">Configure PostgreSQL and initialize its schema before starting the service. MIT-licensed software; model, search-provider, hosting, and network costs are yours. Optional extraction and browser dependencies may be needed for specific sources.</p>
+          </div>
+        </FadeIn>
+      </div>
     </div>
   </section>
 
@@ -487,15 +448,15 @@ import TypeWriter from '../components/TypeWriter.tsx'
           Start researching.
         </h2>
         <p class="mt-4 text-text-dim text-lg">
-          One command. Infinite knowledge.
+          Configure a model. Research with sources. Review the results.
         </p>
       </FadeIn>
       <FadeIn client:visible delay={0.2}>
         <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
           <div class="flex items-center gap-3 bg-surface border border-gold/40 rounded px-6 py-3.5 font-mono text-sm glow-pulse">
             <span class="text-muted">$</span>
-            <code class="text-gold-bright font-bold">pip install behive</code>
-            <CopyButton client:load text="pip install behive" />
+            <code class="text-gold-bright font-bold">pip install behive==0.6.0</code>
+            <CopyButton client:load text="pip install behive==0.6.0" />
           </div>
         </div>
       </FadeIn>
@@ -519,7 +480,7 @@ import TypeWriter from '../components/TypeWriter.tsx'
           <p class="font-mono text-xs text-gold uppercase tracking-wider mb-3">Product</p>
           <div class="flex flex-col gap-2 text-sm text-muted">
             <a href="#how-it-works" class="hover:text-gold transition-colors">How It Works</a>
-            <a href="#benchmarks" class="hover:text-gold transition-colors">Benchmarks</a>
+            <a href="#capabilities" class="hover:text-gold transition-colors">Capabilities</a>
             <a href="#integrations" class="hover:text-gold transition-colors">Integrations</a>
           </div>
         </div>
@@ -528,7 +489,7 @@ import TypeWriter from '../components/TypeWriter.tsx'
           <div class="flex flex-col gap-2 text-sm text-muted">
             <a href="https://github.com/qa10devteam/behive" target="_blank" class="hover:text-gold transition-colors">GitHub</a>
             <a href="https://pypi.org/project/behive" target="_blank" class="hover:text-gold transition-colors">PyPI</a>
-            <a href="https://www.npmjs.com/package/n8n-nodes-behive" target="_blank" class="hover:text-gold transition-colors">n8n Node (npm)</a>
+            <a href="https://github.com/qa10devteam/behive/tree/main/docs" target="_blank" class="hover:text-gold transition-colors">Documentation</a>
           </div>
         </div>
         <div>
@@ -560,8 +521,19 @@ import TypeWriter from '../components/TypeWriter.tsx'
     // Mobile nav toggle
     const toggle = document.getElementById('mobile-toggle');
     const nav = document.getElementById('mobile-nav');
-    toggle?.addEventListener('click', () => nav?.classList.toggle('open'));
-    nav?.querySelectorAll('a').forEach(a => a.addEventListener('click', () => nav?.classList.remove('open')));
+    const setMenuOpen = (open: boolean) => {
+      nav?.classList.toggle('open', open);
+      if (nav) nav.inert = !open;
+      toggle?.setAttribute('aria-expanded', String(open));
+    };
+    toggle?.addEventListener('click', () => setMenuOpen(toggle.getAttribute('aria-expanded') !== 'true'));
+    nav?.querySelectorAll('a').forEach(a => a.addEventListener('click', () => setMenuOpen(false)));
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && toggle?.getAttribute('aria-expanded') === 'true') {
+        setMenuOpen(false);
+        toggle.focus();
+      }
+    });
     
     // Scroll to top
     const btn = document.getElementById('scroll-top');

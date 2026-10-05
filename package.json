@@ -8,6 +8,8 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
+    "test": "node --test tests/content.test.mjs",
+    "test:browser": "python3 tests/browser_check.py",
     "preview": "astro preview",
     "astro": "astro"
   },
