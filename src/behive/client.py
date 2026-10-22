@@ -203,7 +203,7 @@ class BeHiveClient:
         
         # Load entities
         cur.execute("""
-            SELECT name, type, confidence 
+            SELECT value, entity_type, confidence
             FROM hive_entities 
             WHERE mission_id = %s
             ORDER BY confidence DESC

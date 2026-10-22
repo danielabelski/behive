@@ -41,6 +41,7 @@ import logging
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Optional, List
+from uuid import uuid4
 
 log = logging.getLogger("hive2_queen_primer")
 DB_PATH = os.environ.get("BEHIVE_LEGACY_DB", "")  # Legacy — PostgreSQL is primary
@@ -117,6 +118,17 @@ def _keyword_overlap(kw1: List[str], kw2: List[str]) -> float:
     return len(intersection) / len(union)
 
 
+def _json_array(value) -> list:
+    """Accept both legacy JSON text and psycopg2-decoded JSON/JSONB arrays."""
+    if isinstance(value, str):
+        value = json.loads(value)
+    if value is None:
+        return []
+    if not isinstance(value, list):
+        raise ValueError("Primer field must be a JSON array")
+    return value
+
+
 def _pg_connect(read_only: bool = False):
     """Connect via hive2_db (PostgreSQL)."""
     from behive.engine.db import connect as _db_connect
@@ -165,13 +177,13 @@ class QueenPrimer:
             con.execute(_SCHEMA_SQL)
             con.execute("""
                 INSERT INTO hive_queen_primers
-                    (mission_id, topic, topic_keywords, top_domains,
+                    (id, mission_id, topic, topic_keywords, top_domains,
                      recommended_queries, key_entities, depth_modifier,
                      primer_quality, created_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT DO NOTHING
             """, [
-                self.mission_id, topic,
+                str(uuid4()), self.mission_id, topic,
                 json.dumps(keywords),
                 json.dumps(top_domains),
                 json.dumps(recommended_queries),
@@ -198,7 +210,7 @@ class QueenPrimer:
                                THEN 1.0 ELSE 0.2 END) AS quality
                 FROM (
                     SELECT regexp_replace(
-                               regexp_replace(url, '^https?://(www\\.)?', ''),
+                               regexp_replace(url, '^https{0,1}://(www\\.){0,1}', ''),
                                '/.*', ''
                            ) AS domain,
                            raw_text
@@ -206,7 +218,7 @@ class QueenPrimer:
                     WHERE mission_id = ?
                 ) sub
                 GROUP BY domain
-                HAVING cnt >= 1
+                HAVING COUNT(*) >= 1
                 ORDER BY quality DESC, cnt DESC
                 LIMIT ?
             """, [self.mission_id, limit]).fetchall()
@@ -291,7 +303,7 @@ class QueenPrimer:
                        primer_quality, created_at
                 FROM hive_queen_primers
                 WHERE mission_id != ?
-                  AND created_at >= NOW() - INTERVAL '45 days'
+                  AND created_at >= NOW() - (? * INTERVAL '1 day')
                 ORDER BY created_at DESC
                 LIMIT 50
             """, [self.mission_id, max_age_days]).fetchall()
@@ -302,16 +314,16 @@ class QueenPrimer:
 
             for row in rows:
                 try:
-                    stored_kw = json.loads(row[2] or "[]")
+                    stored_kw = _json_array(row[2])
                     overlap = _keyword_overlap(new_kw, stored_kw)
                     if overlap > best_overlap:
                         best_overlap = overlap
                         best_primer = Primer(
                             mission_id          = row[0],
                             topic               = row[1],
-                            top_domains         = json.loads(row[3] or "[]"),
-                            recommended_queries = json.loads(row[4] or "[]"),
-                            key_entities        = json.loads(row[5] or "[]"),
+                            top_domains         = _json_array(row[3]),
+                            recommended_queries = _json_array(row[4]),
+                            key_entities        = _json_array(row[5]),
                             depth_modifier      = float(row[6] or 1.0),
                             primer_quality      = float(row[7] or 0.5),
                             created_at          = row[8],

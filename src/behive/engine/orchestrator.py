@@ -1215,6 +1215,9 @@ def new_mission_id(topic: str) -> str:
 # Phase runner
 # ---------------------------------------------------------------------------
 
+_PHASE_LOG_MAX_BYTES = 4 * 1024 * 1024
+
+
 def run_phase(script: str, args: list[str], phase_name: str,
               timeout: int = 600) -> float:
     """Run and reap our own bee; argv never passes through a shell.
@@ -1236,16 +1239,17 @@ def run_phase(script: str, args: list[str], phase_name: str,
     log_file = Path(f"/tmp/hive_{phase}_{tag}_proc.log")
     t0 = time.monotonic()
     proc = None
+    line_count = 0
+    progress = []
     log.debug("Running phase %s; log: %s", phase_name, log_file)
     sys.stdout.flush()
     try:
         with log_file.open("w") as diagnostic:
             os.chmod(log_file, 0o600)
             diagnostic.write("STARTING\n")
-        # Anonymous 0600 capture closes on every outcome. Only allowlisted
-        # progress labels/counts are copied to persistent per-mission diagnostics;
-        # provider request bodies, tracebacks and credentials are never published.
-        with tempfile.TemporaryFile(mode="w+", encoding="utf-8", errors="replace") as output:
+        # Anonymous capture closes on every outcome. Keep detailed combined
+        # output in the private bounded log, but forward only safe summaries.
+        with tempfile.TemporaryFile(mode="w+b") as output:
             proc = subprocess.Popen(
                 cmd, shell=False, stdout=output, stderr=output,
                 env={**os.environ, "HIVE_PARENT_PID": str(os.getpid())},
@@ -1273,32 +1277,53 @@ def run_phase(script: str, args: list[str], phase_name: str,
             finally:
                 output.flush()
                 output.seek(0)
-                line_count = 0
-                progress = []
-                for line in output:
+                import re
+                sensitive = re.compile(
+                    r"authorization|request_body|(?:api[_-]?key|password|secret|token)\s*[:=]",
+                    re.IGNORECASE,
+                )
+                tail = bytearray()
+                truncated = False
+                for raw_line in output:
                     line_count += 1
-                    for stage in ("Scout", "Harvest", "Process"):
-                        if stage.lower() in line.lower() and "done" in line.lower():
-                            label = f"{stage} done"
-                            if label not in progress:
-                                progress.append(label)
-                with log_file.open("w") as diagnostic:
+                    line = raw_line.decode("utf-8", errors="replace")
+                    # Preserve the existing no-credential/provider-body contract.
+                    if sensitive.search(line):
+                        retained = b"[REDACTED sensitive subprocess output]\n"
+                    else:
+                        retained = line.encode("utf-8")
+                        for stage in ("Scout", "Harvest", "Process"):
+                            if stage.lower() in line.lower() and "done" in line.lower():
+                                label = f"{stage} done"
+                                if label not in progress:
+                                    progress.append(label)
+                    tail.extend(retained)
+                    if len(tail) > _PHASE_LOG_MAX_BYTES:
+                        del tail[:-_PHASE_LOG_MAX_BYTES]
+                        truncated = True
+                if tail and not tail.endswith(b"\n"):
+                    tail.extend(b"\n")
+                footer = f"OUTPUT_LINES:{line_count}\nEXIT:{proc.returncode}\n".encode()
+                truncated = truncated or len(tail) + len(footer) > _PHASE_LOG_MAX_BYTES
+                header = b"[TRUNCATED: older subprocess output omitted]\n" if truncated else b""
+                budget = _PHASE_LOG_MAX_BYTES - len(header) - len(footer)
+                # Tail clipping can start inside a UTF-8 character.
+                retained_tail = bytes(tail[-budget:]).decode("utf-8", errors="ignore").encode("utf-8")
+                with log_file.open("wb") as diagnostic:
                     os.chmod(log_file, 0o600)
-                    for label in progress:
-                        diagnostic.write(label + "\n")
-                    diagnostic.write(f"OUTPUT_LINES:{line_count}\nEXIT:{proc.returncode}\n")
+                    diagnostic.write(header + retained_tail + footer)
         if returncode != 0:
             raise subprocess.CalledProcessError(returncode, cmd)
     finally:
         if proc is not None:
             pid_file.unlink(missing_ok=True)
-        # Preserve phase diagnostics on the API worker's captured output. EXIT
+        # Never forward the retained worker payload into API/SSE output. EXIT
         # is diagnostic only; completion comes from wait, never log parsing.
         if log_file.exists():
-            with log_file.open(errors="replace") as output:
-                from collections import deque
-                for line in deque(output, maxlen=20):
-                    print(line, end="", flush=True)
+            for label in progress:
+                print(label, flush=True)
+            if proc is not None:
+                print(f"OUTPUT_LINES:{line_count}\nEXIT:{proc.returncode}", flush=True)
     elapsed = time.monotonic() - t0
     log.info("[%s] Completed in %.1fs (exit=0)", phase_name, elapsed)
     return elapsed
@@ -1637,6 +1662,21 @@ def _run_pipeline_phases(mission_id: str, topic: str, plan: list, timings: dict,
             log.warning(f'  ⚠️  Scout returned 0 sources — retrying in {_backoff}s (attempt {scout_attempt+1}/{_max_scout_retries})...')
             time.sleep(_backoff)
     
+    # Operator admission must not depend on the optional PreScout succeeding,
+    # nor on search backends returning any URLs. Scout initializes its ID sequence.
+    _seeds_raw = os.environ.get("HIVE_BM_SEEDS", "")
+    _seed_urls = json.loads(_seeds_raw) if _seeds_raw else None
+    if _seed_urls:
+        from behive.engine.prescout import enqueue_operator_seeds
+        enqueue_operator_seeds(mission_id, _seed_urls)
+        _con = _connect_db(read_only=True)
+        try:
+            _n_sources = _con.execute(
+                "SELECT COUNT(*) FROM hive_sources WHERE mission_id=?", [mission_id]
+            ).fetchone()[0]
+        finally:
+            _con.close()
+
     timings['scout'] = time.time() - t1
     _emit(mission_id, 'scout', 'completed', data={'sources_found': _n_sources})
     log.info(f'  └─ done · {timings["scout"]:.1f}s · {_n_sources} sources ─────────────┘\n')
@@ -1708,10 +1748,13 @@ def _run_pipeline_phases(mission_id: str, topic: str, plan: list, timings: dict,
         # Run API scout as a separate script file to avoid f-string escaping hell
         _api_script_path = f'/tmp/hive_api_scout_{mission_id}.py'
         with open(_api_script_path, 'w') as _sf:
+            # Pin the imported parent's package root, not a host-specific checkout
+            # or a possibly stale editable install inherited by the interpreter.
+            _package_root = str(Path(__file__).resolve().parents[2])
+            _sf.write(f'import sys\nsys.path.insert(0, {_package_root!r})\n')
             _sf.write('''
 import sys, json, asyncio, logging
 logging.basicConfig(level=logging.WARNING)
-sys.path.insert(0, '/home/ubuntu/behive-pkg/src')
 from behive.engine.api_scout import scout_apis
 
 topic = sys.argv[1]

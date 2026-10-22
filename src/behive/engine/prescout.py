@@ -459,6 +459,49 @@ def _pg_connect_retry(path: str, read_only: bool = False, retries: int = 4) -> A
     return _db_connect(read_only=read_only)
 
 
+def enqueue_operator_seeds(
+    mission_id: str, seed_urls: list[dict] | None, db_path: str = DB_PATH,
+) -> None:
+    """Admit operator URLs to the actual harvest queue, independent of triage.
+
+    Live hive_sources has neither an id default nor a (mission_id, url) unique
+    constraint. Use the scout's sequence and serialize repeated seed admission
+    on this connection; never reset that shared sequence or requeue done rows.
+    """
+    if not seed_urls:
+        return
+    con = _pg_connect_retry(db_path)
+    try:
+        for seed in seed_urls:
+            url = (seed.get("url") or "").strip()
+            if not url:
+                continue
+            con.execute("SELECT pg_advisory_lock(hashtext(?), hashtext(?))", [mission_id, url])
+            try:
+                con.execute("""
+                    INSERT INTO hive_sources
+                        (id, mission_id, url, domain, title, source_type,
+                         status, harvest_method, discovered_at)
+                    SELECT nextval('hive_sources_id_seq'), ?, ?, ?, ?,
+                           'operator_seed', 'pending', 'bee_master_seed', NOW()
+                    WHERE NOT EXISTS (
+                        SELECT 1 FROM hive_sources WHERE mission_id = ? AND url = ?
+                    )
+                    ON CONFLICT DO NOTHING
+                """, [mission_id, url, urlparse(url).netloc.lower(),
+                      (seed.get("title") or "")[:512], mission_id, url])
+                con.execute("""
+                    UPDATE hive_sources SET source_type = 'operator_seed',
+                        harvest_method = CASE WHEN status IN ('pending', 'scouted')
+                            THEN 'bee_master_seed' ELSE harvest_method END
+                    WHERE mission_id = ? AND url = ?
+                """, [mission_id, url])
+            finally:
+                con.execute("SELECT pg_advisory_unlock(hashtext(?), hashtext(?))", [mission_id, url])
+    finally:
+        con.close()
+
+
 def _ensure_prescout_schema(con: Any) -> None:
     """Create prescout tables if they don't exist."""
     con.execute("CREATE SEQUENCE IF NOT EXISTS hive_prescout_seq START 1")
@@ -912,6 +955,7 @@ class BeeMasterGate:
         """Dodaje seed URLs podane przez Bee Master (API/CLI)."""
         if not seed_urls:
             return
+        enqueue_operator_seeds(self.mission_id, seed_urls, self.db_path)
         con = _pg_connect_retry(self.db_path)
         try:
             _ensure_prescout_schema(con)
@@ -965,7 +1009,7 @@ class BeeMasterGate:
         Zwraca listę approved entries.
         """
         entries = self._load_map()
-        if not entries:
+        if not entries and not seed_urls:
             log.debug(f"  👨‍✈️  BeeMaster: no entries found for {self.mission_id}")
             return []
 
@@ -1326,6 +1370,9 @@ async def run_prescout_pipeline(
     log.debug(f"\n{sep}")
     log.debug(f"  🐝 PHASE 0 — TANIEC + BEE MASTER + TRUE SCOUT")
     log.debug(f"{sep}")
+
+    # Durable admission comes before every optional network/triage operation.
+    enqueue_operator_seeds(mission_id, seed_urls, db_path)
 
     # ── Phase A: Taniec ──────────────────────────────────────────────────────
     dancer     = PreScoutDancer(mission_id, db_path)

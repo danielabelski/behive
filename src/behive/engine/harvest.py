@@ -551,7 +551,7 @@ class HarvesterBee:
             return base
 
         # ── PreScout routing hint — skip if BeeMaster rejected ────────────
-        if url in self._prescout_skip:
+        if url in self._prescout_skip and source.get("source_type") != "operator_seed":
             log.debug(f"  PreScout: SKIP {url} (approved=False by BeeMaster)")
             base["method"] = "prescout_skip"
             base["error"]  = "skipped_by_prescout"
@@ -977,9 +977,10 @@ class HarvesterBee:
                 FROM hive_sources
                 WHERE mission_id = ?
                   AND status IN ('pending', 'scouted')
-                  AND score_relevance >= 5
-                  AND score_total >= 15
-                ORDER BY score_total DESC NULLS LAST
+                  AND (source_type = 'operator_seed'
+                       OR (score_relevance >= 5 AND score_total >= 15))
+                ORDER BY (source_type = 'operator_seed') DESC NULLS LAST,
+                         score_total DESC NULLS LAST
                 LIMIT 300
             """, [self.mission_id]).fetchall()
             if not rows:
