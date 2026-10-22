@@ -2022,6 +2022,10 @@ class ProcessingDrones:
         from behive.engine.db import get_pg_connection
         from behive.engine.source_extraction import MAX_DOCUMENTS, extract_source_claims
 
+        counts = dict(documents_input=len(docs), documents_with_provenance=0,
+                      documents_selected=0, documents_capped=0,
+                      claims_extracted=0, claims_duplicates=0, claims_saved=0)
+        status, stage, error_type = "failed", "provenance", None
         try:
             # End the provenance read AND close its connection before network I/O.
             with closing(get_pg_connection()) as conn, conn, conn.cursor() as cur:
@@ -2030,11 +2034,19 @@ class ProcessingDrones:
                     UNION SELECT url FROM hive_sources WHERE mission_id = %s
                 """, (self.mission_id, self.mission_id))
                 source_urls = {row[0] for row in cur.fetchall() if row[0]}
-            extract_docs = [doc for doc in docs if doc.get('url') in source_urls][:MAX_DOCUMENTS]
+            provenance_docs = [doc for doc in docs if doc.get('url') in source_urls]
+            extract_docs = provenance_docs[:MAX_DOCUMENTS]
+            counts["documents_with_provenance"] = len(provenance_docs)
+            counts["documents_selected"] = len(extract_docs)
+            counts["documents_capped"] = len(provenance_docs) - len(extract_docs)
             log.info("Phase A3 [BYOK source extraction]: %s harvested docs", len(extract_docs))
+            stage = "extraction"
             claims = await extract_source_claims(extract_docs, topic)
+            counts["claims_extracted"] = len(claims)
             if not claims:
+                status, stage = "completed", "completed"
                 return 0
+            stage = "persistence"
             with closing(get_pg_connection()) as conn, conn, conn.cursor() as cur:
                 # Serialize dedupe with both deterministic fallback writers.
                 cur.execute("SELECT pg_advisory_xact_lock(hashtextextended(%s, 0))",
@@ -2058,6 +2070,7 @@ class ProcessingDrones:
                 for claim in claims:
                     key = claim.claim[:160]
                     if key in seen:
+                        counts["claims_duplicates"] += 1
                         continue
                     cur.execute(f"""
                         INSERT INTO hive_claims
@@ -2069,14 +2082,23 @@ class ProcessingDrones:
                           claim.confidence, claim.confidence))
                     seen.add(key)
                     saved += 1
+            counts["claims_saved"] = saved  # Only count rows after the batch commits.
+            status, stage = "completed", "completed"
             log.info("Phase A3 done: %s source-backed claims", saved)
             return saved
         except Exception as exc:
+            error_type = type(exc).__name__
             # Provider/DB exception text (including chained tracebacks) may carry
             # secrets. Surface only the error type; never silently fall back.
             raise RuntimeError(
                 f"Source claim extraction/persistence failed ({type(exc).__name__})"
             ) from None
+        finally:
+            level = logging.ERROR if status == "failed" else (logging.INFO if counts["claims_saved"] else logging.WARNING)
+            log.log(level, "Phase A3 summary: status=%s stage=%s error_type=%s counts=%s",
+                    status, stage, error_type, counts,
+                    extra={"phase_a3_status": status, "phase_a3_stage": stage,
+                           "phase_a3_error_type": error_type, "phase_a3_counts": dict(counts)})
 
     async def _process_doc_with_ops(
         self,
