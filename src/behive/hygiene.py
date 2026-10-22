@@ -62,8 +62,14 @@ _HTML = re.compile(r"<[^>]+>")
 _SENT_START = re.compile(r"[A-ZĄĆĘŁŃÓŚŹŻ]")
 
 
-def sanitize_claim(text: str) -> str | None:
-    """Drop CSS/HTML/truncated fragments. Keep a full sentence with a digit."""
+def sanitize_claim(text: str, *, require_digit: bool = True) -> str | None:
+    """Drop CSS/HTML/truncated fragments. Keep a full sentence.
+
+    Deterministic (no-model) writers keep ``require_digit=True`` as their
+    garbage guard. Model source extraction passes ``False``: its claims are
+    already bounded by verbatim-quote and confidence checks, and supplier facts
+    ("Firma X oferuje system WMS Y") often contain no number.
+    """
     s = _HTML.sub(" ", text or "")
     s = re.sub(r"\s+", " ", s).strip()
     if len(s) < 40:
@@ -80,6 +86,6 @@ def sanitize_claim(text: str) -> str | None:
         return None
     if s[0].islower() or s[0] in ")]},.;:":
         return None
-    if not re.search(r"\d", s):
+    if require_digit and not re.search(r"\d", s):
         return None
     return s

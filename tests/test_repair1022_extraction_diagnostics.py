@@ -61,7 +61,9 @@ CLEAN_CLAIM = 'Acme supplied 42 warehouse monitoring systems in Poland during 20
 
 @pytest.mark.parametrize('row,rejected', [
     ({'claim': None, 'evidence': CLEAN_CLAIM, 'confidence': .9}, 'rejected_type'),
-    ({'claim': 'Acme supplied warehouse monitoring systems without numeric data.', 'evidence': CLEAN_CLAIM, 'confidence': .9}, 'rejected_hygiene'),
+    # Digitless facts are allowed on the model path (user decision 2026-10-22);
+    # hygiene still rejects markup/CSS fragments.
+    ({'claim': 'Acme warehouse page { font-size: large; padding-left: auto } styles.', 'evidence': CLEAN_CLAIM, 'confidence': .9}, 'rejected_hygiene'),
     ({'claim': 'Acme ' + 'warehouse ' * 90 + '42.', 'evidence': CLEAN_CLAIM, 'confidence': .9}, 'rejected_hygiene'),
     ({'claim': CLEAN_CLAIM, 'evidence': '', 'confidence': .9}, 'rejected_evidence'),
     ({'claim': CLEAN_CLAIM, 'evidence': 'A' * 501, 'confidence': .9}, 'rejected_evidence'),
