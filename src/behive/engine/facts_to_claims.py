@@ -47,6 +47,9 @@ def persist_facts_as_claims(mission_id: str, topic: Optional[str] = None) -> int
     conn = psycopg2.connect(url)
     try:
         cur = conn.cursor()
+        # Same transaction lock across claim writers: sequence IDs alone do not dedupe.
+        cur.execute("SELECT pg_advisory_xact_lock(hashtextextended(%s, 0))",
+                    ("behive_claims:" + mission_id,))
         if not topic:
             cur.execute("SELECT topic FROM hive_missions WHERE id = %s", (mission_id,))
             row = cur.fetchone()
@@ -62,10 +65,12 @@ def persist_facts_as_claims(mission_id: str, topic: Optional[str] = None) -> int
         )
         facts = cur.fetchall()
         cur.execute(
-            "SELECT LEFT(claim, 180) FROM hive_claims WHERE mission_id = %s",
+            "SELECT LEFT(claim, 160) FROM hive_claims WHERE mission_id = %s",
             (mission_id,),
         )
         seen = {r[0] for r in cur.fetchall() if r[0]}
+        from behive.engine.claim_ids import claim_id_expression
+        id_sql = claim_id_expression(cur)
         n = 0
         for _value, _unit, context, sources, conf in facts:
             ctx = _clean_ctx(context)
@@ -74,7 +79,7 @@ def persist_facts_as_claims(mission_id: str, topic: Optional[str] = None) -> int
             low = ctx.lower()
             if keys and not any(k in low for k in keys[:3]):
                 continue
-            key = ctx[:180]
+            key = ctx[:160]
             if key in seen:
                 continue
             seen.add(key)
@@ -94,12 +99,12 @@ def persist_facts_as_claims(mission_id: str, topic: Optional[str] = None) -> int
                 except (TypeError, ValueError):
                     conf_f = 0.62
             cur.execute(
-                """
+                f"""
                 INSERT INTO hive_claims
-                    (mission_id, claim, evidence, source_url, claim_type,
+                    (id, mission_id, claim, evidence, source_url, claim_type,
                      confidence, extracted_at, quality_score, source_operation, is_garbage)
                 VALUES
-                    (%s, %s, %s, %s, 'fact_persist', %s, NOW(), %s, 'facts_to_claims', false)
+                    ({id_sql}, %s, %s, %s, %s, 'fact_persist', %s, NOW(), %s, 'facts_to_claims', false)
                 """,
                 (mission_id, ctx[:1000], ctx[:500], src or None, conf_f, conf_f),
             )

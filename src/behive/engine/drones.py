@@ -269,6 +269,7 @@ class DroneRecon:
 
     SEM_LIMIT     = 20
     PROBE_TIMEOUT = 10
+    ROBOTS_MAX_BYTES = 512 * 1024
     JINA_BASE     = "https://r.jina.ai/"
     ARCHIVE_PH    = "https://archive.ph/newest/"
 
@@ -385,19 +386,49 @@ class DroneRecon:
 
     # ── Robots.txt ────────────────────────────────────────────────────────────
 
-    def _check_robots(self, domain: str) -> list[str]:
-        blocked = []
+    async def _check_robots(self, domain: str, session=None) -> list[str]:
+        """Bound all robots I/O; unavailable/incomplete rules remain disallowed."""
+        import aiohttp
+
+        rp = urllib.robotparser.RobotFileParser(f"https://{domain}/robots.txt")
+        timeout = aiohttp.ClientTimeout(total=self.PROBE_TIMEOUT, connect=4)
+
+        async def fetch(sess):
+            async with sess.get(rp.url, timeout=timeout, raise_for_status=False,
+                                headers={"Accept-Encoding": "identity"},
+                                auto_decompress=False) as resp:
+                # Match RobotFileParser.read's HTTP status semantics.
+                if resp.status in (401, 403):
+                    rp.disallow_all = True
+                elif 400 <= resp.status < 500:
+                    rp.allow_all = True
+                elif 200 <= resp.status < 300:
+                    if resp.headers.get("Content-Encoding", "identity").lower() != "identity":
+                        raise ValueError("encoded robots.txt")
+                    raw = bytearray()
+                    async for chunk in resp.content.iter_chunked(16384):
+                        if len(raw) + len(chunk) > self.ROBOTS_MAX_BYTES:
+                            raise ValueError("robots.txt exceeds body limit")
+                        raw.extend(chunk)
+                    rp.parse(raw.decode("utf-8").splitlines())
+
+        async def read():
+            if session is not None:
+                await fetch(session)
+            else:
+                connector = aiohttp.TCPConnector(enable_cleanup_closed=True)
+                async with aiohttp.ClientSession(connector=connector,
+                                                 auto_decompress=False) as sess:
+                    await fetch(sess)
+
         try:
-            rp = urllib.robotparser.RobotFileParser()
-            rp.set_url(f"https://{domain}/robots.txt")
-            rp.read()
-            for path in ["/search", "/api/", "/data/", "/download/", "/pdf/",
-                         "/wp-json/", "/feed/", "/rss/"]:
-                if not rp.can_fetch("*", f"https://{domain}{path}"):
-                    blocked.append(path)
-        except (OSError, Exception) as e:  # network/HTTP
+            # wait_for avoids aiohttp's rounded deadlines and covers body/redirects.
+            await asyncio.wait_for(read(), timeout=self.PROBE_TIMEOUT)
+        except Exception as e:  # CancelledError must propagate, not become permission.
             log.debug(f"HTTP error: {e}")
-        return blocked
+        return [path for path in ["/search", "/api/", "/data/", "/download/", "/pdf/",
+                                  "/wp-json/", "/feed/", "/rss/"]
+                if not rp.can_fetch("*", f"https://{domain}{path}")]
 
     # ══════════════════════════════════════════════════════════════════════════
     # LAYERS 3-6 — Heavy weapons
@@ -617,7 +648,7 @@ class DroneRecon:
             if block is None and status == 200:
                 result.strategy = "DIRECT"
                 result.working_ua = UA_POOL[0]
-                result.robots_blocked = self._check_robots(domain)
+                result.robots_blocked = await self._check_robots(domain)
                 result.notes.append(f"open: status=200 t={int(elapsed_ms)}ms")
                 return result
 
@@ -633,7 +664,7 @@ class DroneRecon:
                         result.working_ua = ua
                         result.delay_ms = 500
                         result.notes.append(f"L2-ua-rotation: ok t={int(t2)}ms")
-                        result.robots_blocked = self._check_robots(domain)
+                        result.robots_blocked = await self._check_robots(domain)
                         return result
 
             # ── LEVEL 3: curl_cffi TLS impersonation ──────────────────────────

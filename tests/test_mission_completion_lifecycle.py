@@ -114,16 +114,17 @@ def test_api_content_claim_completes_without_scout_rows(monkeypatch):
     assert bridges == [('m', 'done')]
 
 
+@pytest.mark.parametrize('rc', [0, 1])
 @pytest.mark.parametrize('kind', ['orphan', 'blob', 'blob_whitespace', 'garbage', 'blank', 'blank_whitespace', 'other_mission'])
-def test_ineligible_claims_never_complete(monkeypatch, kind):
+def test_ineligible_claims_never_complete(monkeypatch, kind, rc):
     db = BoundaryDB()
     db.execute("INSERT INTO hive_sources VALUES ('m', 'web://unrelated')")
     if kind != 'orphan':
         db.execute('INSERT INTO hive_content VALUES (?, ?)', ('other' if kind == 'other_mission' else 'm', 'api://doc'))
     for _ in range(3):
         db.claim(text={'blob': ' {"facts":[]}', 'blob_whitespace': '\n\t {"facts":[]}', 'blank': '  ', 'blank_whitespace': '\n\t '}.get(kind, 'A factual 2025 claim.'), garbage=kind == 'garbage')
-    events, bridges = run_server(monkeypatch, db, rc=1)
-    assert db.status == 'empty'
+    events, bridges = run_server(monkeypatch, db, rc=rc)
+    assert db.status == ('empty' if rc == 0 else 'error')
     assert not bridges
     assert not any(event == 'done' for event, status in events)
 

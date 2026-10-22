@@ -6,6 +6,9 @@ import time
 import json
 import hashlib
 import asyncio
+import logging
+
+log = logging.getLogger(__name__)
 from collections import defaultdict, Counter
 from contextlib import asynccontextmanager
 from typing import Optional, AsyncGenerator
@@ -521,18 +524,41 @@ async def get_report(mission_id: str):
     try:
         conn = get_db()
         cur = conn.cursor()
-        cur.execute("SELECT topic, status, synthesis FROM hive_missions WHERE id = %s", (mission_id,))
+        cur.execute("SELECT topic, status, synthesis, phase FROM hive_missions WHERE id = %s", (mission_id,))
         row = cur.fetchone()
         if not row:
             conn.close()
             raise HTTPException(404, f"Mission {mission_id} not found")
-        topic, status, synthesis = row
+        topic, status, synthesis, phase = row
         cur.execute(
             "SELECT COUNT(*), COALESCE(AVG(quality_score), 0) FROM hive_claims WHERE mission_id = %s AND (is_garbage = false OR is_garbage IS NULL)",
             (mission_id,)
         )
         crow = cur.fetchone()
         conn.close()
+        if status in {"empty", "error", "cancelled"}:
+            # Never publish persisted exception strings or provider responses.
+            reasons = {
+                "empty_scout": "No sources or qualifying claims were produced.",
+                "empty_claims": "Sources were collected but no qualifying claims were produced.",
+                "pipeline_failed": "Pipeline execution failed without a qualifying product.",
+                "claims_fallback_failed": "Claims recovery failed without a qualifying product.",
+                "pipeline_exception": "Pipeline execution raised an exception.",
+                "timeout": "Pipeline execution timed out.",
+                "cancelled": "Mission was cancelled.",
+            }
+            safe_phase = phase if phase in reasons else status
+            reason = reasons.get(safe_phase, {
+                "empty": "Mission finished without qualifying claims.",
+                "error": "Mission execution failed.",
+                "cancelled": "Mission was cancelled.",
+            }[status])
+            return JSONResponse(status_code=409, content={
+                "detail": reason, "mission_id": mission_id, "topic": topic,
+                "status": status, "phase": safe_phase, "reason": reason,
+                "synthesis": "", "claims_count": crow[0] or 0,
+                "avg_quality": round(float(crow[1] or 0), 4),
+            })
         if status != "done":
             raise HTTPException(202, f"Mission still in progress (status={status})")
         return {
@@ -545,7 +571,8 @@ async def get_report(mission_id: str):
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(500, str(e))
+        log.warning("Mission %s report unavailable (%s)", mission_id, type(e).__name__)
+        raise HTTPException(500, "Report unavailable") from None
 
 
 # ─── 7. Search Claims (primary path) ─────────────────────────────────────────
@@ -1128,16 +1155,23 @@ async def _run_pipeline_inner(mission_id: str, topic: str, depth: int, scale: in
 
         await proc.wait()
 
-        # Harvested text without LLM claims is still a product.
+        # Recovery may supply evidence, but a failed recovery is not empty scout.
+        salvage_error = None
         try:
             from behive.engine.claims_fallback import salvage_claims_from_content
             await asyncio.to_thread(salvage_claims_from_content, mission_id)
-        except Exception:
-            pass
+        except Exception as exc:
+            salvage_error = type(exc).__name__
+            log.warning("Mission %s claims recovery failed (%s)", mission_id, salvage_error)
+        if proc.returncode != 0:
+            log.warning("Mission %s pipeline failed (phase=%s, exit=%s)",
+                        mission_id, current_phase, proc.returncode)
 
         # Gather final results. Exit 0 is not done — empty scout/claims is error.
         conn = get_db()
         cur = conn.cursor()
+        cur.execute("SELECT status, phase FROM hive_missions WHERE id = %s", (mission_id,))
+        worker_state = cur.fetchone() or (None, None)
         cur.execute("SELECT COUNT(*) FROM hive_sources WHERE mission_id = %s", (mission_id,))
         row_src = cur.fetchone() or (0,)
         n_src = int(row_src[0] or 0)
@@ -1151,23 +1185,40 @@ async def _run_pipeline_inner(mission_id: str, topic: str, depth: int, scale: in
         empty = is_empty_mission(n_src, n_cl, sourced_claims=n_cl)
         if not empty and (has_salvageable_claims(n_cl) or proc.returncode == 0):
             new_status, new_phase = "done", "done"
-            event_data = {"total_claims": n_cl, "avg_quality": round(float(avg_q or 0), 4), "salvaged": proc.returncode != 0}
+            recovered = proc.returncode != 0 or salvage_error or worker_state[0] == "error"
+            event_data = {
+                "total_claims": n_cl, "avg_quality": round(float(avg_q or 0), 4),
+                "salvaged": proc.returncode != 0, "completion_basis": "qualified_claims",
+                "recovery": "source_product" if recovered else None,
+            }
         else:
             reason = (
                 f"empty_mission sources={n_src} claims={n_cl}"
                 if empty
                 else f"Pipeline exited with code {proc.returncode}"
             )
-            new_status = "empty" if empty else "error"
-            new_phase = "empty_scout" if empty else "error"
-            event_data = {"message": reason, "sources": n_src, "claims": n_cl}
+            # A worker's explicit clean-empty transition is terminal, not a
+            # crash (cmd_run returns 1 for empty). Other nonzero exits are errors.
+            failed = salvage_error is not None or worker_state[0] == "error" or (proc.returncode != 0 and worker_state[0] != "empty")
+            new_status = "error" if failed or not empty else "empty"
+            if failed:
+                new_phase = "claims_fallback_failed" if salvage_error else "pipeline_failed"
+                reason = "Claims recovery failed" if salvage_error else "Pipeline execution failed"
+            else:
+                new_phase = "empty_scout" if n_src == 0 else "empty_claims"
+            event_data = {"message": reason, "sources": n_src, "claims": n_cl,
+                          "exit_code": proc.returncode}
+            if salvage_error:
+                event_data["error_type"] = salvage_error
         # This invocation claimed a nonterminal mission before spawning. Synth
         # may write provisional done: confirm its sourced product here, or correct
         # empty done. Never downgrade a real done product for a later worker error.
         # Calls that start after completion are rejected by the initial claim.
         cur.execute(
             f"""UPDATE hive_missions SET status = %s, phase = %s WHERE id = %s
-                AND status <> 'cancelled' AND (status <> 'done' OR %s IN ('done', 'empty'))
+                AND status <> 'cancelled' AND (status <> 'done' OR %s IN ('done', 'empty')
+                    OR NOT EXISTS (SELECT 1 FROM hive_claims c
+                        WHERE c.mission_id = hive_missions.id AND {SQL_COMPLETION_CLAIM}))
                 AND (%s <> 'done' OR (SELECT COUNT(*) FROM hive_claims c
                     WHERE c.mission_id = hive_missions.id AND {SQL_COMPLETION_CLAIM}) >= %s)
                 AND (%s <> 'empty' OR NOT EXISTS (SELECT 1 FROM hive_claims c
@@ -1188,9 +1239,10 @@ async def _run_pipeline_inner(mission_id: str, topic: str, depth: int, scale: in
             try:
                 await asyncio.to_thread(_bridge_done_mission, mission_id)
             except Exception as e:
-                _emit_event(mission_id, "bridge_error", {"message": str(e)[:240]})
+                _emit_event(mission_id, "bridge_error", {"message": "Source-product bridge failed", "error_type": type(e).__name__})
 
     except Exception as e:
+        log.warning("Mission %s pipeline exception (%s)", mission_id, type(e).__name__)
         try:
             # Discard any failed finalization before attempting an error transition.
             if conn is not None:
@@ -1199,7 +1251,7 @@ async def _run_pipeline_inner(mission_id: str, topic: str, depth: int, scale: in
             conn = get_db()
             cur = conn.cursor()
             cur.execute(
-                "UPDATE hive_missions SET status = 'error', phase = 'error' WHERE id = %s "
+                "UPDATE hive_missions SET status = 'error', phase = 'pipeline_exception' WHERE id = %s "
                 "AND status NOT IN ('done', 'cancelled', 'empty', 'error') RETURNING id",
                 (mission_id,),
             )
@@ -1207,13 +1259,27 @@ async def _run_pipeline_inner(mission_id: str, topic: str, depth: int, scale: in
             conn.commit()
             conn.close()
             if transitioned:
-                _emit_event(mission_id, "error", {"message": str(e)})
+                _emit_event(mission_id, "error", {"message": "Pipeline execution raised an exception",
+                                                  "error_type": type(e).__name__})
         except Exception:
             pass
 
 
 def _bridge_done_mission(mission_id: str) -> None:
     """Push mission claims to SR. Must not raise into the API loop."""
+    review_file = os.environ.get("BEHIVE_SR_MANUAL_REVIEW_IDS_FILE")
+    if review_file is not None:
+        try:
+            with open(review_file, encoding="utf-8") as handle:
+                held_ids = json.load(handle)
+            if not isinstance(held_ids, list) or not all(isinstance(item, str) for item in held_ids):
+                raise ValueError("Invalid review ID list")
+        except Exception:
+            log.error("Automatic SR bridge skipped: review gate unavailable")
+            return
+        if mission_id in held_ids:
+            log.info("Automatic SR bridge held for manual review")
+            return
     import sys
     if "/root" not in sys.path:
         sys.path.insert(0, "/root")

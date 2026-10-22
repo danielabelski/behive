@@ -1215,125 +1215,92 @@ def new_mission_id(topic: str) -> str:
 # Phase runner
 # ---------------------------------------------------------------------------
 
-def run_phase(script: str, args: list[str], phase_name: str, 
+def run_phase(script: str, args: list[str], phase_name: str,
               timeout: int = 600) -> float:
-    """Run a HIVE bee as subprocess. Package module, not ~/hive2_*.py."""
-    timeout = int(os.environ.get("BEHIVE_PHASE_TIMEOUT", str(timeout)))
-    cmd = _resolve_cmd(script) + list(args)
-    _tag = "".join(c if c.isalnum() or c in "-_" else "_" for c in (args[0] if args else "na"))[:48]
-    _phase = phase_name.replace("/", "_")
-    pid_file = f"/tmp/hive_{_phase}_{_tag}.pid"
-    log_file = f"/tmp/hive_{_phase}_{_tag}_proc.log"
-    t0 = time.time()
-    log.debug(f"\n{'='*60}")
-    log.debug(f"🐝  [{phase_name.upper()}] Uruchamiam: {' '.join(cmd)}")
-    log.debug(f"    PID file: {pid_file} | log: {log_file}")
-    log.debug(f"{'='*60}")
-    sys.stdout.flush()
+    """Run and reap our own bee; argv never passes through a shell.
 
-    # Fazy synth: detached double-fork — hive2.py does not wait, process lives on its own
-    # This allows hive2.py to exit and release the DB write lock.
+    Keep the historical 900s synthesis budget, with explicit short timeouts
+    and BEHIVE_PHASE_TIMEOUT honoured for every phase.
+    """
+    import signal
+    import tempfile
+
     is_synth = any(k in script for k in ('master_intelligence', 'synth'))
-    if is_synth:
-        import shlex as _shlex
-        _safe_cmd = ' '.join(_shlex.quote(str(a)) for a in cmd)
-        _env_str = f"HIVE_PARENT_PID={os.getpid()}"
-        # Double-fork detach: setsid + nohup, hive2.py nie robi wait
-        # EXIT: marker dopisany przez bash trap — polling w hive2.py go czeka
-        detach_cmd = (
-            f"export {_env_str} && "
-            f"setsid bash -c 'nohup {_safe_cmd} > {log_file} 2>&1; echo \"EXIT:$?\" >> {log_file}' &"
-            f" echo $! > {pid_file}"
-        )
-        subprocess.run(["bash", "-c", detach_cmd], check=False)
-        child_pid_str = ""
-        try:
-            with open(pid_file) as _pf:
-                child_pid_str = _pf.read().strip()
-        except Exception as e:
-            log.debug(f"Suppressed: {e}")
-        log.debug(f"  🔮 Synth detached — PID {child_pid_str}, waiting for completion…")
-        sys.stdout.flush()
-        # Czekamy przez polling log file na EXIT: marker (max 300s)
-        _deadline = time.time() + 900  # Pass1~80s + Pass2~65s + Pass3~170s = ~315s — 900s generous margin
-        _exit_code = None
-        while time.time() < _deadline:
-            time.sleep(3)
-            try:
-                with open(log_file) as _lf:
-                    _content = _lf.read()
-                if "EXIT:" in _content:
-                    import re as _re
-                    _m = _re.search(r"EXIT:(\d+)", _content)
-                    _exit_code = int(_m.group(1)) if _m else 0
-                    break
-            except Exception as e:
-                log.debug(f"Suppressed: {e}")
-        # Show last lines of log
-        subprocess.run(["tail", "-20", log_file], check=False)
-        elapsed = time.time() - t0
-        
-        # If deadline exceeded and no EXIT marker → kill orphan and raise timeout
-        if _exit_code is None:
-            log.warning(f"  ⚠️  [{phase_name.upper()}] TIMEOUT after {elapsed:.0f}s — killing PID {child_pid_str}")
-            try:
-                if child_pid_str:
-                    os.kill(int(child_pid_str), 9)
-            except (ProcessLookupError, ValueError):
-                pass
-            raise subprocess.TimeoutExpired(cmd, timeout)
-        
-        log.info(f"✅  [{phase_name.upper()}] Zakończono w {elapsed:.1f}s (exit={_exit_code})")
-        if _exit_code and _exit_code != 0:
-            raise subprocess.CalledProcessError(_exit_code, cmd)
-        return elapsed
-
+    default_timeout = 900 if is_synth and timeout == 600 else timeout
+    timeout = int(os.environ.get("BEHIVE_PHASE_TIMEOUT", str(default_timeout)))
+    cmd = _resolve_cmd(script) + list(args)
+    tag = "".join(c if c.isalnum() or c in "-_" else "_"
+                  for c in (args[0] if args else "na"))[:48]
+    phase = "".join(c if c.isalnum() or c in "-_" else "_" for c in phase_name)
+    pid_file = Path(f"/tmp/hive_{phase}_{tag}.pid")
+    log_file = Path(f"/tmp/hive_{phase}_{tag}_proc.log")
+    t0 = time.monotonic()
+    proc = None
+    log.debug("Running phase %s; log: %s", phase_name, log_file)
+    sys.stdout.flush()
     try:
-        # Launch via nohup shell — survives session close
-        # HIVE_PARENT_PID=os.getpid() — child can wait for parent death (PostgreSQL lock)
-        import shlex as _shlex
-        _safe_cmd = ' '.join(_shlex.quote(str(a)) for a in cmd)
-        # Pass env vars to subprocess (HIVE_USE_BATCH, HIVE_BM_MANUAL, etc.)
-        _extra_env = ""
-        for _evar in ("HIVE_USE_BATCH", "HIVE_BM_MANUAL", "HIVE_BM_SEEDS"):
-            _evalue = os.environ.get(_evar)
-            if _evalue is not None:
-                _extra_env += f"export {_evar}={_shlex.quote(_evalue)} && "
-        nohup_cmd = (
-            f"export HIVE_PARENT_PID={os.getpid()} && "
-            f"{_extra_env}"
-            f"nohup {_safe_cmd} > {log_file} 2>&1 & "
-            f"echo $! > {pid_file} && "
-            f"CHILD_PID=$(cat {pid_file}) && "
-            f"wait $CHILD_PID; echo \"EXIT:$?\" >> {log_file}"
-        )
-        result = subprocess.run(
-            ["bash", "-c", nohup_cmd],
-            check=False,
-            timeout=timeout,
-        )
-        # Tail log to stdout to maintain visibility
-        subprocess.run(["grep", "-E", "⚙️|Process:|✅|❌|COMPLETE|ERROR", log_file], check=False)
-        subprocess.run(["tail", "-5", log_file], check=False)
-        if result.returncode != 0:
-            raise subprocess.CalledProcessError(result.returncode, cmd)
-    except FileNotFoundError:
-        log.info(f"[HIVE] UWAGA: Skrypt {cmd} nie istnieje — faza pominięta.")
-    except subprocess.TimeoutExpired:
-        log.warning(f"[HIVE] ⏱️ TIMEOUT: Phase {phase_name} exceeded {timeout}s — killing.")
-        # Try to kill the child process
-        try:
-            with open(pid_file) as _pf:
-                _pid = int(_pf.read().strip())
-            os.kill(_pid, 9)
-        except Exception:
-            pass
-        raise RuntimeError(f"Phase {phase_name} timed out after {timeout}s")
-    except subprocess.CalledProcessError as e:
-        log.info(f"[HIVE] BŁĄD w fazie {phase_name}: exit code {e.returncode}")
-        raise
-    elapsed = time.time() - t0
-    log.info(f"✅  [{phase_name.upper()}] Zakończono w {elapsed:.1f}s")
+        with log_file.open("w") as diagnostic:
+            os.chmod(log_file, 0o600)
+            diagnostic.write("STARTING\n")
+        # Anonymous 0600 capture closes on every outcome. Only allowlisted
+        # progress labels/counts are copied to persistent per-mission diagnostics;
+        # provider request bodies, tracebacks and credentials are never published.
+        with tempfile.TemporaryFile(mode="w+", encoding="utf-8", errors="replace") as output:
+            proc = subprocess.Popen(
+                cmd, shell=False, stdout=output, stderr=output,
+                env={**os.environ, "HIVE_PARENT_PID": str(os.getpid())},
+                start_new_session=True,
+            )
+            try:
+                pid_file.write_text(str(proc.pid))
+                returncode = proc.wait(timeout=timeout)
+            except BaseException:
+                # The session/group belongs to this Popen, never a stale PID file.
+                # Kill descendants too, even if the direct child already exited.
+                try:
+                    os.killpg(proc.pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+                proc.wait()
+                raise
+            else:
+                # A bee may exit before its workers. Never leave its own group
+                # running after phase success or failure; unrelated groups survive.
+                try:
+                    os.killpg(proc.pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+            finally:
+                output.flush()
+                output.seek(0)
+                line_count = 0
+                progress = []
+                for line in output:
+                    line_count += 1
+                    for stage in ("Scout", "Harvest", "Process"):
+                        if stage.lower() in line.lower() and "done" in line.lower():
+                            label = f"{stage} done"
+                            if label not in progress:
+                                progress.append(label)
+                with log_file.open("w") as diagnostic:
+                    os.chmod(log_file, 0o600)
+                    for label in progress:
+                        diagnostic.write(label + "\n")
+                    diagnostic.write(f"OUTPUT_LINES:{line_count}\nEXIT:{proc.returncode}\n")
+        if returncode != 0:
+            raise subprocess.CalledProcessError(returncode, cmd)
+    finally:
+        if proc is not None:
+            pid_file.unlink(missing_ok=True)
+        # Preserve phase diagnostics on the API worker's captured output. EXIT
+        # is diagnostic only; completion comes from wait, never log parsing.
+        if log_file.exists():
+            with log_file.open(errors="replace") as output:
+                from collections import deque
+                for line in deque(output, maxlen=20):
+                    print(line, end="", flush=True)
+    elapsed = time.monotonic() - t0
+    log.info("[%s] Completed in %.1fs (exit=0)", phase_name, elapsed)
     return elapsed
 
 # ---------------------------------------------------------------------------
@@ -1351,6 +1318,69 @@ def _bar(phase: str, elapsed: float, width: int = 20) -> str:
     filled = min(width, int(elapsed / 3))  # 1 block per 3s
     bar = '█' * filled + '░' * (width - filled)
     return f"  {icon} {phase:<18} [{bar}] {elapsed:6.1f}s"
+
+
+def _run_synthesis(mission_id: str, query: str, timings: dict) -> None:
+    """Try the existing synthesis paths; publish completion only with evidence."""
+    import gc
+    from behive.hygiene import SQL_COMPLETION_CLAIM
+    from behive.engine.fact_synth import persist_fact_synthesis
+
+    _emit(mission_id, 'synth', 'started')
+    succeeded = False
+    method = "fact"
+    failure = None
+    try:
+        succeeded = persist_fact_synthesis(mission_id).get("claims", 0) >= 3
+        if succeeded:
+            timings['synth'] = 0.0
+    except Exception as exc:
+        failure = exc
+        log.warning("Mission %s fact synthesis failed (%s)", mission_id, type(exc).__name__)
+    if not succeeded:
+        for script, args, phase in (
+            ('hive2_master_intelligence.py', [mission_id, query], 'queen-synthesis'),
+            ('hive2_synth.py', [mission_id], 'synth-fallback'),
+        ):
+            gc.collect()
+            try:
+                timings['synth'] = run_phase(script, args, phase)
+                succeeded = True
+                method = phase
+                break
+            except Exception as exc:
+                failure = exc
+                log.warning("Mission %s %s failed (%s)", mission_id, phase, type(exc).__name__)
+        if not succeeded:
+            try:
+                succeeded = persist_fact_synthesis(mission_id).get("claims", 0) >= 3
+                if succeeded:
+                    timings['synth'] = 0.0
+                    method = "fact"
+            except Exception as exc:
+                failure = exc
+    if not succeeded:
+        _emit(mission_id, 'synth', 'failed', data={'error_type': type(failure).__name__})
+        raise RuntimeError("synthesis failed") from failure
+
+    con = None
+    try:
+        con = _connect_db(read_only=True)
+        row = con.execute(
+            f"SELECT COUNT(*) FROM hive_claims c WHERE c.mission_id=%s AND {SQL_COMPLETION_CLAIM}",
+            [mission_id],
+        ).fetchone()
+        claims = int(row[0] or 0) if row else 0
+    except Exception as exc:
+        _emit(mission_id, 'synth', 'failed', data={'error_type': type(exc).__name__})
+        raise RuntimeError("synthesis evidence unavailable") from exc
+    finally:
+        if con is not None:
+            con.close()
+    _emit(mission_id, 'synth', 'completed' if claims else 'empty', data={
+        'claims': claims, 'completion_basis': 'qualified_claims',
+        'synthesis_method': method,
+    })
 
 
 def cmd_run(topic: str, think: bool = False, deep: bool = False, force: bool = False, scale: int = 200) -> None:
@@ -1503,34 +1533,40 @@ def cmd_run(topic: str, think: bool = False, deep: bool = False, force: bool = F
             raise
         except Exception as pipeline_err:
             if attempt < max_attempts - 1:
-                log.warning(f'\n  ⚠️  ATTEMPT {attempt+1} FAILED: {pipeline_err} — retrying...')
+                log.warning(f'\n  ⚠️  ATTEMPT {attempt+1} FAILED: {type(pipeline_err).__name__} — retrying...')
                 time.sleep(5)  # Brief pause before retry
                 # Reset timings for retry
                 timings.clear()
                 timings['queen_plan'] = 0.0
                 total_t0 = time.time()
             else:
-                log.warning(f'\n  ❌  MISSION FAILED after {max_attempts} attempts: {mission_id} — {pipeline_err}')
+                log.warning(f'\n  ❌  MISSION FAILED after {max_attempts} attempts: {mission_id} — {type(pipeline_err).__name__}')
                 if _mark_mission_error(mission_id, str(pipeline_err)[:500]):
-                    _emit(mission_id, 'error', 'error', data={'error': str(pipeline_err)[:200]})
+                    _emit(mission_id, 'error', 'error', data={'error': 'Mission execution failed', 'error_type': type(pipeline_err).__name__})
                 sys.exit(1)
 
 
 def _mark_mission_error(mission_id: str, error_msg: str) -> bool:
     """Commit an error transition; only proven-empty products may correct done."""
+    import re
     from behive.hygiene import SQL_COMPLETION_CLAIM
     con = None
     try:
         con = _connect_db()
         # Determine if it was a timeout
         is_timeout = 'timed out' in error_msg.lower() or 'timeout' in error_msg.lower()
-        is_empty = error_msg.startswith('empty_mission')
+        empty_match = re.fullmatch(r'empty_mission sources=(\d+) claims=(\d+)', error_msg)
+        is_empty = empty_match is not None
         if is_empty:
-            status_val, phase_val = 'empty', 'empty_scout'
+            status_val = 'empty'
+            phase_val = 'empty_scout' if int(empty_match.group(1)) == 0 else 'empty_claims'
+            safe_error = error_msg
         elif is_timeout:
             status_val, phase_val = 'error', 'timeout'
+            safe_error = "Mission execution timed out"
         else:
             status_val, phase_val = 'error', 'error'
+            safe_error = "Mission execution failed"
         changed = con.execute(
             f"""UPDATE hive_missions
                SET status=%s, phase=%s,
@@ -1539,9 +1575,11 @@ def _mark_mission_error(mission_id: str, error_msg: str) -> bool:
                  AND CASE WHEN %s THEN NOT EXISTS (
                      SELECT 1 FROM hive_claims c WHERE c.mission_id = hive_missions.id
                        AND {SQL_COMPLETION_CLAIM})
-                     ELSE status <> 'done' END
+                     ELSE status <> 'done' OR NOT EXISTS (
+                         SELECT 1 FROM hive_claims c WHERE c.mission_id = hive_missions.id
+                           AND {SQL_COMPLETION_CLAIM}) END
                RETURNING id""",
-            [status_val, phase_val, error_msg[:500], mission_id, is_empty]
+            [status_val, phase_val, safe_error, mission_id, is_empty]
         ).fetchone()
         con.commit()
         return bool(changed)
@@ -1742,7 +1780,7 @@ print(json.dumps(output))
         timings['harvest'] = run_phase('hive2_harvest.py', [mission_id], 'harvest')
     except Exception as e:
         log.warning(f'  ⚠️ Harvest failed: {e} — continuing with partial results.')
-        _emit(mission_id, 'harvest', 'error', data={'error': str(e)})
+        _emit(mission_id, 'harvest', 'error', data={'error': 'Phase execution failed', 'error_type': type(e).__name__})
         timings['harvest'] = 0.0
         # Don't raise — proceed with whatever content we scraped before failure
     # Emit harvest completed event
@@ -1768,7 +1806,7 @@ print(json.dumps(output))
         timings['process'] = run_phase('hive2_process.py', process_args, 'process')
     except Exception as e:
         log.warning(f'  ⚠️ Process failed: {e} — continuing with available claims.')
-        _emit(mission_id, 'process', 'error', data={'error': str(e)})
+        _emit(mission_id, 'process', 'error', data={'error': 'Phase execution failed', 'error_type': type(e).__name__})
         timings['process'] = 0.0
         # Don't raise — synth can work with whatever claims exist
     # Emit process completed event
@@ -1934,37 +1972,7 @@ Return JSON array of 5 strings only."""
 
     # ═══ PHASE 4: FACT SYNTHESIS (no LLM) ══════════════════════
     log.debug('  ┌─ PHASE 4 · FACT SYNTHESIS ─────────────────────────┐')
-    _emit(mission_id, 'synth', 'started')
-    _fact_ok = False
-    try:
-        from behive.engine.fact_synth import persist_fact_synthesis
-        _fs = persist_fact_synthesis(mission_id)
-        if _fs.get("claims", 0) >= 3:
-            timings['synth'] = 0.0
-            _fact_ok = True
-            log.info(f'  ✓ Fact synth: { _fs }')
-    except Exception as _fse:
-        log.info(f'  ⚠️  Fact synth failed: {_fse}')
-    if not _fact_ok:
-        import gc as _gc
-        _gc.collect()
-        try:
-            timings['synth'] = run_phase(
-                'hive2_master_intelligence.py', [mission_id, query], 'queen-synthesis'
-            )
-        except Exception as e:
-            log.info(f'  ⚠️  Queen MI failed: {e} — fallback synth')
-            _gc.collect()
-            try:
-                timings['synth'] = run_phase('hive2_synth.py', [mission_id], 'synth-fallback')
-            except Exception as e2:
-                log.info(f'  Fallback synth failed: {e2}')
-                try:
-                    from behive.engine.fact_synth import persist_fact_synthesis as _pfs2
-                    _pfs2(mission_id)
-                except Exception as _e3:
-                    log.debug(f"Suppressed: {_e3}")
-    _emit(mission_id, 'synth', 'completed')
+    _run_synthesis(mission_id, query, timings)
 
     log.info(f'  └─ done · {timings.get("synth", 0):.1f}s ──────────────────────────────┘\n')
 

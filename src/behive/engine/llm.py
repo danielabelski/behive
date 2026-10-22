@@ -19,6 +19,7 @@ Usage:
 import os
 import json
 import logging
+import math
 from typing import Optional
 
 # Ensure Bedrock knows our region (litellm needs this for cross-region inference profiles)
@@ -137,6 +138,48 @@ def _check_keys() -> str:
 # ─── Completion functions ───────────────────────────────────────────────────
 
 
+def _completion_timeout(default: Optional[float]) -> Optional[float]:
+    """Optional timeout in seconds, validated before any completion is attempted."""
+    value = os.environ.get("BEHIVE_LLM_TIMEOUT")
+    if value is None:
+        return default
+    try:
+        timeout = float(value)
+    except ValueError:
+        raise ValueError("BEHIVE_LLM_TIMEOUT must be finite seconds in (0, 3600]") from None
+    if not math.isfinite(timeout) or not 0 < timeout <= 3600:
+        raise ValueError("BEHIVE_LLM_TIMEOUT must be finite seconds in (0, 3600]")
+    return timeout
+
+
+def _strict_completion_options(litellm, kwargs: dict) -> None:
+    """Disable request retries/fallbacks without rewriting shared LiteLLM globals."""
+    # Some LiteLLM versions use `request_value or global_value`, so passing 0/[]
+    # alone cannot override unsafe globals. Reject them before sending anything.
+    if (getattr(litellm, "num_retries", None)
+            or getattr(litellm, "model_fallbacks", None) is not None):
+        raise RuntimeError("BeHive strict mode requires LiteLLM retries/fallbacks disabled")
+    kwargs.update(num_retries=0, max_retries=0, fallbacks=[], context_window_fallback_dict={})
+    if kwargs["model"].startswith("openai/") and "OPENAI_API_BASE" in os.environ:
+        api_base = os.environ["OPENAI_API_BASE"]
+        if not api_base.strip():
+            raise ValueError("OPENAI_API_BASE must not be empty in BeHive strict mode")
+        kwargs["api_base"] = api_base
+
+
+def _codex_bridge_enabled(strict: bool, model: str) -> bool:
+    """Explicit route consent: omit unsupported sampling/token caps, never emulate them."""
+    if os.environ.get("BEHIVE_LLM_CODEX_BRIDGE") != "1":
+        return False
+    if not strict:
+        raise ValueError("Codex bridge requires BEHIVE_LLM_STRICT=1")
+    if model != "openai/gpt-6.1-sol":
+        raise ValueError("Codex bridge requires model openai/gpt-6.1-sol")
+    if os.environ.get("OPENAI_API_BASE") != "http://127.0.0.1:8646/v1":
+        raise ValueError("Codex bridge requires OPENAI_API_BASE=http://127.0.0.1:8646/v1")
+    return True
+
+
 def complete(
     prompt: str,
     stage: str = "process",
@@ -157,8 +200,14 @@ def complete(
         json_mode: If True, request JSON output format
     
     Returns:
-        Generated text (str). Empty string on failure.
+        Generated text (str). Legacy failures may fall back to direct APIs.
+        BEHIVE_LLM_STRICT=1 propagates failures with no retries or fallback.
+        BEHIVE_LLM_TIMEOUT: finite seconds in (0, 3600]; default 25 (strict: 180).
+        BEHIVE_LLM_CODEX_BRIDGE=1 requires strict + exact model/loopback base;
+        only that route omits temperature/max_tokens, without a hard token cap.
     """
+    strict = os.environ.get("BEHIVE_LLM_STRICT") == "1"
+    timeout = _completion_timeout(180 if strict else 25)
     error = _check_keys()
     if error:
         raise RuntimeError(error)
@@ -170,7 +219,11 @@ def complete(
             "Set BEHIVE_MODEL or an API key env var."
         )
     
-    log.debug(f"LLM call: stage={stage} model={model} tokens={max_tokens}")
+    codex_bridge = _codex_bridge_enabled(strict, model)
+    if codex_bridge:
+        log.debug(f"LLM call: stage={stage} model={model}")
+    else:
+        log.debug(f"LLM call: stage={stage} model={model} tokens={max_tokens}")
     
     # litellm handles ALL providers (100+) — it's the primary path
     try:
@@ -185,10 +238,10 @@ def complete(
         kwargs = {
             "model": model,
             "messages": messages,
-            "max_tokens": max_tokens,
-            "temperature": temperature,
-            "timeout": 25,
+            "timeout": timeout,
         }
+        if not codex_bridge:
+            kwargs.update(max_tokens=max_tokens, temperature=temperature)
         
         # Local LLM: set api_base
         local_url = os.environ.get("BEHIVE_LLM_URL") or os.environ.get("BEHIVE_LOCAL_LLM_URL")
@@ -202,6 +255,11 @@ def complete(
         if json_mode:
             kwargs["response_format"] = {"type": "json_object"}
         
+        if strict:
+            _strict_completion_options(litellm, kwargs)
+            response = litellm.completion(**kwargs)
+            return response.choices[0].message.content or ""
+
         # Retry with exponential backoff (handles rate limits, transient failures)
         last_error = None
         for attempt in range(3):
@@ -219,7 +277,7 @@ def complete(
                 # Retry on timeout, server error
                 if attempt < 2:
                     wait = (attempt + 1) * 2  # 2s, 4s
-                    log.debug(f"LLM retry {attempt+1}/3 after {wait}s: {retry_err}")
+                    log.debug("LLM retry %s/3 after %ss (%s)", attempt + 1, wait, type(retry_err).__name__)
                     import time as _time
                     _time.sleep(wait)
         
@@ -228,14 +286,18 @@ def complete(
             raise last_error
         
     except ImportError:
+        if strict:
+            raise
         log.warning("litellm not installed. Falling back to direct API calls.")
         log.warning("Install litellm for 100+ provider support: pip install litellm")
     except Exception as e:
+        if strict:
+            raise
         err_str = str(e).lower()
         # Auth errors should propagate (user needs to fix their key)
         if any(k in err_str for k in ('auth', 'invalid_api_key', 'permission', 'invalid api key', 'api_key')):
             raise
-        log.error(f"LLM call failed (model={model}): {e}")
+        log.error("LLM call failed (model=%s, error_type=%s)", model, type(e).__name__)
         # Fall through to direct calls as last resort
     
     # Fallback: direct API calls (supports Anthropic, OpenAI, Bedrock only)
@@ -250,7 +312,9 @@ async def complete_async(
     temperature: float = 0.3,
     json_mode: bool = False,
 ) -> str:
-    """Async version of complete(). Uses litellm async or falls back to sync."""
+    """Async completion; strict errors propagate. Legacy async timeout stays unset."""
+    strict = os.environ.get("BEHIVE_LLM_STRICT") == "1"
+    timeout = _completion_timeout(180 if strict else None)
     error = _check_keys()
     if error:
         raise RuntimeError(error)
@@ -259,10 +323,13 @@ async def complete_async(
     if not model:
         raise RuntimeError(f"No model configured for stage '{stage}'.")
     
+    codex_bridge = _codex_bridge_enabled(strict, model)
     log.debug(f"LLM async call: stage={stage} model={model}")
     
     try:
         import litellm
+        if strict:
+            litellm.set_verbose = False
         
         messages = []
         if system:
@@ -272,9 +339,11 @@ async def complete_async(
         kwargs = {
             "model": model,
             "messages": messages,
-            "max_tokens": max_tokens,
-            "temperature": temperature,
         }
+        if not codex_bridge:
+            kwargs.update(max_tokens=max_tokens, temperature=temperature)
+        if timeout is not None:
+            kwargs["timeout"] = timeout
         
         local_url = os.environ.get("BEHIVE_LLM_URL") or os.environ.get("BEHIVE_LOCAL_LLM_URL")
         if local_url and ("local" in model or "ollama" in model):
@@ -286,14 +355,21 @@ async def complete_async(
         if json_mode:
             kwargs["response_format"] = {"type": "json_object"}
         
+        if strict:
+            _strict_completion_options(litellm, kwargs)
+
         response = await litellm.acompletion(**kwargs)
         return response.choices[0].message.content or ""
         
     except ImportError:
+        if strict:
+            raise
         import asyncio
         return await asyncio.to_thread(complete, prompt, stage, system, max_tokens, temperature, json_mode)
     except Exception as e:
-        log.error(f"Async LLM call failed (model={model}): {e}")
+        if strict:
+            raise
+        log.error("Async LLM call failed (model=%s, error_type=%s)", model, type(e).__name__)
         return ""
 
 

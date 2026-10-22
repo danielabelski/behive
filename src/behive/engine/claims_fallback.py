@@ -83,6 +83,9 @@ def salvage_claims_from_content(mission_id: str, per_doc: int = 5, cap: int = 24
     conn = _connect()
     try:
         cur = conn.cursor()
+        # Same transaction lock across claim writers: sequence IDs alone do not dedupe.
+        cur.execute("SELECT pg_advisory_xact_lock(hashtextextended(%s, 0))",
+                    ("behive_claims:" + mission_id,))
         cur.execute(
             "SELECT COUNT(*) FROM hive_claims WHERE mission_id = %s AND (is_garbage = false OR is_garbage IS NULL)",
             (mission_id,),
@@ -107,6 +110,8 @@ def salvage_claims_from_content(mission_id: str, per_doc: int = 5, cap: int = 24
             (mission_id,),
         )
         seen = {r[0] for r in cur.fetchall() if r[0]}
+        from behive.engine.claim_ids import claim_id_expression
+        id_sql = claim_id_expression(cur)
         n = 0
         for url, text, title in docs:
             for sent in sentences_from_text(text or "", limit=per_doc):
@@ -115,12 +120,12 @@ def salvage_claims_from_content(mission_id: str, per_doc: int = 5, cap: int = 24
                     continue
                 seen.add(key)
                 cur.execute(
-                    """
+                    f"""
                     INSERT INTO hive_claims
-                        (mission_id, claim, evidence, source_url, claim_type,
+                        (id, mission_id, claim, evidence, source_url, claim_type,
                          confidence, extracted_at, quality_score, source_operation, is_garbage)
                     VALUES
-                        (%s, %s, %s, %s, 'regex_fallback', 0.55, NOW(), 0.55, 'claims_fallback', false)
+                        ({id_sql}, %s, %s, %s, %s, 'regex_fallback', 0.55, NOW(), 0.55, 'claims_fallback', false)
                     """,
                     (mission_id, sent, (title or "")[:500], (url or "")[:500]),
                 )

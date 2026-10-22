@@ -1542,9 +1542,9 @@ class ClaimCrossValidationDrone:
                 SELECT id, claim, source_url, confidence
                 FROM hive_claims
                 WHERE mission_id = ?
-                  AND (evidence_flags IS NULL OR evidence_flags NOT LIKE '%cross_validated%')
+                  AND (evidence_flags IS NULL OR evidence_flags NOT LIKE ?)
                 ORDER BY confidence DESC
-            """, [mission_id]).fetchall()
+            """, [mission_id, '%cross_validated%']).fetchall()
         except Exception as exc:
             log.error(f"ClaimCrossValidationDrone load failed: {exc}")
             return 0
@@ -1755,7 +1755,7 @@ class ProcessingDrones:
     async def _run_async(self):
         log.info(f"ProcessingDrones starting — mission={self.mission_id}")
         if not _ops_available:
-            log.warning("hive2_ops not available — falling back to regex extraction only")
+            log.warning("Operations registry unavailable — Phase A2 uses regex; Phase A3 uses bounded BYOK source extraction")
 
         # LLM readiness check (no-op — BYOK layer handles lazy init)
         pass
@@ -1959,75 +1959,11 @@ class ProcessingDrones:
         )
         
         # -----------------------------------------------
-        # Phase A3 — V4 Bedrock Extraction (dedicated claim extraction)
+        # Phase A3 — bounded source-backed extraction through configured BYOK
         # -----------------------------------------------
-        v4_claims = 0
-        try:
-            from hive4_extraction import HiveExtractor
-            extractor = HiveExtractor()
-            
-            # Only extract from docs that haven't produced claims yet
-            # (BeeHive may have already extracted some via ScoutBee/ValidatorBee)
-            existing_claims = 0
-            try:
-                self.con.execute(
-                    "SELECT count(*) FROM hive_claims WHERE mission_id = ?",
-                    [self.mission_id]
-                )
-                existing_claims = self.con.fetchone()[0]
-            except (OSError, Exception) as e:  # network/HTTP
-                log.debug(f"HTTP error: {e}")
-            
-            # Always run V4 extraction — produces consistently higher quality claims
-            if existing_claims < 800:  # Always run V4 — its claims are higher quality
-                # Take top 60 docs by relevance for dedicated extraction
-                extract_docs = scored_docs[:60]
-                for d in extract_docs:
-                    d["mission_id"] = self.mission_id
-                
-                log.info(f"Phase A3 [V4 Extraction]: {len(extract_docs)} docs → Bedrock Haiku")
-                results = await extractor.extract_batch(extract_docs, enrich=True)
-                
-                # Save to hive_claims
-                try:
-                    from hive3_bees import SpecializedBee
-                    _has_bee = True
-                except ImportError:
-                    _has_bee = False
-                for r in results:
-                    try:
-                        quality = SpecializedBee._score_claim_quality(r.claim) if _has_bee else 0.7
-                        if quality >= 0.70:
-                            self.con.execute("""
-                                INSERT INTO hive_claims
-                                    (id, mission_id, claim, source_url, claim_type, 
-                                     confidence, quality_score, extracted_at)
-                                VALUES (nextval('hive_facts_seq'), ?, ?, ?, 'v4_extraction',
-                                        ?, ?, CURRENT_TIMESTAMP)
-                            """, [self.mission_id, r.claim, r.source_url, 
-                                  round(r.confidence, 4), round(quality, 4)])
-                            v4_claims += 1
-                    except Exception as exc:
-                        log.debug(f"V4 claim insert error: {exc}")
-                
-                log.info(f"Phase A3 done: {v4_claims} high-quality claims (Bedrock Haiku + Sonnet enrichment)")
-                log.info(f"  Extractor stats: {extractor.stats}")
-                # Emit V4 extraction event for SSE
-                try:
-                    from behive.engine.events import emit_event
-                    emit_event(None, self.mission_id, 'process', 'v4_extraction', data={
-                        'claims': v4_claims,
-                        'model': 'bedrock-haiku+sonnet',
-                    })
-                except Exception as e:
-                    log.debug(f"Suppressed: {e}")
-            else:
-                log.info(f"Phase A3 skipped — BeeHive already produced {existing_claims} claims")
-        except Exception as e:
-            log.warning(f"Phase A3 [V4 Extraction] error: {e}")
-        
-        total_facts += v4_claims
-        
+        source_claims = await self._extract_source_claims(scored_docs, topic)
+        total_facts += source_claims
+
         # HIVE 3.0: Log specialized bee stats
         if use_hive3 and hive:
             stats = hive.get_hive_stats()
@@ -2078,6 +2014,69 @@ class ProcessingDrones:
             gaps=len(gaps),
             bee_ops=total_bee_ops,
         )
+
+    async def _extract_source_claims(self, docs: list[dict], topic: str) -> int:
+        """Persist grounded claims atomically; extraction/DB failures are fatal."""
+        from contextlib import closing
+        from behive.engine.claim_ids import claim_id_expression
+        from behive.engine.db import get_pg_connection
+        from behive.engine.source_extraction import MAX_DOCUMENTS, extract_source_claims
+
+        try:
+            # End the provenance read AND close its connection before network I/O.
+            with closing(get_pg_connection()) as conn, conn, conn.cursor() as cur:
+                cur.execute("""
+                    SELECT url FROM hive_content WHERE mission_id = %s
+                    UNION SELECT url FROM hive_sources WHERE mission_id = %s
+                """, (self.mission_id, self.mission_id))
+                source_urls = {row[0] for row in cur.fetchall() if row[0]}
+            extract_docs = [doc for doc in docs if doc.get('url') in source_urls][:MAX_DOCUMENTS]
+            log.info("Phase A3 [BYOK source extraction]: %s harvested docs", len(extract_docs))
+            claims = await extract_source_claims(extract_docs, topic)
+            if not claims:
+                return 0
+            with closing(get_pg_connection()) as conn, conn, conn.cursor() as cur:
+                # Serialize dedupe with both deterministic fallback writers.
+                cur.execute("SELECT pg_advisory_xact_lock(hashtextextended(%s, 0))",
+                            ("behive_claims:" + self.mission_id,))
+                # Provenance can change during inference. Re-read it in the write
+                # transaction and hold row locks so delete/update cannot invalidate
+                # the accepted URLs until the atomic claim batch commits.
+                source_urls = set()
+                claim_urls = sorted({claim.source_url for claim in claims})
+                for table in ('hive_content', 'hive_sources'):
+                    cur.execute(f"SELECT url FROM {table} WHERE mission_id = %s AND url = ANY(%s) FOR SHARE",
+                                (self.mission_id, claim_urls))
+                    source_urls.update(row[0] for row in cur.fetchall() if row[0])
+                if any(claim.source_url not in source_urls for claim in claims):
+                    raise ValueError("Source provenance changed during extraction")
+                cur.execute("SELECT LEFT(claim, 160) FROM hive_claims WHERE mission_id = %s",
+                            (self.mission_id,))
+                seen = {row[0] for row in cur.fetchall()}
+                id_sql = claim_id_expression(cur)
+                saved = 0
+                for claim in claims:
+                    key = claim.claim[:160]
+                    if key in seen:
+                        continue
+                    cur.execute(f"""
+                        INSERT INTO hive_claims
+                            (id, mission_id, claim, evidence, source_url, claim_type,
+                             confidence, quality_score, source_operation, is_garbage, extracted_at)
+                        VALUES ({id_sql}, %s, %s, %s, %s, 'source_extraction',
+                                %s, %s, 'byok_source_extraction', false, NOW())
+                    """, (self.mission_id, claim.claim, claim.evidence, claim.source_url,
+                          claim.confidence, claim.confidence))
+                    seen.add(key)
+                    saved += 1
+            log.info("Phase A3 done: %s source-backed claims", saved)
+            return saved
+        except Exception as exc:
+            # Provider/DB exception text (including chained tracebacks) may carry
+            # secrets. Surface only the error type; never silently fall back.
+            raise RuntimeError(
+                f"Source claim extraction/persistence failed ({type(exc).__name__})"
+            ) from None
 
     async def _process_doc_with_ops(
         self,
@@ -2218,6 +2217,15 @@ class ProcessingDrones:
         clusters: int,
         gaps: int,
     ):
+        # Claim persistence errors must not look like a successful process phase.
+        from behive.engine.facts_to_claims import persist_facts_as_claims
+        from behive.engine.claims_fallback import salvage_claims_from_content
+        n_fc = persist_facts_as_claims(self.mission_id, self._get_mission_topic())
+        log.info(f"Facts→claims (no LLM): {n_fc}")
+        n_fb = salvage_claims_from_content(self.mission_id)
+        if n_fb:
+            log.info(f"Content→claims (no LLM): {n_fb}")
+
         try:
             self.con.execute("""
                 UPDATE hive_missions
@@ -2233,20 +2241,6 @@ class ProcessingDrones:
             ])
         except Exception as exc:
             log.warning(f"Could not update hive_missions: {exc}")
-
-        try:
-            from behive.engine.facts_to_claims import persist_facts_as_claims
-            n_fc = persist_facts_as_claims(self.mission_id, self._get_mission_topic())
-            log.info(f"Facts→claims (no LLM): {n_fc}")
-        except Exception as _fc:
-            log.warning(f"Facts→claims skipped: {_fc}")
-        try:
-            from behive.engine.claims_fallback import salvage_claims_from_content
-            n_fb = salvage_claims_from_content(self.mission_id)
-            if n_fb:
-                log.info(f"Content→claims (no LLM): {n_fb}")
-        except Exception as _fb:
-            log.warning(f"Content→claims skipped: {_fb}")
 
         # ── Knowledge Graph ingest (Neo4j) ────────────────────────────────────
         try:
