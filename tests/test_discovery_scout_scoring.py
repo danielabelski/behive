@@ -166,8 +166,11 @@ def test_relevance_counts_title_snippet_decoded_path_not_host_or_query(private_s
 
 def test_one_document_word_cannot_count_as_multiple_inflections(private_scout):
     scout = private_scout('telemetria telemetrii telemetrią')
-    score = scout._score_source('https://supplier.example/', 'Telemetria', '', 'web')
-    assert 5 <= score['score_relevance'] < 10
+    one = scout._score_source('https://supplier.example/', 'Telemetria', '', 'web')
+    three = scout._score_source('https://supplier.example/', 'Telemetria telemetrii telemetrią', '', 'web')
+    # One result token satisfies one topic keyword (breadth); since 2026-10-23 the
+    # subject-coverage lift applies equally to both, so compare instead of a band.
+    assert 5 <= one['score_relevance'] < three['score_relevance']
 
 
 @pytest.mark.parametrize('mission_id', ['hive_1792744015_96a356', 'hive_1792743366_a6ba24'])

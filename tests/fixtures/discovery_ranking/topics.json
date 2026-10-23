@@ -1,0 +1,32 @@
+{
+ "T1": {
+  "topic": "Dostawcy systemów WMS i telemetrii zbiorników w Polsce: oferta, cennik, wdrożenia",
+  "baseline_p30": 0.767,
+  "n": 322,
+  "n_on_topic": 160
+ },
+ "T2": {
+  "topic": "Systemy telemetrii zbiorników paliw i chemikaliów w Polsce: dostawcy i wdrożenia",
+  "baseline_p30": 0.5,
+  "n": 330,
+  "n_on_topic": 92
+ },
+ "T3": {
+  "topic": "Wymogi KSeF 2026 dla małych firm: terminy, sankcje, wyjątki",
+  "baseline_p30": 0.833,
+  "n": 156,
+  "n_on_topic": 115
+ },
+ "T4": {
+  "topic": "European heat pump market 2025: installed base, leading manufacturers, subsidies",
+  "baseline_p30": 0.867,
+  "n": 301,
+  "n_on_topic": 185
+ },
+ "T5": {
+  "topic": "Producenci okien PCV w Polsce: lista firm, zakłady produkcyjne",
+  "baseline_p30": 0.967,
+  "n": 196,
+  "n_on_topic": 128
+ }
+}

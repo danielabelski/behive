@@ -1,0 +1,1250 @@
+[
+{
+"url": "https://ksef.podatki.gov.pl/informacje-ogolne-ksef-20/zakres-obowiazkowego-ksef",
+"title": "Zakres obowiązkowego KSeF - KSeF (Krajowy System e-Faktur)",
+"snippet": "Aby rozpocząć korzystanie z ... należy uwierzytelnić się ... ie. Uwierzytelnić się może podatnik albo osoba lub podmiot wskazany przez podatnika. Przepisy wykonawcze określają możliwe metody uwierzytelnienia się w systemie (np. za pomocą Podpisu Zaufanego, podpisu kwalifikowanego lub pieczęci kwalifikowanej). ... Kto korzysta z KSeF? Z KSeF mogą korzystać: - podatnik np. jednoosobowa działalność gospodarcza, spółka, grupa VAT czy jednostka samorządu terytorialnego, - podmioty wskazane przez podatnika np. biuro rachunkowe, - podmioty, o których mowa w art. 106c ustawy o podatku od towarów i usług tj. organy egzekucyjne, komornicy sądowi, - osoby fizyczne wskazane przez podmioty, o których mowa w art. 106c ustawy o podatku od towarów i usług, - osoby fizyczne wskazane w zawiadomieniu ZAW-FA, którym podatnik lub organ egzekucyjny nadali uprawnienia do korzystania z tego systemu, - podmioty inne, niż wyżej wymienione, wskazane przez osoby fizyczne korzystające z KSeF, jeżeli prawo do wskazywania innego podmiotu w",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://ksef.podatki.gov.pl/etapy-wdrozenia-ksef",
+"title": "Etapy wdrożenia KSeF 2.0 - KSeF (Krajowy System e-Faktur)",
+"snippet": "## ... drogowa ... ### 1 stycznia 2027 r. KSeF obowiązkowy dla wszystkich KSeF 2.0 obowiązkowy dla wcześniej zwolnionych przedsiębiorców (do 10 tys. zł miesięcznie). ### 1 kwietnia 2026 r. KSeF obowiązkowy dla pozostałych przedsiębiorstw KSeF 2.0 obowiązkowy dla wszystkich przedsiębiorców oraz wystawiających faktury, z wyjątkiem najmniejszych firm, których łączna sprzedaż dokumentowana jest fakturami ≤ 10 tys. zł miesięcznie. ### 1 lutego 2026 r. udostępnienie KSeF 2.0 KSeF 2.0 dla dużych przedsiębiorców i odbierających faktury. ### 26–31 stycznia 2026 r. – Przerwa techniczna środowiska produkcyjnego KSeF 1.0 W dniach 26–31 stycznia 2026 r. system KSeF 1.0, w tym Moduł Certyfikatów i Uprawnień (MCU), będzie niedostępny z uwagi na wcześniej zaplanowane prace techniczne. Przerwa jest niezbędna do zakończenia procesu wdrażania docelowej wersji systemu – KSeF 2.0. W okresie przerwy technicznej będzie możliwe wnioskowanie o uprawnienia podstawowe wyłącznie za pomocą formularza ZAW-FA. Od 28 stycznia 2026 r. udostę",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://ksef.podatki.gov.pl/ponizej-10-000-zl",
+"title": "Poniżej 10 000 zł",
+"snippet": "### 3. Od kiedy trzeba wystawiać faktury w KSeF? Obowiązek wystawiania faktur w KSeF wejdzie etapami: - od 1 lutego 2026 r. dla firm, które w 2024 r. miały sprzedaż powyżej 200 mln zł (z VAT), - od 1 kwietnia 2026 r. dla pozostałych. Dodatkowo do 31 grudnia 2026 r. można jeszcze wystawiać faktury poza KSeF (papierowe lub elektroniczne), jeśli w danym miesiącu suma sprzedaży z VAT na takich fakturach nie przekroczy 10 000 zł. To ułatwienie ma pomóc w sprawnym przejściu na nowy system. ... ### 6. Kwiaciarka wystawia trzy faktury w miesiącu o wartościach od 1 500 zł do 2 500 zł każda. Czy musi wystawiać faktury w KSeF? Docelowo tak. Obowiązek stosowania KSeF obejmie kwiaciarkę od 1 stycznia 2027 r. Do końca 2026 roku mali przedsiębiorcy mogą wystawiać faktury poza KSeF o ile łączna wartość sprzedaży na fakturach nie przekracza w miesiącu 10 000 zł. ... ### 14. Sprzedaż ma miejsce 5 kwietnia 2026 r. Termin wystawienia faktury upływa 15 maja 2026 r. Fakturę na rzecz nabywcy (podatnika) wystawiono 7 maja 2026 r. Cz",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://ksef.podatki.gov.pl/krok-po-kroku-jdg-i-msp",
+"title": "Jak uzyskać dostęp do KSeF",
+"snippet": "Krok 1: Sprawdź, kiedy Twoja firma musi korzystać z KSeF Od 1 lutego 2026 – obowiązek dla dużych firm (obrót > 200 mln zł). Od 1 kwietnia 2026 – obowiązek dla pozostałych podatników VAT, w tym JDG i MŚP. Od 1 stycznia 2027 – dla najmniejszych firm (sprzedaż dokumentowana fakturami ≤ 10 tys. zł miesięcznie). ... b ... Darmowe narzędzia MF: Aplikacja Podatnika KSeF, e-mikrofirma. Komercyjne programy dostępne na rynku zintegrowane z KSeF 2.0. Wybór zależy od skali działalności i liczby faktur. ... JDG: dostęp możliwy od razu przez profil z ... any lub ... kwalifikowany. ... ółki: wymagane złożenie formularza ZAW-FA do urzędu ... bowego, jeśli podmiot niebędący osobą fizyczną (np. spółka) ... posiada pieczęci kwalifikowanej. Można testować ... w wersji demo",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://ksef.podatki.gov.pl/ksef-news/wystawianie-i-otrzymywanie-faktur",
+"title": "Wystawianie i otrzymywanie  faktur - KSeF (Krajowy System e-Faktur)",
+"snippet": "### 2. W jaki sposób od 1 lutego 2026 r. odbywa się otrzymywanie faktur przez małych przedsiębiorców (którzy są objęci obowiązkiem wystawiania faktur w KSeF dopiero od 1 kwietnia 2026 r.) od dużych przedsiębiorców (którzy wystawiają faktury w KSeF już od 1 lutego 2026 r.)? Termin 1 kwietnia 2026 r. dotyczy wyłącznie odroczenia terminu obowiązku wystawiania faktur w KSeF. Otrzymywanie faktur przy użyciu KSeF jest obowiązkowe w podstawowym terminie – tj. od 1 lutego 2026 r. Dostęp do otrzymanej e-Faktury można uzyskać po uwierzytelnieniu się podatnika w systemie (w dowolnym narzędziu zintegrowanym z API KSeF 2.0 lub za pośrednictwem bezpłatnych narzędzi udostępnianych przez MF tj. Aplikacja Podatnika KSeF, Aplikacja mobilna KSeF, e-mikrofirma). Należy zwrócić uwagę, że sprzedawcy (objęci obowiązkiem wystawiania faktur w KSeF od 1 lutego 2026 r.), którzy dokonują sprzedaży i wystawiają faktury na rzecz podatników krajowych posiadających NIP, objętych obowiązkowym KSeF od 1 kwietnia 2026 r. lub od 1 stycznia 2027",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://ksef.podatki.gov.pl/jdg-i-msp",
+"title": "N/A",
+"snippet": "### 4. Od kiedy trzeba wystawiać faktury w KSeF? Obowiązek wystawiania faktur w KSeF wejdzie etapami: - od 1 lutego 2026 r. dla firm, które w 2024 r. miały sprzedaż powyżej 200 mln zł (z VAT), - od 1 kwietnia 2026 r. dla pozostałych. Dodatkowo do 31 grudnia 2026 r. można jeszcze wystawiać faktury poza KSeF (papierowe lub elektroniczne), jeśli w danym miesiącu suma sprzedaży z VAT na takich fakturach nie przekroczy 10 000 zł. To ułatwienie ma pomóc w sprawnym przejściu na nowy system. ... ### 5. Jak będą mogły wystawić fakturę osoby prowadzące działalność gospodarczą, a nieposiadające dostępu do internetu, oraz nie obsługujące komputera? Internet jest niezbędny do wystawiania faktur w KSeF. W przypadku niekorzystania z internetu jedną z opcji jest nadanie uprawnień innej osobie do wystawiania faktur np. pracownikowi biura rachunkowego. Obowiązek korzystania z KSeF został odroczony do lutego 2026 r. m.in. w celu stworzenia zaplecza technicznego pozwalającego na korzystanie z KSeF. ... ### 6. Do kiedy paragony f",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://ksef.podatki.gov.pl/wyjasnienia/co-warto-wiedziec-przed-startem-ii-etapu-wdrozenia-krajowego-systemu-e-faktur",
+"title": "Co warto wiedzieć przed startem II etapu wdrożenia Krajowego Systemu e-Faktur",
+"snippet": "Wybierz ... . Moż ... ować się za pośrednictwem: ... login ... . ... ( ... . ... . ... mObywatel, bankowości ... znej, ... odu lub Profilu Zaufanego), - ... owanego ... isu lub pieczęci ... znej. ... Logowanie ... ację ... O ... watel: ... ierz ... owanie ... . ... pl, ... el jako metodę uw ... zytelnienia, ... - ... kan ... kod QR w aplikacji na telefonie, - potwierdź udostępnienie danych. ... Po zalogowaniu się, będziesz mógł korzystać z systemu zgodnie z posiadanym zakresem uprawnień. Jeśli działasz w imieniu firmy, upewnij się, że masz nadane odpowiednie uprawnienia w KSeF. ... zeniu limitu ... 1 ... Jeżeli w danym miesiącu przekroczysz limit 10 000 zł masz obowiązek wystawiania faktur w KSeF – od faktury, która ten limit przekroczyła. Od tego momentu kolejne faktury również powinny być wystawiane w systemie. Ważne: Po przekroczeniu limitu nie wracasz już do poprzednich zasad, nawet jeśli w kolejnych miesiącach wartość sprzedaży dokumentowana fakturami będzie niższa. Do limitu wlic ... się wyłącznie sprze",
+"source_type": "web",
+"on_topic": false,
+"kind": "generic"
+},
+{
+"url": "https://ksef.podatki.gov.pl/od-kiedy-trzeba-wystawiac-faktury-w-ksef",
+"title": "Zrozum KSeF 2.0",
+"snippet": "## Od kiedy trzeba wystawiać faktury w KSeF? Obowiązek wystawiania faktur w KSeF wszedł etapami: - od 1 lutego 2026 r. dla firm, które w 2024 r. miały sprzedaż powyżej 200 mln zł (z VAT), - od 1 kwietnia 2026 r. dla pozostałych. Dodatkowo do 31 grudnia 2026 r. można jeszcze wystawiać faktury poza KSeF (papierowe lub elektroniczne), jeśli w danym miesiącu suma sprzedaży z VAT na takich fakturach nie przekroczy 10 000 zł. To ułatwienie ma pomóc w sprawnym przejściu na nowy system.",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://ksef.podatki.gov.pl/wyjasnienia/1-kwietnia-rusza-ii-etap-wdrozenia-krajowego-systemu-e-faktur",
+"title": "1 kwietnia rusza II etap wdrożenia Krajowego Systemu e-Faktur",
+"snippet": "- Marcin Łoboda szef Krajowej Administracji Skarbowej (KAS) oraz Zbigniew Stawicki zastępca szefa KAS podczas konferencji prasowej w Ministerstwie Finansów opowiedzieli o wdrożeniu II etapu Krajowego Systemu e-Faktur. - Od 1 kwietnia do systemu dołączy druga grupa przedsiębiorców, która będzie miała obowiązek wystawiania faktur wyłącznie za pomocą KSeF. - Za 2026 r. nie będą nakładane sankcje za błędy popełnione podczas korzystania z KSeF. - Przypominamy, że jedynym pewnym źródłem informacji w temacie KSeF są Ministerstwo Finansów i Krajowa Administracja Skarbowa. ... Od 1 kwietnia z Krajowego Systemu e-Faktur korzystać będą wszyscy przedsiębiorcy, u których wartość sprzedaży w 2024 r. nie przekroczyła 200 mln zł. Nie dotyczy to podatników, u których miesięczna wartość sprzedaży udokumentowanej fakturami nie przekracza 10 tys. zł. brutto. Firmy mają obowiązek odbierania faktur w systemie od 1 lutego 2026 r.",
+"source_type": "web",
+"on_topic": true,
+"kind": "news"
+},
+{
+"url": "https://ksef.podatki.gov.pl/pytania-i-odpowiedzi-ksef-20?utm=",
+"title": "Pytania i odpowiedzi KSeF 2.0 - KSeF (Krajowy System e-Faktur)",
+"snippet": "### 5. Od kiedy trzeba wystawiać faktury w KSeF? Obowiązek wystawiania faktur w KSeF wejdzie etapami: - od 1 lutego 2026 r. dla firm, które w 2024 r. miały sprzedaż powyżej 200 mln zł (z VAT), - od 1 kwietnia 2026 r. dla pozostałych. Dodatkowo do 31 grudnia 2026 r. można jeszcze wystawiać faktury poza KSeF (papierowe lub elektroniczne), jeśli w danym miesiącu suma sprzedaży z VAT na takich fakturach nie przekroczy 10 000 zł. To ułatwienie ma pomóc w sprawnym przejściu na nowy system. ### 6. Jaki jest powód dwóch terminów startu obowiązkowego KSeF (1.02 i 1.04.2026)? Podział na dwa etapy to wynik zaleceń audytu informatycznego. To również wyjście naprzeciw oczekiwaniom mniejszych przedsiębiorców, którzy zyskają dodatkowy czas na dopięcie przygotowań. ... ### 7. Jak będą mogły wystawić fakturę osoby prowadzące działalność gospodarczą, a nieposiadające dostępu do internetu, oraz nie obsługujące komputera? Internet jest niezbędny do wystawiania faktur w KSeF. W przypadku niekorzystania z internetu jedną z opcji j",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://ksef.podatki.gov.pl/informacje-ogolne-ksef-20/podstawy-prawne-oraz-kluczowe-terminy",
+"title": "Podstawy prawne - KSeF (Krajowy System e-Faktur)",
+"snippet": "Podstawy prawne oraz kluczowe terminy Sprawdź akty prawne związane z KSeF oraz zapoznaj się z kluczowymi terminami wdrożenia KSeF Etapy wprowadzania KSeF KSeF w wersji fakultatywnej Od 1 stycznia 2022 r. KSeF został wdrożony jako rozwiązanie dobrowolne. Od tego momentu podatnicy mieli możliwość wystawiania faktur ustrukturyzowanych w ramach tego systemu.\n\nKSeF w wersji produkcyjnej 2.0 został udostępniony 1 lutego 2026 r.",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://ksef.podatki.gov.pl/konsultacje",
+"title": "KSeF obowiązkowy od 1 lutego 2026 r.",
+"snippet": "KSeF obowiązkowy od 1 lutego 2026 r. Nowy termin obowiązkowego KSeF. Dalsze konsultacje zmian w systemie.  Obowiązkowy KSeF od 1 lutego 2026 r. 10 czerwca została opublikowana w Dzienniku Ustaw nowelizacja ustawy o VAT (poz. 852, dostępna pod linkiem : https://dziennikustaw.gov.pl/DU/2024/852), która przesuwa obowiązek wystawiania e-faktur na 1 lutego 2026 r. Oznacza to, że do tego czasu zasady wystawiania faktur pozostają bez zmian. Dalsze zmiany legislacyjne Podpisana ustawa przesuwa datę, od której zacznie obowiązywać Krajowy System e-Faktur (KSeF). Jednak, aby dać przedsiębiorcom możliwość lepszego zapoznania się z propozycjami zmian i przeprowadzenia rzetelnych konsultacji, MF podjęło decyzję o podzieleniu prac legislacyjnych na dwie części. W drugim projekcie legislacyjnym Ministerstwo Finansów (MF) przedstawiło propozycje uproszczeń obowiązków związanych z wdrożeniem KSeF oraz zaproponowało etapowe wejście w życie obowiązkowego KSeF: 1 lutego 2026 r. dla przedsiębiorców, których wartość sprzedaży (wraz",
+"source_type": "web",
+"on_topic": true,
+"kind": "news"
+},
+{
+"url": "https://ksef.podatki.gov.pl/media/qzlha3vx/podrecznik-ksef-20-cz-ii-wystawianie-i-otrzymywanie-faktur-w-ksef-20260209.pdf",
+"title": "Podręcznik KSeF 2.0_ cz. II Wystawianie  i otrzymywanie faktur w KSeF",
+"snippet": "Stan prawny na dzień: 1 lutego 2026 r.\nWarszawa, luty 2026 r.",
+"source_type": "web",
+"on_topic": false,
+"kind": "generic"
+},
+{
+"url": "https://ksef.podatki.gov.pl",
+"title": "Krajowy System e-Faktur (KSeF)",
+"snippet": "# Krajowy System e-Faktur (KSeF)\n---\nKrajowy System e-Faktur to platforma do wystawiania, przesyłania, otrzymywania i przechowywania faktur.",
+"source_type": "web",
+"on_topic": false,
+"kind": "generic"
+},
+{
+"url": "https://ksef.podatki.gov.pl/media/3zidazbw/podrecznik-ksef-2-0-cz-ii-wystawianie-i-otrzymywane-faktur-w-ksef.pdf",
+"title": "Untitled",
+"snippet": "Stan prawny na dzień: 1 lutego 2026 r.\nWarszawa, wrzesień 2025 r.",
+"source_type": "web",
+"on_topic": false,
+"kind": "generic"
+},
+{
+"url": "https://ksef.podatki.gov.pl/konsumenci-i-osoby-fizyczne",
+"title": "Konsumenci i osoby fizyczne",
+"snippet": "### Poznaj wszystkie odpowiedzi na najczęściej pojawiające się pytania dotyczące KSeF podatki.gov.pl Serwis Ministerstwa Finansów Opublikowano: 17.09.2025 Zmodyfikowano: 30.10.2025 Opracowanie: Redakcja Portalu Podatkowego",
+"source_type": "web",
+"on_topic": false,
+"kind": "generic"
+},
+{
+"url": "https://gov.pl/web/finanse/drugi-etap-wdrozenia-krajowego-systemu-e-faktur",
+"title": "Drugi etap wdrożenia Krajowego Systemu e-Faktur",
+"snippet": "6 - Od 1 kwietnia druga grupa przedsiębiorców będzie miała obowiązek wystawiania faktur za pomocą KSeF. - Do korzystania z systemu firmy mogą używać bezpłatnych narzędzi udostępnionych przez Ministerstwo Finansów. - Przypominamy, że za 2026 r. nie będą nakładane sankcje za błędy popełnione podczas korzystania z KSeF. Krajowy System e-Faktur (KSeF) służy do wystawiania, przesyłania, odbierania oraz przechowywania faktur ustrukturyzowanych. Od 1 kwietnia z KSeF korzystać będą wszyscy przedsiębiorcy, u których wartość sprzedaży w 2024 r. nie przekroczyła 200 mln zł. Nie dotyczy to podatników, u których miesięczna wartość sprzedaży udokumentowanej fakturami nie przekracza 10 tys. zł. brutto. Będą oni wystawiać faktury w KSeF dopiero od 1 stycznia 2027 r. Obowiązek odbierania faktur w systemie wszedł w życie od 1 lutego 2026 r.",
+"source_type": "web",
+"on_topic": true,
+"kind": "news"
+},
+{
+"url": "https://inforlex.pl/dok/tresc,FOB0000000000007056141,limit-dla-mikroprzedsiebiorcow-zwalniajacy-ze-stosowania-ksef-w-2026-r-odpowiedz.html",
+"title": "Limit dla mikroprzedsiębiorców zwalniający ze stosowania KSeF w 2026 r. - odpowiedź na interpelację -",
+"snippet": "# Limit dla mikroprzedsiębiorców zwalniający ze stosowania KSeF w 2026 r. - odpowiedź na interpelację Minister Finansów odpowiadając na interpelację nr 12046 w sprawie limitu miesięcznych obrotów zwalniającego mikroprzedsiębiorców z obowiązku korzystania z KSeF, potwierdził że limit ten nie zostanie podniesiony. Oznacza to, że w 2026 r. z KSeF nie będą musieli korzystać przedsiębiorcy jeżeli łączna wartość sprzedaży wraz z kwotą podatku u tych podatników udokumentowana tymi fakturami wystawionymi w danym miesiącu jest mniejsza lub równa 10 000 zł.",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://gov.pl/web/finanse/rada-ministrow-za-odroczeniem-kar-za-bledy-w-ksef-i-przedluzeniem-odwrotnego-obciazenia-vat",
+"title": "Rada Ministrów za odroczeniem kar za błędy w KSeF i przedłużeniem odwrotnego obciążenia VAT - Ministerstwo Finansów - Portal Gov.pl",
+"snippet": "20.10.2026 - Rada Ministrów przyjęła projekt ustawy, który wydłuża okres odroczenia stosowania kar za błędy związane z korzystaniem z Krajowego Systemu e-Faktur (KSeF) do 31 grudnia 2027 r. - Przyjęty projekt ustawy przedłuża też do 30 czerwca 2030 r. mechanizm odwrotnego obciążenia VAT w obrocie gazem, energią elektryczną i uprawnieniami do emisji. Z końcem 2026 r. wygasa okres przejściowy dla podatników, których wartość sprzedaży dokumentowana fakturami za okresy miesięczne nie przekracza kwoty 10 000 zł (brutto). W związku z tym, od 1 stycznia 2027 r. korzystanie z Krajowego Systemu e-Faktur staje się obowiązkowe dla wszystkich przedsiębiorców. Rada Ministrów przyjęła projekt ustawy, który zakłada, że mimo obowiązkowego charakteru KSeF, kary pieniężne za błędy związane z jego stosowaniem będą odroczone do końca 2027 r. Jest to odpowiedź na potrzeby zgłaszane przez przedsiębiorców, w związku z wdrażaniem obowiązkowego systemu e-fakturowania. Celem tej zmiany jest zapewnienie przedsiębiorcom dodatkowego czas",
+"source_type": "web",
+"on_topic": true,
+"kind": "news"
+},
+{
+"url": "https://inforlex.pl/dok/tresc,FOB0000000000007551991,Obowiazkowy-KSeF-od-1-kwietnia-2026-r-dla-kolejnej-grupy-przedsiebiorcow.html",
+"title": "Obowiązkowy KSeF od 1 kwietnia 2026 r. dla kolejnej grupy przedsiębiorców -",
+"snippet": "Od 1 kwietnia 2026 r. większość firm zostanie objęta obowiązkiem wystawiania faktur w KSeF. Wyjątkiem są mikroprzedsiębiorcy, którzy do końca 2026 r. mogą nadal wystawiać faktury elektroniczne lub papierowe — pod warunkiem że ich miesięczna sprzedaż udokumentowana fakturami nie przekroczy 10 000 zł brutto. ksef 2026 Jako pierwsi obowiązkiem wystawiania faktur w Krajowym Systemie e-Faktur zostali objęci przedsiębiorcy, których wartość sprzedaży wraz z podatkiem przekroczyła w 2024 r. 200 mln zł. Od 1 kwietnia 2026 r. obowiązek ten obejmie co do zasady wszystkich pozostałych podatników (pewne odstępstwa będą dotyczyć tylko niewielkich podmiotów i obejmą tylko okres do końca 2026 r.). Od 1 kwietnia 2026r. z Krajowego Systemu e-Faktur korzystać będą wszyscy przedsiębiorcy, u których wartość sprzedaży w 2024 r. nie przekroczyła 200 mln zł. Nie dotyczy to podatników, u których miesięczna wartość sprzedaży udokumentowanej fakturami nie przekracza 10 tys. zł. brutto. Będą oni wystawiać faktury w KSeF dopiero od 1 sty",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://inforlex.pl/dok/tresc,FOB0000000000007494072,Ministerstwo-Finansow-odpowiada-na-watpliwosci-dotyczace-limitu-w-KSeF.html",
+"title": "Jak ustalić limit zwalniający z obowiązku wystawiania faktur w KSeF -",
+"snippet": "Od 1 kwietnia 2026 r. kolejna grupa podatników VAT zostanie objęta obowiązkiem wystawiania faktur w KSeF. Wyjątkiem są podatnicy, których miesięczna wartość sprzedaży brutto udokumentowana fakturami nie przekroczy 10 000 zł. Ministerstwo Finansów wyjaśnia, które faktury należy uwzględnić w limicie oraz w jakich sytuacjach mikroprzedsiębiorcy tracą możliwość wystawiania faktur poza systemem. ... KSeF Mikroprzedsiębiorcy w okresie od 1 kwietnia 2026 r. do 31 grudnia 2026 r. mogą wystawiać faktury elektroniczne lub faktury w postaci papierowej, jeżeli łączna wartość sprzedaży (wraz z podatkiem) udokumentowana tymi fakturami wystawionymi w danym miesiącu będzie mniejsza lub równa 10 000 zł. Podatnik utraci prawo do wystawiania faktur elektronicznych oraz faktur w postaci papierowej, począwszy od faktury, którą przekroczy wartość 10 000 zł. Po przekroczeniu tego limitu musi obowiązkowo wystawiać faktury w KSeF. Nie będzie miał wyboru. Ważne Od 1 kwietnia do 31 grudnia 2026 r. mikroprzedsiębiorcy mogą wystawiać fak",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://pit.pl/aktualnosci/najmniejsi-przedsiebiorcy-zyskaja-wiecej-czasu-na-ksef-nowe-obowiazki-dopiero-od-2027-roku-1011635",
+"title": "Najmniejsi przedsiębiorcy zyskają więcej czasu na KSeF ...",
+"snippet": "w trzech etapach: 1. od 1 lutego 2026 r. dla dużych podatników (o wartości sprzedaży za 2024 r. przekraczającej 200 mln zł wraz z podatkiem), 2. od 1 kwietnia 2026 r. dla pozostałych przedsiębiorców. Ustawodawca przewidział jednak jeden wyjątek. Chodzi o najmniejszych podatników, których transakcje obejmują niewielkie kwoty (do 450 zł dla pojedynczej faktury i do łącznej wartości sprzedaży do 10 tys. zł miesięcznie). Wspomniani przedsiębiorcy zostaną objęci tym obowiązkiem dopiero od 1 stycznia 2027 r. ... Dla sporej części przedsiębiorców zmiany dotyczące KSeF wydają się być nadal bardzo odległe. Pomimo objęcia nowym obowiązkiem w kwietniu 2026 roku, czy nawet dopiero w 2027 roku, nie warto zwlekać z jego wdrożeniem na ostatnią chwilę. Szczególnie ostrożni powinni być najmniejsi przedsiębiorcy dokonujący sprzedaży do 10 tys. zł, którzy z KSeF mogą zacząć korzystać dopiero w 2027 roku. W przypadku bowiem tak małych transakcji ryzyko przekroczenia",
+"source_type": "web",
+"on_topic": true,
+"kind": "news"
+},
+{
+"url": "https://kik.edu.pl/aktualnosci/ksef-2026-dla-kogo-bedzie-to-obowiazek",
+"title": "KSeF 2026. Dla kogo będzie to obowiązek?",
+"snippet": "Od 2026 roku większość przedsiębiorców w Polsce będzie musiała wystawiać i odbierać faktury wyłącznie przez KSeF. Ministerstwo Finansów 30 września 2025 roku udostępniło środowisko testowe (integracyjne) interfejsu programistycznego API KSeF 2.0, dzięki któremu przedsiębiorcy mogą przygotować się na nadchodzące zmiany (gov.pl). Kogo obejmie KSeF 2026 i od kiedy obowiązek Krajowego Systemu e-Faktur zacznie dotyczyć Twojej firmy? W tym artykule to sprawdzimy! Harmonogram obowiązku KSeF 2026 – kto i od kiedy musi korzystać? Najwięksi podatnicy, których obrót w 2024 roku przekroczył 200 mln zł, rozpoczną obowiązkowe wystawianie faktur przez KSeF od 1 lutego 2026 r. Pozostałe firmy, w tym jednoosobowe działalności gospodarcze (JDG) – dołączą od 1 kwietnia 2026 r. Z kolei mikroprzedsiębiorcy o obrotach do 10 tys. zł miesięcznie będą objęci obowiązkiem od 1 stycznia 2027 r. System obejmie podatników VAT czynnych i zwolnionych, a także podatników OSS z polskim NIP. Z obowiązku zwolnieni zostaną konsumenci i część nie",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://ksiegowosc.infor.pl/ksef/7687886,rewolucja-w-ksef-rzad-podjal-kluczowa-decyzje-co-czeka-przedsiebiorcow-od-1-stycznia.html",
+"title": "Rewolucja w KSeF: Rząd zdecydował o wydłużeniu okresu ochronnego. Co czeka przedsiębiorców od 1 stycznia?",
+"snippet": "Rada Ministrów oficjalnie przyjęła projekt ustawy, któr dotyczy Krajowego Systemu e-Faktur (KSeF). Choć od 1 stycznia 2027 roku cyfrowy obowiązek obejmie wszystkich przedsiębiorców w Polsce – w tym najmniejsze mikrofirmy – rząd zdecydował o wydłużeniu okresu ochronnego. Kary za błędy i brak faktur w systemie zostały odroczone aż do 31 grudnia 2027 roku. W tym samym pakiecie przepisów ukryto jeszcze jedną kluczową decyzję: przedłużenie mechanizmu odwrotnego obciążenia VAT na rynku energii i gazu aż do połowy 2030 roku.\n\nResort finansów przypomina, że **z końcem 2026 r. wygasa okres przejściowy** dla podatników, których wartość sprzedaży dokumentowana fakturami za okresy miesięczne nie przekracza kwoty 10 000 zł (brutto). W związku z tym, od 1 stycznia 2027 r. korzystanie z Krajowego Systemu e-Faktur staje się obowiązkowe dla wszystkich przedsiębiorców.\n\nZdaniem resortu: *„Projektowane rozwiązanie służy ochronie uczciwych uczestników obrotu gospodarczego, utrzymaniu szczelności systemu podatkowego oraz zachowan",
+"source_type": "web",
+"on_topic": true,
+"kind": "news"
+},
+{
+"url": "https://inwestycje.pl/gospodarka/rzad-przyjal-projekt-ws-odroczenia-kar-pienieznych-za-bledy-zwiazane-z-ksef",
+"title": "Rząd przyjął projekt ws. odroczenia kar pieniężnych za błędy związane z KSeF",
+"snippet": "Projekt przewiduje odroczenie do końca 2027 r. nakładania kar pieniężnych za błędy związane z Krajowym Systemem e-Faktur (KSeF). Chodzi także o przedłużenie o 3,5 roku mechanizmu odwrotnego obciążenia VAT dla gazu, energii elektrycznej i uprawnień do emisji gazów cieplarnianych. Proponowane przepisy ułatwią przedsiębiorcom dostosowanie się do nowego systemu oraz zapewnią większą przewidywalność prowadzenia działalności gospodarczej, podkreślono.\n„Zmiany są odpowiedzią na potrzeby zgłaszane przez przedsiębiorców. Zapewnią im dodatkowy czas na dostosowanie się do nowych obowiązków związanych z KSeF, a jednocześnie ograniczą ryzyko nakładania kar w tym okresie.\n\n– projekt zakłada odroczenie stosowania kar za nieprawidłowości związane z wystawianiem faktur w systemie KSeF. Pierwotnie kary miały być stosowane od 1 stycznia 2027 r. Odroczenie ma ułatwić przedsiębiorcom dostosowanie się do nowych obowiązków – zarówno tym, którzy już korzystają z KSeF, ale napotykają trudności, jak i tym, którzy korzystają z okresów ",
+"source_type": "web",
+"on_topic": true,
+"kind": "news"
+},
+{
+"url": "https://ksiegowosc.infor.pl/ksef/7628602,ksef-zmienia-gastronomie-najwiekszy-problem-restauracji-to-nie-faktury-ale-cos-calkiem-innego.html",
+"title": "KSeF zmienia gastronomię. Największy problem restauracji nie zaczyna się przy wystawianiu faktury",
+"snippet": "Od 1 lutego 2026 r. obowiązek wystawiania faktur w KSeF objął największych przedsiębiorców, a od 1 kwietnia został rozszerzony na firmy z sektora MŚP. Przewidziano jednak wyjątek dla najmniejszych podatników: do końca 2026 r. poza **KSeF** faktury mogą wystawiać firmy, u których miesięczna sprzedaż dokumentowana fakturami nie przekracza 10 tys. zł brutto. Mimo tego, wszyscy przedsiębiorcy muszą już być przygotowani na odbieranie ustrukturyzowanych dokumentów w systemie.",
+"source_type": "web",
+"on_topic": true,
+"kind": "news"
+},
+{
+"url": "https://solusfp.pl/kluczowe-daty-i-progi-wejscia-w-obowiazkowe-korzystanie-z-krajowego-systemu-e-faktur-ksef-w-polsce",
+"title": "Kluczowe daty i progi wejścia w obowiązkowe korzystanie z Krajowego Systemu e-Faktur (KSeF) w Polsce",
+"snippet": "# Kluczowe daty i progi wejścia w obowiązkowe korzystanie z Krajowego Systemu e-Faktur (KSeF) w Polsce\n![](https://solusfp.pl/wp-content/uploads/2025/11/kluczowe-daty-scaled.jpg)\n1 lutego 2026 r. – obowiązek dotyczy przedsiębiorców, których wartość sprzedaży (wraz z podatkiem VAT) w 2024 roku przekroczyła 200 mln zł.\n1 kwietnia 2026 r. – obowiązek obejmuje wszystkich pozostałych podatników VAT, zarówno czynnych, jak i zwolnionych.\n1 stycznia 2027 r. – najmniejsze firmy, których miesięczna sprzedaż nie przekracza 10 tys. zł brutto i pojedyncze faktury są niższe niż 450 zł, będą objęte obowiązkiem korzystania z KSeF.",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://dziennikwschodni.pl/artykul/393429,numer-ksef-w-tytule-przelewu-co-zmienia-sie-w-rozliczeniach-miedzy-firmami-od-2027-roku",
+"title": "Numer KSeF w tytule przelewu. Co zmienia się w rozliczeniach między firmami od 2027 roku?",
+"snippet": "# Numer KSeF w tytule przelewu. Co zmienia się w rozliczeniach między firmami od 2027 roku?\n**Krajowy System e-Faktur zmienił sposób wystawiania dokumentów, ale do tej pory nie ingerował w to, jak firmy za nie płacą. To się zmienia 1 stycznia 2027 r. Od tego dnia stosowany będzie art. 108g ustawy o podatku od towarów i usług, który nakazuje podawanie numeru KSeF przy płatnościach za faktury. W tym samym terminie zaczyna obowiązywać znowelizowany art. 108a ust. 3 pkt 3 ustawy, dotyczący przelewów realizowanych w mechanizmie podzielonej płatności.**\nDzisiaj, 16:07\n## Czego dokładnie dotyczy nowy obowiązek?\nNumer KSeF to unikalny identyfikator, który system nadaje fakturze w chwili jej przyjęcia do rejestru. Dotychczas służył do odnalezienia dokumentu i potwierdzenia, że faktura istnieje w rejestrze. Od 2027 r. ma trafiać także do tytułu płatności, a w przypadku mechanizmu podzielonej płatności do komunikatu przelewu, w którym kwota podatku trafia na rachunek VAT.\nOpisywany obowiązek dotyczy płatności dokonanych",
+"source_type": "web",
+"on_topic": false,
+"kind": "news"
+},
+{
+"url": "https://infakt.pl/blog/ksef-obowiazkowy-od-2026-roku-sejm-przyjal-ustawe-o-e-fakturach",
+"title": "KSeF od kiedy? Terminy obowiązku wystawiania faktur w KSeF",
+"snippet": "KSeF obowiązuje od 1 lutego 2026 roku duże firmy, a od 1 kwietnia 2026 r. pozostałe podmioty. Wielu pyta dziś „KSeF od kiedy?”. Tutaj znajdziesz pełny harmonogram oraz zasady działania KSeF. Z tego artykułu dowiesz się: KSeF od kiedy będzie obowiązkowy dla Twojej firmy? 1 lutego 2026 – duże firmy 1 kwietnia 2026 – inni przedsiębiorcy 1 stycznia 2027 – najmniejsi Szczegóły i harmonogram znajdziesz w tekście Jak działa Krajowy System e-Faktur i jakie zmiany wprowadza Jakie kary grożą firmom za niewystawianie faktur w KSeF Ustawa o KSeF zatwierdzona Krajowy System e-Faktur, wprowadzany przez Ministerstwo Finansów, miał obowiązywać już w lipcu 2024 roku, jednak po wyborach parlamentarnych termin został przesunięty z racji na wykryte w systemie “krytyczne błędy”. Budowany jest więc KSeF 2.0.",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://altab.pl/baza-wiedzy/ksef-od-kiedy-obowiazkowy",
+"title": "KSeF od kiedy obowiązkowy? Terminy 2026 zatwierdzone ustawą [Aktualizacja 2025]",
+"snippet": "KSeF od kiedy obowiązkowy? Terminy 2026 zatwierdzone ustawą [Aktualizacja 2025] Aktualizacja – 27 sierpnia 2025: Prezydent RP zatwierdził ustawę o obowiązkowym Krajowym Systemie e-Faktur (KSeF). To oznacza, że KSeF stanie się obowiązkowy w 2026 roku. Obowiązek korzystania z KSeF dla dużych przedsiębiorców rozpoczyna się od 1 lutego 2026, a dla pozostałych – od 1 kwietnia 2026. → Dowiedz się więcej w dalszej części wpisu.  KSeF wchodzi w życie: Prezydent zatwierdził nowelizację Przez długi czas pojawiały się pytania i niepewności co do ostatecznych terminów wejścia KseF w życie. W dniu 27 sierpnia 2025 r. Prezydent podpisał ustawę wprowadzającą obowiązek KSeF od 2026 roku – to milowy krok, który czyni reformę cyfrowego fakturowania realną. Podpis prezydenta potwierdza, że daty wejścia KSeF w życie są ostateczne. Daje to przedsiębiorcom jasny sygnał: czas rozpocząć przygotowania do obowiązkowego korzystania z systemu. KSeF 2026 – terminy potwierdzone ustawą Podpisanie ustawy przez Prezydenta rozwiewa wątpliwośc",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://ksef.podatki.gov.pl/media/rronoxyt/podrecznik-ksef-20-cz-ii-wystawianie-i-otrzymywanie-faktur-w-ksef-06082026.pdf",
+"title": "Podręcznik KSeF 2.0 cz.2 Wystawianie i otrzymywanie faktur w KSeF",
+"snippet": "Wyróżnia się następujące rodzaje faktur: Faktura elektroniczna, w myśl art. 2 pkt 32 ustawy jest to faktura w postaci elektronicznej wystawiona i otrzymana w dowolnym formacie elektronicznym (np. jako plik pdf). WAŻNE Faktura ustrukturyzowana (zwana e-Fakturą) jest to faktura wystawiona przy użyciu KSeF wraz z przydzielonym numerem identyfikującym tę fakturę w tym systemie. Faktura ustrukturyzowana: • od 1 lutego 2026 r. jest wystawiana przy użyciu struktury logicznej FA(3), • jest wystawiana i otrzymywana przy użyciu KSeF, • przyjmuje format pliku XML, • posiada przydzielony numer KSeF. Pojęcia faktury elektronicznej i faktury ustrukturyzowanej nie stanowią synonimów. Faktura elektroniczna, w przeciwieństwie do faktury ustrukturyzowanej: • nie musi być wystawiana przy użyciu struktury FA, • nie jest przesyłana do KSeF ani otrzymywana przy użyciu KSeF, • może być dowolnym plikiem np. pdf przesyłanym w wiadomości e-mail do kontrahenta. W KSeF wystawiane są wyłącznie faktury ustrukturyzowane (przyjmujące postać",
+"source_type": "web",
+"on_topic": false,
+"kind": "generic"
+},
+{
+"url": "https://ksef.podatki.gov.pl/pytania-i-odpowiedzi-ksef-20",
+"title": "Pytania i odpowiedzi KSeF 2.0 - KSeF (Krajowy System e-Faktur)",
+"snippet": "### 1. Co to jest KSeF? Krajowy System e-Faktur (KSeF) to system służący do wystawiania, przesyłania, odbierania i przechowywania faktur ustrukturyzowanych. Od 1 lutego 2026 r. KSeF obejmuje etapami wszystkich przedsiębiorców oraz wystawiających faktury w Polsce. Wdrożenie KSeF służy cyfryzacji procesów fakturowania oraz księgowania faktur. Pozwala także unikać błędów przy ich wystawianiu. ... ### 2. Jak korzystać z KSeF? Możesz korzystać z KSeF przy użyciu: • programów finansowo-księgowych, o ile są zintegrowane z KSeF (integracja przez API), • bezpłatnych narzędzi Ministerstwa Finansów, dostępnych na stronie ksef.podatki.gov.pl tj. - dostępnej online Aplikacji Podatnika KSeF (umożliwiającej korzystanie z systemu, zarządzanie uprawnieniami, tokenami i docelowo również certyfikatami KSeF, podgląd faktur oraz pobranie UPO); - Aplikacji Mobilnej KSeF (zapewniającej wygodne i szybkie wystawianie i odbieranie faktur w systemie przy użyciu smartfona, podgląd faktur oraz utworzenie wersji roboczej faktury) Z KSeF m",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://gov.pl/web/kas/co-warto-wiedziec-przed-startem-ii-etapu-wdrozenia-krajowego-systemu-e-faktur",
+"title": "Co warto wiedzieć przed startem II etapu wdrożenia Krajowego Systemu e-Faktur - Ministerstwo Finansów - Krajowa Administracja Skarbowa - Portal Gov.pl",
+"snippet": "3.2026 - KSeF to system do wystawiania, przesyłania, odbierania i przechowywania faktur ustrukturyzowanych. - Przypominamy, jak zalogować się do KSeF, wystawiać i odbierać faktury oraz jak korzystać z najważniejszych funkcji systemu w codziennej pracy. ... ### Jak zalogować się do KSeF? a) Wejdź na stronę: ksef.podatki.gov.pl i kliknij w panel „Zaloguj się do KSeF” znajdujący się po prawej stronie. b) Wybierz sposób logowania. Możesz zalogować się za pośrednictwem: - login.gov.pl (m.in. aplikacji mObywatel, bankowości elektronicznej, e-dowodu lub Profilu Zaufanego), - kwalifikowanego podpisu lub pieczęci elektronicznej. ### Logowanie przez aplikację mObywatel: a) wybierz logowanie przez login.gov.pl, b) wskaż aplikację mObywatel jako metodę uwierzytelnienia, c) zeskanuj kod QR w aplikacji na telefonie, d) potwierdź udostępnienie danych. Po zalogowaniu się, będziesz mógł korzystać z systemu zgodnie z posiadanym zakresem uprawnień. Jeśli działasz w imieniu firmy, upewnij się, że masz nadane odpowiednie uprawnie",
+"source_type": "web",
+"on_topic": false,
+"kind": "generic"
+},
+{
+"url": "https://ksef.podatki.gov.pl/krok-po-kroku-jak-odebrac-fakture-w-ksef",
+"title": "Jak odebrać fakturę w KSeF",
+"snippet": "# Krok po kroku - jak odebrać fakturę w KSeF Od 1 lutego będzie można odbierać faktury w Krajowym Systemie e-Faktur (KSeF). Dotyczy to wszystkich podmiotów–także tych, które nie wystawiają faktur w KSeF, lecz otrzymują faktury wystawione w KSeF. Jak odebrać fakturę w KSeF? Animacja Jak odebrać fakturę w KSeF? - Plik do pobrania (PDF, 196,73 KB) ## Krok 1: Wybierz narzędzie do odbierania faktur (od 1 lutego 2026 r.) Od 1 lutego będziesz mógł odbierać faktury w KSeF przy użyciu bezpłatnych narzędzi udostępnionych przez Ministerstwo Finansów: - Aplikacja Podatnika KSeF – dostępna na stronie www.ksef.podatki.gov.pl. - Aplikacja Mobilna KSeF – dostępna od 1 lutego do pobrania na telefon. - e-mikrofirma – dostęp przez e-Urząd Skarbowy Co warto zrobić już teraz? Wybierz narzędzie, z którego będziesz korzystać, aby od 1 lutego bez problemu odbierać faktury w KSeF. ... ## Krok 2 Uzyskaj dostęp do KSeF Jeżeli posiadasz NIP, masz już podstawowe uprawnienia do korzystania z KSeF. Uwaga! Jeśli nie prowadzisz jednoosobowej",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://ksef.podatki.gov.pl/aplikacja-podatnika-ksef-20",
+"title": "Aplikacja Podatnika KSeF 2.0 - KSeF (Krajowy System e-Faktur)",
+"snippet": "## Aplikacja Podatnika KSeF 2.0 - wersja produkcyjna Aplikacja Podatnika KSeF 2.0 to udostępniane przez Ministerstwo Finansów bezpłatne narzędzie umożliwiające wystawianie, odbieranie oraz przeglądanie faktur zgodnych z wymogami Krajowego Systemu e-Faktur 2.0 (KSeF 2.0). Może stanowić pełnoprawną alternatywę dla dowolnego komercyjnego programu do fakturowania, który integruje się z API KSeF 2.0. Aplikacja jest przeznaczona dla podatników, jednostek sektora finansów publicznych, członków grup VAT oraz wszystkich podmiotów korzystających z KSeF 2.0. Przejdź do Aplikacji Podatnika KSeF 2.0 WAŻNE!!! Środowisko produkcyjne wymaga użycia danych uwierzytelniających zgodnie z rejestrem informacji o właścicielach firm. W celu zalogowania się do usługi konieczne jest posiadanie faktycznych uprawnień. Pamiętaj, każda faktura przesłana do KSeF w środowisku produkcyjnym jest dokumentem wprowadzonym do obiegu prawnego. Obsługa faktur - wystawianie, odbieranie i przeglądanie faktur oraz faktur korygujących zgodnych ze struk",
+"source_type": "web",
+"on_topic": false,
+"kind": "product"
+},
+{
+"url": "https://ksef.podatki.gov.pl/media/dmrfdixs/podrecznik-ksef-20-cz-i-rozpoczecie-korzystania-z-ksef-06082026.pdf",
+"title": "Podręcznik KSeF 2.0 cz.1 Rozpoczęcie korzystania z KSeF",
+"snippet": "Wstęp KSeF to system służący w szczególności do wystawiania, przesyłania, otrzymywania i przechowywania faktur ustrukturyzowanych. Od 1 lutego 2026 r. wystawianie faktur w tym systemie jest obowiązkowe dla podatników, którzy w 2024 r. osiągnęli wartość sprzedaży powyżej 200 mln zł, a od 1 kwietnia 2026 r. dla pozostałych podatników. Od 1 lutego 2026 r. podatnicy mają również obowiązek odbierania faktur przy użyciu KSeF 1.",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://ksef.podatki.gov.pl/media/qocjn3ai/podrecznik-uzytkownika-aplikacji-podatnika-ksef-20_06082026.pdf",
+"title": "Podręcznik użytkownika Aplikacji Podatnika KSeF 2.0",
+"snippet": "### 1.2. Opis ogólny Aplikacja Podatnika jest jednym z elementów Krajowego Systemu e-Faktur. W ramach funkcjonalności dostępnych w Aplikacji Podatnika możliwe jest wystawianie, odbieranie i przeglądanie e-Faktur przez podatników i podmioty uprawnione przez tych podatników. Aplikacja posiada również dodatkowe funkcjonalności ułatwiające zarządzanie uprawnieniami użytkowników KSeF oraz zarządzanie certyfikatami KSeF i tokenami. Dodatkowo Aplikacja umożliwia bez konieczności logowania podgląd e-Faktury (anonimowy dostęp do e-Faktury po wskazaniu jej indywidualnych cech). ... ### 5.2. Wystawianie faktur 5.2.1. Wystaw fakturę VAT Po wybraniu pozycji Wystaw fakturę VAT z menu bocznego, aplikacja wyświetli ekran wyboru rodzaju formularza. Aby wystawić standardową fakturę krajową, należy wybrać Tryb skrócony. Formularz ten zawiera najczęściej wykorzystywane pola wymagane do wystawienia podstawowej faktury VAT i pozwala przeprowadzić cały proces na jednym ekranie. Jeżeli planowana transakcja wymaga zastosowania dodatk",
+"source_type": "web",
+"on_topic": false,
+"kind": "product"
+},
+{
+"url": "https://ksef.pl",
+"title": "Krajowy System e-Faktur - ksef.pl",
+"snippet": "Co to KSeF? KSeF, czyli Krajowy System e-Faktur od Ministerstwa Finansów, to rozwiązanie umożliwiające przedsiębiorcom wystawianie i odbieranie faktur elektronicznych w prosty sposób. System ten nie tylko pozwala na przechowywanie i sprawdzanie faktur w sieci. Jego celem jest uproszczenie rozliczeń, przyspieszenie obiegu dokumentów i uszczelnienie systemu podatkowego. Dzięki KSeF faktura jest od razu widoczna dla urzędu skarbowego, a Ty masz pewność, że trafiła do odbiorcy.  KSeF - od kiedy? Krajowy System e-faktur zacznie obowiązywać w 2026 roku. Przepisy będą wdrażane stopniowo: Od 1 lutego 2026 r. elektroniczne fakturowanie stało się obowiązkowe dla dużych firm, które w 2024 r. osiągnęły sprzedaż powyżej 200 mln zł. W tym samym czasie małe i średnie firmy muszą już odbierać faktury zakupowe z KSeF. Od 1 kwietnia 2026 r. system obiął wszystkich pozostałych podatników – zarówno czynnych, jak i zwolnionych z VAT (z wyłączeniem najmniejszych). Od 1 stycznia 2027 r. do KSeF dołączą najmniejsze podmioty o miesię",
+"source_type": "web",
+"on_topic": false,
+"kind": "generic"
+},
+{
+"url": "https://ksefuj.to/en/guides/ksef-accountant-access",
+"title": "Giving your accountant KSeF access: step by step",
+"snippet": "You give an accountant access to KSeF electronically: log in to the KSeF 2.0 Taxpayer Application (or use your own software), go to Uprawnienia (Permissions), Nadaj uprawnienie (Grant permission), and identify the accounting office by NIP or the accountant by name.\n\nYou grant the accountant a selection of them. Usually two:\n- **wystawianie faktur** (issuing invoices),\n- **przeglądanie faktur** (viewing invoices; the system itself calls it \"dostęp do faktur\"), meaning downloading sales and purchase invoices.\nIf Ania issues invoices herself in software connected to KSeF, the office only needs to view them: it downloads, books and settles them. Issuing makes sense when the office is to issue invoices on Ania's behalf. The Ministry describes both options in part I of the manual (p. 20).\n\n2. Go to **Uprawnienia**, **Nadaj uprawnienie**.\n3. In the \"Rodzaj uprawnienia\" (type of permission) field choose **\"Podmiotowi do wystawiania i przeglądania faktur\"** (to an entity, for issuing and viewing invoices).\n4. Enter th",
+"source_type": "web",
+"on_topic": false,
+"kind": "generic"
+},
+{
+"url": "https://bankier.pl/smart/ksef-2026-kompendium-wiedzy-jak-przygotowac-firme-na-zmiany",
+"title": "KSeF 2026: Kompendium wiedzy. Jak przygotować firmę na zmiany?",
+"snippet": "KSeF jest centralną platformą informatyczną, która działa jako pośrednik w obiegu faktur między firmami. Działa KSeF w ten sposób, że wystawca faktury elektronicznej przesyła ją do systemu e faktur KSeF, gdzie jest ona natychmiast dostępna dla odbiorcy po jej zatwierdzeniu. W ramach KSeF podatnicy mają obowiązek wystawiania i odbierania faktur elektronicznych zgodnie z określonymi procedurami, w tym zgłaszania do urzędu skarbowego oraz nadawania uprawnień do obsługi systemu. KSeF umożliwia natychmiastowy dostęp do faktur po ich wystawieniu oraz wprowadza jeden ustandaryzowany format faktury, co eliminuje błędy w odczycie danych. Krajowy System e-Faktur jest zaprojektowany, aby standaryzować proces fakturowania, ujednolicić obieg faktur oraz zwiększyć bezpieczeństwo danych.  Tradycyjne fakturowanie vs. KSeF 2.0 Poniżej znajdziesz tabelę porównawczą, która w przejrzysty sposób zestawia dotychczasowe zasady fakturowania z nową rzeczywistością system KSeF 2.0. To zestawienie pomoże Ci szybko zidentyfikować kluczo",
+"source_type": "web",
+"on_topic": true,
+"kind": "generic"
+},
+{
+"url": "https://prawo.pl/podatki/ksef-dla-malych-firm-kto-skorzysta-z-odroczenia,535551.html",
+"title": "KSeF dla małych firm - kto skorzysta z odroczenia",
+"snippet": "KSeF dla małych firm - kto skorzysta z odroczenia Obowiązek korzystania z KSeF będzie dotyczył co do zasady wszystkich przedsiębiorców, nawet prowadzących jednoosobową działalność niewielkich rozmiarów. Tylko najmniejsi podatnicy, których wartość sprzedaży nie przekracza 10 tys. zł miesięcznie, mogą odroczyć wystawianie faktur w KSeF do końca 2026 r. Obowiązek wystawiania faktur w KSeF obejmie ich od 2027 r. Jednak już od 1 lutego 2026 r. muszą być gotowi, by odbierać w systemie faktury wystawione przez kontrahentów.  O ile najwięksi podatnicy są już praktycznie gotowi do wdrożenia KSeF, to wielu najmniejszych nie zaczęło jeszcze przygotowań. Wciąż też pojawiają się pytania, czy można uniknąć wystawiania faktur w systemie i kto skorzysta z odroczenia. Ministerstwo Finansów opublikowało odpowiedzi na kolejne pytania podatników - https://ksef.podatki.gov.pl/pytania-i-odpowiedzi-ksef-20. KSeF dla każdego przedsiębiorcy Ministerstwo Finansów wyjaśnia, że faktury ustrukturyzowane w KSeF (w formacie XML) będzie mus",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://kluczesoft.pl/pomoc/poradnik/ksef-od-kiedy-2026",
+"title": "Ksef od kiedy 2026 — kompletny przewodnik (2026)",
+"snippet": "Po pierwsze, faktura nie istnieje bez nadania numeru KSeF — dokument wysłany do systemu, który nie otrzymał identyfikatora, nie jest fakturą w rozumieniu ustawy o VAT.\n\n(2026) Obowiązkowy Krajowy System e-Faktur (KSeF) obowiązuje od 2026 roku — to fakt, który dotyczy każdej firmy wystawiającej faktury VAT w Polsce. Sprawdź, od kiedy dokładnie KSeF jest obowiązkowy, jakie są terminy przejściowe dla poszczególnych grup podatników, od kiedy stosowane będą kary i jak przygotować firmę. Poniżej znajdziesz informacje oparte na komunikatach Ministerstwa Finansów publikowanych na ksef.podatki.gov.pl. KSeF — co to jest i dlaczego musisz to wiedzieć Krajowy System e-Faktur to centralna platforma Ministerstwa Finansów do wystawiania, odbierania i przechowywania faktur ustrukturyzowanych w formacie XML. System zastępuje tradycyjne faktury papierowe i elektroniczne (PDF, e‑mail) jednym ustandaryzowanym formatem — fakturą ustrukturyzowaną zgodną ze strukturą logiczną FA(3). Każda faktura trafia na serwery KSeF, otrzymuje u",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://invoice.app/en/blog/ksef-guide",
+"title": "KSeF 2026 — the complete guide for small businesses in Poland",
+"snippet": "The Krajowy System e-Faktur (KSeF — the National e-Invoicing System) has changed how invoicing works in Poland. Structured e-invoicing has been mandatory for large companies since **1 February 2026** and for all active VAT payers since **1 April 2026**. Every business — including those exempt from VAT — has had to be able to **receive** invoices through the system since 1 February 2026.\n\nKSeF (Krajowy System e-Faktur) is a central IT system run by the Polish Ministry of Finance that stores structured electronic invoices in XML format. Every invoice sent to KSeF receives a unique **KSeF reference number** and an **UPO (Urzędowe Poświadczenie Odbioru — Official Receipt Confirmation)**, which together confirm its authenticity, integrity and delivery date.\nThe system replaces the previous model, where PDF or paper invoices travelled between seller and buyer. In KSeF the invoice lands in a central database and is immediately available to both parties. You do not need to email it or store it yourself — the system k",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://vatax.pl/blog/obsluga-ksef-porownanie-cen",
+"title": "Porównanie cen programów do KSeF 2026 - od 0 zł | VATAX",
+"snippet": "Ile będzie kosztować obsługa KSeF? Porównanie cen w programach do fakturowania i systemach ERP Już niedługo przedsiębiorców czekają ogromne zmiany w fakturowaniu. Od 1 lutego 2026 r. duże firmy, a od 1 kwietnia pozostałe przedsiębiorstwa będą zobowiązane do korzystania z Krajowego Systemu e-Faktur (KSeF). Jedynie najmniejsi przedsiębiorcy (z obrotami do 10 tys. zł miesięcznie, wystawiający faktury na kwotę mniejszą niż 450 zł) będą mieli więcej czasu - dla nich termin przesunięto na 1 stycznia 2027 r. UWAGA! Mimo że małe firmy mają więcej czasu na wdrożenie po swojej stronie, w praktyce muszą one być przygotowane na odbiór faktur przez system KSeF już wcześniej (będą odbierać faktury od większych firm). KSeF to centralna platforma, która ujednolica proces wystawiania i odbierania faktur (jeśli chcesz dowiedzieć się więcej, zajrzyj do artykułu, w którym wyjaśniam czym jest KSeF, jak działa i kogo obowiązuje). Choć z pozoru może się to wydawać kolejnym biurokratycznym obowiązkiem, w praktyce to także szansa na ",
+"source_type": "web",
+"on_topic": false,
+"kind": "pricing"
+},
+{
+"url": "https://gov.pl/web/kas/przedluzenie-odroczenia-kar-za-bledy-w-stosowaniu-ksef-do-konca-2027-r",
+"title": "Przedłużenie odroczenia kar za błędy w stosowaniu KSeF do końca 2027 r. - Ministerstwo Finansów - Krajowa Administracja Skarbowa - Portal Gov.pl",
+"snippet": "## Przedłużenie odroczenia kar za błędy w stosowaniu KSeF do końca 2027 r. 16.09.2026 - Resort finansów wydłuża okres odroczenia kar za błędy związane ze stosowaniem Krajowego Systemu e-Faktur (KSeF) do 31 grudnia 2027 r. - Rozwiązanie jest odpowiedzią na postulaty zgłaszane przez przedsiębiorców, organizacje branżowe i ekspertów podatkowych w związku z etapowym wdrożeniem systemu. Od 1 stycznia 2027 r. korzystanie z Krajowego Systemu e-Faktur staje się obowiązkowe dla wszystkich przedsiębiorców, z uwagi na kończące się 31.12.2026r. okresy przejściowe dla niektórych podatników. W związku z tym resort finansów podjął decyzję o odroczeniu kar za błędne korzystanie z systemu na kolejny rok. ... Zaproponowane rozwiązanie będzie szczególnie korzystne dla najmniejszych przedsiębiorców, dla których system stanie się obowiązkowy od 1 stycznia 2027 r. Z tym dniem kończą się bowiem przewidziane dla nich okresy przejściowe. Dzięki wydłużeniu okresu odroczenia kar, małe firmy zyskają dodatkowy czas na naukę obsługi syste",
+"source_type": "web",
+"on_topic": true,
+"kind": "news"
+},
+{
+"url": "https://jpk.info.pl/faktury/e-faktura-ustrukturyzowana-ksef/obowiazek-korzystania",
+"title": "Obowiązkowy KSeF - kary, wymagania techniczne i ...",
+"snippet": "## Jakie kary grożą za brak faktury w KSeF? Kary administracyjne za niewystawienie faktury ustrukturyzowanej w KSeF wchodzą w życie 1 stycznia 2027 r. i wynoszą do 100% kwoty VAT na fakturze lub do 18,7% kwoty brutto (przy fakturach bez VAT). ### Kary administracyjne od 1 stycznia 2027 r. Okres Sankcje Uwagi 1.02–31.12.2026 BRAK KAR administracyjnych Okres przejściowy Od 1.01.2027 Do 100% VAT LUB do 18,7% kwoty brutto Kary administracyjne Wysokość kary ustala naczelnik urzędu skarbowego w drodze decyzji administracyjnej. Przepisy nie określają kwoty minimalnej – kara jest uznaniowa. Przy ustalaniu kary bierze się pod uwagę wagę, stopień i częstotliwość naruszenia. Organ ma prawo odstąpić od nałożenia kary w przypadku siły wyższej. Sankcje mogą być nałożone również za błędy w przesyłaniu faktur w trybie awaryjnym – np. za niezgodność z harmonogramem wysyłki po awarii KSeF. Błędy w treści faktury koryguje się fakturą korygującą - korygowanie faktur w KSeF obejmuje korekty danych, kwot i procedurę korekty do zer",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://inforlex.pl/czasopisma/I78/2026/3/tresc,FOB0000000000007531960,Jak-beda-nakladane-kary-za-bledy-w-KSeF-odpowiedz-MF.html",
+"title": "Jak będą nakładane kary za błędy w KSeF – odpowiedź MF -",
+"snippet": "Za 2026 rok nie ma kar za błędy w fakturowaniu w KSeF. Dopiero od 1 stycznia 2027 r. na podatnika będzie mogła zostać nałożona, w formie decyzji, kara pieniężna sięgająca nawet 100% VAT wykazanego na fakturze wystawionej poza KSeF. Jednak zarówno w 2026 r., jak i w 2027 r. podatnicy nie będą dodatkowo karani z Kodeksu karnego skarbowego. Nie oznacza to jednak pełnej bezkarności, bo odpowiedzialność karno-skarbowa nadal grozi za wystawianie faktur fikcyjnych, niezależnie od formy faktury.",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://prawo.pl/podatki/skutki-bledow-przy-stosowaniu-ksef-kiedy-mozliwa-jest-kara,1544421.html",
+"title": "Skutki błędów przy stosowaniu KSeF - kiedy możliwa jest kara",
+"snippet": "Do końca 2026 roku nie będzie Pan ponosił odpowiedzialności za ewentualne błędy. Natomiast w 2027 roku za naruszenia obowiązków związanych z KSeF mogą być nakładane administracyjne kary pieniężne, których wysokość będzie zależeć od wartości faktury. ... Kluczowe znaczenie dla oceny skutków błędów ma jednak kwestia sankcji. Zgodnie z wyjaśnieniami Ministerstwa Finansów, art. 106ni ustawy o VAT przewiduje administracyjne kary pieniężne za naruszenie obowiązków związanych z KSeF. Kara taka może zostać nałożona przez naczelnika urzędu skarbowego w drodze decyzji. Jej wysokość zależy od wartości faktury – w przypadku faktury z wykazanym podatkiem VAT kara jest powiązana z kwotą podatku, natomiast w przypadku faktur bez VAT – z kwotą należności ogółem. Jednocześnie bardzo istotne jest to, że ustawodawca wyraźnie rozdziela odpowiedzialność administracyjną od karnej skarbowej. W art. 106ni ust. 4 ustawy o VAT wskazano, że w przypadku naruszeń związanych z KSeF nie będą wszczynane postępowania w sprawach o przestępstw",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://crowe.com/pl/insights/ksef-jakie-kary-i-jak-ich-uniknac",
+"title": "KSeF – jakie kary grożą przedsiębiorcom i jak skutecznie ich uniknąć? | Crowe Polska",
+"snippet": "Administracyjne kary pieniężne wynikające z ustawy o VAT mają być stosowane dopiero od 1 stycznia 2027 r. Firmy otrzymały więc dodatkowy czas na wdrożenie KSeF, testowanie procesów, szkolenie pracowników oraz przygotowanie procedur awaryjnych. Nie oznacza to jednak całkowitego braku ryzyka. Już w 2026 r. przedsiębiorca może ponosić odpowiedzialność na podstawie przepisów Kodeksu karnego skarbowego. ... Ryzyko odpowiedzialności może pojawić się m.in. w przypadku: niewystawienia faktury mimo obowiązku, wystawiania faktur niezgodnych z przepisami, wystawiania faktur zawierających dane niezgodne z rzeczywistością, odmowy wydania faktury kontrahentowi, posługiwania się fikcyjnymi dokumentami, nieprzechowywania wymaganej dokumentacji, W praktyce szczególnie istotne będzie wykazanie, czy przedsiębiorca działał w dobrej wier ... i dochował należytej staranności. ... Wysokość kar karnoskarbowych zależy od rodzaju naruszenia oraz jego skali. Przepisy przewidują: - do 180 stawek dziennych za niewystawienie lub wadliwe w",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://poradnikfaktur.pl/ksef/ksef-terminy-i-kary-2026",
+"title": "KSeF terminy i kary 2026: pełny harmonogram sankcji i praktyczny poradnik dla firm | Poradnik Faktur",
+"snippet": "kwietnia ... 0 ... 6 ... korzystanie z Krajowego ... e-F ... K ... ) ... obowiązkowe ... większości podatników VAT. Choć administracyjne kary pieniężne z ustawy o VAT ... zną realnie działać dopiero ... stycznia 2027 r., odpowiedzialność za b ... dy w fakturowaniu nie znika w 2026 roku. Ten poradnik wyjaśnia krok po ... ku, jakie terminy i sankcje wiąż ... z KSeF, jak wygląda harmonogram kar oraz jak bezpiecznie przeprowadzić firmę przez rok wdrożeniowy ... ## Fakty w ... rócie ... - Obowiązek wystawiania faktur w KSeF dla podmiotów objętych systemem startuje 1 kwietnia 2026 r. - Administracyjne kary pieniężne z ustawy o VAT (m.in. do 100% VAT z faktury) zaczną być stosowane od 1 stycznia 2027 r. - W 2026 r. nadal w pełni obowiązuje odpowiedzialność na podstawie Kodeksu karnego skarbowego, w tym art. 62 KKS. - Docelowe sankcje administracyjne mogą wynieść: do 100% kwoty VAT z faktury albo do 18,7% wartości brutto, gdy VAT nie jest wykazany. - Faktury papierowe i poza KSeF wystawione po 1 kwietnia 2026 r. prze",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://gov.pl/web/finanse/przedluzenie-odroczenia-kar-za-bledy-w-stosowaniu-ksef-do-konca-2027-r",
+"title": "Przedłużenie odroczenia kar za błędy w stosowaniu KSeF ...",
+"snippet": "## Przedłużenie odroczenia kar za błędy w stosowaniu KSeF do końca 2027 r. 16.09.2026 - Resort finansów wydłuża okres odroczenia kar za błędy związane ze stosowaniem Krajowego Systemu e-Faktur (KSeF) do 31 grudnia 2027 r. - Rozwiązanie jest odpowiedzią na postulaty zgłaszane przez przedsiębiorców, organizacje branżowe i ekspertów podatkowych w związku z etapowym wdrożeniem systemu. Od 1 stycznia 2027 r. korzystanie z Krajowego Systemu e-Faktur staje się obowiązkowe dla wszystkich przedsiębiorców, z uwagi na kończące się 31.12.2026r. okresy przejściowe dla niektórych podatników. W związku z tym resort finansów podjął decyzję o odroczeniu kar za błędne korzystanie z systemu na kolejny rok. ... Zaproponowane rozwiązanie będzie szczególnie korzystne dla najmniejszych przedsiębiorców, dla których system stanie się obowiązkowy od 1 stycznia 2027 r. Z tym dniem kończą się bowiem przewidziane dla nich okresy przejściowe. Dzięki wydłużeniu okresu odroczenia kar, małe firmy zyskają dodatkowy czas na naukę obsługi syste",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://ksef.pl/ksef-od-kiedy",
+"title": "KSeF – od kiedy obowiązuje? | ksef.pl",
+"snippet": "Dowiedz się więcej  Przygotuj się na KSeF – bez stresu i za 0 zł! Włącz darmową integrację z KSeF i wejdź w nową erę fakturowania bez wysiłku. Zobacz, jakie to proste!  Terminy wdrożenia KSeF Ministerstwo Finansów ogłosiło szczegółowy plan obowiązkowego wdrożenia Krajowego Systemu e-Faktur (KSeF) w 2026 roku. Obowiązek przesyłania faktur ustrukturyzowanych do systemu jest wprowadzany etapami. Chcesz od razu sprawdzić, czy obowiązek dotyczy Twojej firmy? Zobacz, dla kogo KSeF jest obowiązkowy. 1 lutego 2026 Obowiązek objął dużych przedsiębiorców, z obrotem powyżej 200 mln zł za 2024 rok. Co to oznacza: Duże firmy są zobowiązane do wystawiania wszystkich faktur sprzedażowych wyłącznie w KSeF. Mniejsi przedsiębiorcy uzyskali już też dostęp do faktur zakupowych wyłącznie poprzez system – co oznacza, że każdy dokument kosztowy trzeba pobierać z KSeF. 1 kwietnia 2026 Obowiązek objął pozostałych podatników, w tym JDG i MŚP, z wyjątkiem najmniejszych podmiotów. Co to oznacza: KSeF stał się obowiązkowy dla większości ",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://realbizdigital.net/poland/ksef/automation-costs",
+"title": "What KSeF automation costs: per invoice, per API call",
+"snippet": "**Using the Krajowy System e-Faktur carries no charge from the Polish administration — there is no government tariff per invoice and none per API call, and the entire cost of KSeF sits on your side of the boundary in software, integration, infrastructure and operations.** Most organisations cost that boundary once, during implementation, and never again. After go-live the bill stops tracking the number of invoices and starts tracking the number of *operations*, and those two quantities diverge faster than a project plan assumes.\n\n### Implementation — a one-off cost\nAnalysis, integration with the source system, mapping data onto the **FA(3)** logical structure, handling authentication, testing in the test and demo environments, data migration, training. This layer is normally counted, because it lands inside a project budget and someone has to approve it. FA(3) has been the binding invoice template since **1 February 2026**; the Ministry of Finance publishes an English information sheet on it, which is the one",
+"source_type": "web",
+"on_topic": false,
+"kind": "pricing"
+},
+{
+"url": "https://jpk.info.pl/faktury/e-faktura-ustrukturyzowana-ksef/harmonogram",
+"title": "Kiedy wchodzi KSeF - harmonogram wdrożenia e-faktur 2026/2027",
+"snippet": "Od kiedy KSeF jest obowiązkowy? (3 kluczowe daty) KSeF jest obowiązkowy od 1 lutego 2026 r. dla dużych podatników, od 1 kwietnia 2026 r. dla wszystkich pozostałych i od 1 stycznia 2027 r. dla mikroprzedsiębiorców z obrotem poniżej 10 tys. zł miesięcznie. Data Kogo obejmuje Kryterium Etap 1 lutego 2026 Duzi podatnicy + WSZYSCY odbierający faktury Obrót > 200 mln zł Etap I  1 kwietnia 2026 Wszyscy pozostali podatnicy VAT (czynni i zwolnieni) Status VAT Etap II  1 stycznia 2027 Mikroprzedsiębiorcy + kary + numer KSeF w przelewach Obrót ≤10 tys. zł/mies. Etap III  Obowiązek dotyczy wszystkich podatników VAT z polskim NIP - kogo obejmuje obowiązek KSeF określa status w VAT, nie forma opodatkowania PIT (ryczałt, skala, liniowy).**\n\nZrealizowane  1 lutego 2026 ETAP I – duzi podatnicy + odbiór faktur Obowiązujący  1 kwietnia 2026 ETAP II – wszyscy pozostali podatnicy VAT Obowiązujący  1 sierpnia 2026 Obowiązkowy numer KSeF w przelewach split payment (MPP) Zbliżający się  1 stycznia 2027 ETAP III – mikro + kary + nume",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://taxcoach.pl/blog/ksef-a-odpowiedzialnosc-przedsiebiorcy-co-grozi-za-niewdrozenie-ksef-w-terminie-kary-administracyjne-oraz-kks.html",
+"title": "KSeF a odpowiedzialność przedsiębiorcy – co grozi za niewdrożenie KSeF w terminie? Kary administracyjne oraz KKS",
+"snippet": "i to nie tylko dla największych podmiotów… Sankcje za niewdrożenie KSeF w terminie oraz kary za błędy w KSeF (faktura wystawiona poza KSeF, wystawienie faktury niezgodnie ze wzorem w trakcie awarii czy niedostępności systemu, brak integracji) – art.\n\nwięcej… Warto jednak zaznaczyć, że za ten sam czyn nie będzie można dostać dwóch różnych sankcji, a więc zarówno kary administracyjnej z art.\n\nPodsumowanie KSeF a odpowiedzialność przedsiębiorcy – co grozi za niewdrożenie KSeF w terminie? Kary administracyjne oraz KKS Za nierzetelne lub błędne fakturowanie już dziś grożą poważne sankcje. Opisane są one szczegółowo przede wszystkim w art. 62 ustawy o KKS. Mowa tu zwłaszcza o braku wystawienia faktury mimo takiego obowiązku, wystawieniu jej w sposób wadliwy lub nierzetelny (czyli niezgodny z prawdą) czy odmówieniu jej wydania. Karą za takie naruszenia może być kara grzywny lub nawet kara pozbawienia wolności (a w niektórych sytuacjach obie te kary łącznie). Od 1 stycznia 2027 roku do potencjalnych kar za nieprawidł",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://ksefgpt.pl/en/wiedza/guide/ksef-2026-who-must-use-it-and-who-is-exempt",
+"title": "KSeF 2026: Who must use it and who is exempt?",
+"snippet": "From 1 February 2026, all businesses operating in Poland are required to receive invoices through KSeF - regardless of VAT status or turnover. On the same date, the obligation to issue invoices through KSeF began for VAT taxpayers with gross sales above PLN 200 million in 2024. From 1 April 2026, the issuing obligation was extended to virtually all taxpayers who issue B2B invoices - including, in principle, VAT-exempt taxpayers (there is no enumerated exemption for them in the statute). Source: Polish Ministry of Finance, [Scope of mandatory KSeF](https://ksef.podatki.gov.pl/informacje-ogolne-ksef-20/zakres-obowiazkowego-ksef).\nPractical advice: if your company issues B2B invoices in Poland and has not yet integrated with KSeF, there is no legal \"wait and see\" option for standard commercial transactions - act now. Exception: if your monthly sales do not exceed PLN 10,000 gross, you may issue invoices outside KSeF until the end of 2026 (details below).\n\nFrom 1 February 2026: active VAT taxpayers with gross sal",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://rzecznikmsp.gov.pl/w-2026-roku-nie-bedzie-kar-za-brak-rejestracji-w-ksef-albo-bledy-w-obsludze-systemu",
+"title": "W 2026 roku nie będzie kar za brak rejestracji w KSeF albo błędy w obsłudze systemu – Rzecznik Małych i Średnich Przedsiębiorców",
+"snippet": "# W 2026 roku nie będzie kar za brak rejestracji w KSeF albo błędy w obsłudze systemu Szef Krajowej Administracji Skarbowej ogłosił oficjalnie abolicję, która pozwoli firmom na spokojne zapoznanie się z Krajowym Systemem e-Faktur (KSeF) – OBEJRZYJ WYWIAD. Przedsiębiorcy, którzy w 2026 roku nie przystąpią do KSeF lub popełnią błędy w trakcie obsługi systemu, nie zostaną ukarani. Początkowo system miał stać się obowiązkowy już w 2024 roku, później decyzję zmieniono, a termin przesunięto na luty 2026. W odpowiedzi na apele przedsiębiorców udało się wypracować rozwiązanie: KSeF wejdzie w życie, jednak z rocznym okresem ochronnym. Terminy wejścia w życie systemu: - od 1 lutego 2026 – obowiązek dla firm z obrotem powyżej 200 mln zł w 2024 roku; - od 1 kwietnia 2026 – obowiązek dla pozostałych płatników VAT; - okres przejściowy do końca 2026 – dla mikroprzedsiębiorców ze sprzedażą do 10 tys. zł miesięcznie.",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://sejm.gov.pl/INT10.nsf/klucz/ATTDUVJ8V/%24FILE/i17163-o1.pdf",
+"title": "Pan Włodzimierz Czarzasty Marszałek Sejmu Rzeczpospolitej Polskiej",
+"snippet": "odpowiedzi ... cji ... acyjnych ... em ... owego ... u ... -F ... uprzejmie wyja ... nia ... Sankcje w KSeF zostały wprowadzone przede wszystkim po to, aby zapewnić skuteczność i powszechność działania systemu. Podstawowym celem sankcji jest zapewnienie terminowego wystawiania i przesyłania faktur w KSeF. Drugim celem sankcji jest uszczelnienie systemu VAT i ograniczenie nadużyć podatkowych. Sankcje pełnią także funkcję porządkującą i organizacyjną.Wpraktyce sankcjeKSeF mają więc na celu realizację kilka funkcji jednocześnie. Jak wskazano kary pieniężne, o których mowa w art. 106ni ustawy z dnia 11 marca 2004 r. o podatku od towarów i usług 1 za naruszenia związane z KSeF będą obowiązywać dopiero od 1 stycznia 2027 r. Dzięki odroczeniu sankcji podatnicy będą mieli więcej czasu na dostosowanie się do nowych regulacji bez obawy o negatywne konsekwencje. Administracja skarbowa skupia swoje działania na edukowaniu podatników oraz wspiera ich w prawidłowym wypełnianiu nowego obowiązku. Tak więc okres odroczenia bę",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://kpmg.com/pl/pl/wiedza/podatki/alert-podatkowy-przedluzenie-odroczenia-kar-za-bledy-w-stosowaniu-ksef-do-konca-2027-r.html",
+"title": "Przedłużenie odroczenia kar za błędy w stosowaniu KSeF do końca 2027 r.",
+"snippet": "Od 1 kwietnia 2026 r. Krajowy System e-Faktur objął większość przedsiębiorców w Polsce. Jednocześnie przez cały 2026 rok miał obowiązywać okres ochronny a przepisy przewidujące kary pieniężne za błędy związane ze stosowaniem KSeF miały wejść w życie dopiero od 1 stycznia 2027 r. Z tą datą korzystanie z KSeF miało stać się obowiązkowe dla wszystkich przedsiębiorców, również tych u których miesięczna wartość sprzedaży brutto nie przekracza 10 000 zł. Pierwotnie zatem zakładano, że najmniejsi przedsiębiorcy nie skorzystają z moratorium na stosowanie kar za błędy w KSeF. W związku z tym resort finansów podjął decyzję o odroczeniu kar za błędne korzystanie z systemu na kolejny rok tj. do końca 2027 r. (źródło). ... ### Najważniejsze informacje dla przedsiębiorców W dniu 16 września 2026 r. Ministerstwo Finansów zapowiedziało wydłużenie okresu odroczenia kar za błędy związane ze stosowaniem Krajowego Systemu e-Faktur (KSeF) do 31 grudnia 2027 r. Proponowane wydłużenie okresu odroczenia kar wymaga zmian ustawowych, ",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://krajowysystemefaktur.pl/porady/ksef-przepisy-przejsciowe-obowiazujace-do-konca-2026-roku",
+"title": "KSeF – przepisy przejściowe obowiązujące do końca 2026 roku",
+"snippet": "eliz ... ustawy ... e ... F ... przewiduje okres ... który ... do ... grudnia ... 2 ... 26 r ... tym czasie przedsiębior ... będą mogli ... ać ... ń ... ów ... zasady ... zną obowiązywać ... nym ... . ... ## Papierowe faktury – możliwe, ale z ograniczeniami Przedsiębiorcy będą mogli do końca 2026 roku wystawiać faktury papierowe lub elektroniczne poza systemem KSeF, pod warunkiem spełnienia dwóch kryteriów: - każda faktura nie może przekroczyć kwoty 450 zł brutto, - łączna wartość takich faktur w miesiącu nie może być wyższa niż 10 000 zł. W środowisku biznesowym pojawiają się głosy nawołujące do zwiększenia tych limitów, zwłaszcza kwoty pojedynczej faktury. Rozwiązanie to ma na celu wsparcie małych przedsiębiorstw oraz mikrofirm, czyli przedsiębiorców dla których całkowite przejście na KSeF będzie wiązać się z dużymi kosztami wdrożeniowymi. Dzięki temu będą oni mogli stopniowo zapoznać się z systemem i rozłożyć inwestycje w czasie. ... ## Faktury z kas rejestrujących – nadal dozwolone Do końca 2026 roku firm",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://inforlex.pl/dok/tresc,FOB0000000000007494898,kas-w-2026-roku-przedsiebiorcy-nie-beda-karani-za-bledy-w-ksef.html",
+"title": "KAS: W 2026 roku przedsiębiorcy nie będą karani za błędy ...",
+"snippet": "nacza ... Od 1 lutego 2026 r. podatnicy VAT będą obowiązani wystawiać faktury ustrukturyzowane przy użyciu KSeF (art. 106ga ustawy o VAT). Dotyczy to zarówno podatników czynnych, jak i zwolnionych z VAT. Podatnicy zwolnieni z VAT, tak jak do tej pory, będą wystawiali faktury tylko na żądanie nabywców. Więcej czasu na wprowadzenie KSeF otrzymali podatnicy, u których sprzedaż nie przekroczyła w 2024 r. 200 mln zł brutto. Będą musieli wystawiać faktury w KSeF od 1 kwietnia 2026 r., chyba że: - wystawiają faktury elektroniczne lub w postaci papierowej przy zastosowaniu kas rejestrujących albo paragony fiskalne uznane za faktury uproszczone lub - łączna wartość ich sprzedaży (wraz z podatkiem) udokumentowana fakturami wystawionymi w danym miesiącu będzie mniejsza lub równa 10 000 zł. W tych dwóch przypadkach obowiązek wystawiania faktur w KSeF będzie ich dotyczył dopiero od 1 stycznia 2027 r. ... owią ... , ... 6 ... śli ... ## Okres przejściowy bez sankcji Jak wyjaśnił szef KAS, w 2026 roku za nieprzystąpienie do",
+"source_type": "web",
+"on_topic": true,
+"kind": "news"
+},
+{
+"url": "https://amavat.pl/terminy-i-obowiazki-zwiazane-z-ksef-aktualny-harmonogram-zmian",
+"title": "KSeF Grafik 2026–2027 – przewodnik krok po kroku",
+"snippet": "KSeF stał się obowiązkowy dla największych podatników, a od 1 kwietnia 2026 r. obowiązek został rozszerzony na pozostałych przedsiębiorców objętych ustawą.\n\nUstawodawca przewidział jeden ważny bufor bezpieczeństwa – przepis przejściowy, który obowiązuje do końca 2026 roku.\n\nLimit 10 000 zł dotyczy łącznej wartości sprzedaży z VAT z faktur wystawionych poza KSeF w danym miesiącu, bez względu na to, skąd pochodzi sprzedaż – sklep online, marketplace, B2B przez maila, cokolwiek.\n\nI jeszcze jeden element, o którym wielu przedsiębiorców zapomina: odbiór faktur zakupowych przez KSeF obowiązuje od lutego 2026 r. bez względu na to, czy korzystasz z limitu, czy nie.\n\nPrzepisy przejściowe dotyczą wyłącznie określonych przypadków wskazanych w ustawie. Nie oznaczają ogólnego prawa do wystawiania dowolnych faktur poza KSeF do kwoty 10 000 zł miesięcznie. Przed zastosowaniem wyjątku należy zweryfikować aktualne warunki wynikające z przepisów przejściowych.\n\nOd 1 stycznia 2027 r. zaczynają również obowiązywać sankcje pienię",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://edgp.gazetaprawna.pl/podatki/vat/artykuly/11332769,kary-za-brak-ksef-czy-w-styczniu-bedzie-sankcja-za-grudzien.html",
+"title": "Kary za brak KSeF. Czy w styczniu 2028 roku będzie sankcja za grudzień 2027 roku?",
+"snippet": "urządzeniach przez wszystkie serwisy internetowe Spółek Grupy INFOR PL.",
+"source_type": "web",
+"on_topic": true,
+"kind": "news"
+},
+{
+"url": "https://prawo.pl/podatki/jednoosobowa-dzialalnosc-gospodarcza-a-ksef,1540392.html",
+"title": "Jednoosobowa działalność gospodarcza a KSeF",
+"snippet": "Fakt, że jest Pan zarejestrowany w CEIDG jako jednoosobowa działalność gospodarcza, nie zwalnia automatycznie z obowiązkowego stosowania KSeF od 1 kwietnia 2026 roku. Kogo dotyczy KSeF Prowadzenie jednoosobowej działalności gospodarczej wpisanej do CEIDG nie stanowi w świetle przepisów żadnego wyłączenia od obowiązku korzystania z Krajowego Systemu e-Faktur (KSeF).\n\nTaka interpretacja jest nieprawidłowa i wynika z mylnego rozumienia przepisów ustawy o VAT oraz przepisów wykonawczych dotyczących wprowadzenia KSeF.\n\nPrzepisy przejściowe przewidują możliwość wystawiania faktur poza KSeF do końca 2026 r., jednak jest to rozwiązanie ograniczone wyłącznie do podmiotów, które nie przekraczają określonego progu finansowego, a mianowicie 10 000 zł. Próg ten dotyczy łącznej wartości sprzedaży dokumentowanej fakturami w danym miesiącu i obejmuje wszystkie faktury, które podlegają obowiązkowi wystawienia w KSeF, a więc takie, które nie są wyłączone na mocy przepisów szczególnych ani przepisów wykonawczych.",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://ksefuj.to/en/blog/ksef-penalties-2027-2028",
+"title": "KSeF penalties: duty in 2027, fines from 2028?",
+"snippet": "From 1 January 2027, KSeF is mandatory for all taxpayers, with no 10,000 PLN limit. The Ministry of Finance wants to move the art. 106ni VAT Act fines to 1 January 2028, but that is only a draft, and without a new act the fines start in 2027.\n## Legal status as of 7 October 2026\nThe current act brings in art. 106ni from 1 January 2027. On 16 September 2026 the Ministry of Finance announced a deferral of fines to 31 December 2027 and a planned change to the act. Draft UD477 of 22 September 2026 is on the RCL portal at the stage of agreements, consultations and opinions; it has no government or parliamentary stage yet. Older Ministry pages (FAQ KSeF 2.0, the Handbook) still say fines start on 1 January 2027. We update this paragraph when the draft changes status.\n\nThe draft moves art. 106ni paras. 1-3 and 5-7 to 1 January 2028, and the act itself is to take effect on 31 December 2026. That leaves one day for publication, so time is short.\n## What ends on 31 December 2026\nIn 2026 the art. 145m limit applied: up ",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://forsal.pl/gospodarka/aktualnosci/artykuly/11302123,nie-bedzie-juz-fotowoltaiki-na-tych-zasadach-wprowadza-zmiane-przepisow-juz-podali-konkretna-date.html",
+"title": "To koniec fotowoltaiki na takich zasadach. Będzie zmiana przepisów. Datę już wskazali",
+"snippet": "Prezydent Karol Nawrocki podpisał 28 sierpnia nowelizację ustawy o samorządach zawodowych architektów oraz inżynierów budownictwa i ustawy – Prawo budowlane. Głównym cel nowych przepisów to doprecyzowanie zasad związanych ze skreśleniem z listy członków izb zawodowych oraz zawieszeniem w prawach członka. Jednak nowelizacja obejmuje również bardzo istotną zmianę dotyczącą warunków techniczno-budowlanych. Chodzi o przepisy, które określają wymagania, jakie muszą spełniać różnego rodzaju obiekty i inwestycje.\nDotychczasowe regulacje miały przestać obowiązywać 19 września 2026 roku Termin ten nie będzie jednak oznaczał gwałtownego przejścia na nowe zasady. - Nowelizacja prawa budowlanego wprowadza rozwiązanie przejściowe – podaje Kancelaria Prezydenta.\nW praktyce oznacza to, że obecne warunki techniczno-budowlane będzie można stosować jeszcze przez 18 miesięcy od 20 września 2026 r., czyli do 19 marca 2028 roku. Ma to przede wszystkim ułatwić prowadzenie inwestycji i ograniczyć ryzyko sytuacji, w której przygotow",
+"source_type": "web",
+"on_topic": false,
+"kind": "irrelevant"
+},
+{
+"url": "https://ksef.podatki.gov.pl/ksef-news/zasady-obowiazywania-ksef-i-przepisy-prawne",
+"title": "Zasady obowiązywania KSeF i przepisy prawne - KSeF (Krajowy System e-Faktur)",
+"snippet": "### 5. Czy podatnicy zwolnieni z VAT również będą zobowiązani do wystawiania faktur w KSeF? Tak, podatnicy zwolnieni z VAT przedmiotowo lub podmiotowo mają obowiązek wystawienia faktur przy użyciu KSeF. Zatem, jeśli podatnik jest zwolniony z VAT z racji nieprzekraczania limitu 240 tys. zł wartości sprzedaży, musi, co do zasady, wystawiać faktury w KSeF od 1 kwietnia 2026 r. Taki podatnik może jednak skorzystać np. z przepisu epizodycznego, w myśl którego, do końca 2026 r. podatnicy obowiązani do wystawiania faktur ustrukturyzowanych mogą wystawiać faktury elektroniczne lub faktury w postaci papierowej, jeżeli łączna wartość sprzedaży wraz z kwotą podatku u tych podatników udokumentowana tymi fakturami wystawionymi w danym miesiącu jest mniejsza lub równa 10 000 zł (brutto). ... ### 6. Czy wejście w życie obligatoryjnego KSeF odbywa się w tym samym terminie dla wszystkich podatników? Czy w początkowym okresie wejścia w życie obligatoryjnego KSeF rozważana jest pewna wyrozumiałość co do ewentualnych błędów, nie",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://podatki.gov.pl/media/rr5pgg25/podatki-2026-przewodnik-dla-inwestorow.pdf",
+"title": "Podatki 2026 Przewodnik dla Inwestorów 1 stycznia 2026",
+"snippet": "Obowiązkowe wystawianie faktur elektronicznych w KSeF dla wszystkich przedsiębiorców od 2026 r. Obowiązkowe wystawianie faktur elektronicznych w KSeF dla przedsiębiorców od 2026 r. Krajowy System e-Faktur (w skrócie „KSeF”) to system służący do wystawiania, otrzymywania i przechowywania faktur ustruk turyzowanych. Wdrożenie systemu służy cyfryzacji procesów fakturowania oraz księgowania faktur. Pozwala także unikać błę dów przy ich wystawianiu. Wystawianie faktur z KSeF będzie obowiązkowe:  od 1 lutego 2026 r.—dla przedsiębiorców, których wartość sprzedaży wraz z kwotą podatku przekroczyła w 2024 r. 200 mln zł,  od 1 kwietnia 2026 r.—dla pozostałych przedsiębiorców. Od 1 lutego 2026 r. obowiązkowe będzie również odbieranie faktur w KSeF. Dodatkowo, do końca 2026 roku zawieszono:  obowiązek wystawiania e-faktur przez podatników, u których łączna wartość sprzedaży wraz podatkiem nie przekracza w miesiącu 10 tys. zł,  wprowadzenie kar za niestosowanie KSeF,  obowiązek podawania numeru KSeF w przelewach za f",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://ksef.podatki.gov.pl/wyjasnienia/drugi-etap-wdrozenia-krajowego-systemu-e-faktur",
+"title": "Drugi etap wdrożenia Krajowego Systemu e-Faktur",
+"snippet": "- Od 1 kwietnia druga grupa przedsiębiorców będzie miała obowiązek wystawiania faktur za pomocą KSeF. - Do korzystania z systemu firmy mogą używać bezpłatnych narzędzi udostępnionych przez Ministerstwo Finansów. - Przypominamy, że za 2026 r. nie będą nakładane sankcje za błędy popełnione podczas korzystania z KSeF. Krajowy System e-Faktur (KSeF) służy do wystawiania, przesyłania, odbierania oraz przechowywania faktur ustrukturyzowanych. Od 1 kwietnia z KSeF korzystać będą wszyscy przedsiębiorcy, u których wartość sprzedaży w 2024 r. nie przekroczyła 200 mln zł. Nie dotyczy to podatników, u których miesięczna wartość sprzedaży udokumentowanej fakturami nie przekracza 10 tys. zł. brutto. Będą oni wystawiać faktury w KSeF dopiero od 1 stycznia 2027 r. Obowiązek odbierania faktur w systemie wszedł w życie od 1 lutego 2026 r.",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://i-malaksiegowosc.pl/ksef-dla-nievatowcow-zwolnionych-podmiotowo-i-przedmiotowo-zasady-i-terminy",
+"title": "KSeF dla „nievatowców” (zwolnionych podmiotowo i przedmiotowo) – zasady i terminy - i Mała Księgowość",
+"snippet": "Zwolnienie z podatku VAT nie oznacza zwolnienia z obowiązku korzystania z KSeF, choć zakres i terminy są różne dla poszczególnych grup. W okresie od 1 lutego do 31 grudnia 2026 roku wdrażane są przepisy przejściowe (m.in. limit 10 000 zł), a od 1 stycznia 2027 roku obowiązek korzystania z KSeF staje się powszechny. ... W kontekście KSeF ustawodawca posługuje się tą ogólną definicją, dlatego obowiązek wystawiania faktur ustrukturyzowanych dotyczy wszystkich podatników, gdy ciąży na nich obowiązek wystawienia faktury. Zwolnienie podmiotowe (limit obrotu – od 1 stycznia 2026 roku 240 000 zł) i zwolnienie przedmiotowe (konkretne rodzaje czynności, np. medyczne, edukacyjne, opiekuńcze, wynajem na cele mieszkaniowe) wpływają na sposób rozliczeń, ale nie eliminują obowiązków KSeF przy wystawianiu faktur. W przypadku sprzedaży zwolnionej od VAT podatnik nie ma obowiązku wystawienia faktury, chyba że nabywca zażąda jej w terminie 3 miesięcy od końca miesiąca dostawy/wykonania usługi. W praktyce KSeF obejmuje wyłącznie",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://inforlex.pl/czasopisma/I83/2026/1/tresc,I78.2026.001.015000000,Podatek-od-towarow-i-uslug.html",
+"title": "Podatek od towarów i usług -",
+"snippet": "## Tabela. Zmiany w ustawie o VAT na 2026 r. – zestawienie | Lp. | Czego dotyczy zmiana | Na czym polega zmiana | | --- | --- | --- | | od 1 stycznia 2026 r. | | | | 1. | Zwolnienie podmiotowe | Podwyższono limit zwolnienia podmiotowego z 200 000 zł do 240 000 zł. | | od ﻿ 2 stycznia 2026 r. | | | | 2. | Import towarów | Wydłużono termin na rozliczenie VAT od importu towarów w JPK_V7 dla podatników, którzy stosują uproszczenie, o którym mowa w art. 166 unijnego kodeksu celnego, i posiadają status upoważnionego przedsiębiorcy w rozumieniu art. 38 unijnego kodeksu celnego. | | od 1 lutego 2026 r. | | | | 3. | Wystawianie faktur w KSeF | Od 1 lutego 2026 r. wprowadzono obowiązek wystawiania faktur w KSeF na rzecz innych podatników. Natomiast faktury na rzecz konsumentów mogą, ale nie muszą być wystawiane w KSeF. Dla niektórych podatników obowiązek ten został przesunięty na: 1 kwietnia 2026 r. – gdy wartość sprzedaży brutto nie przekroczyła u nich w 2024 r. kwoty 200 mln zł, 1 stycznia 2027 r. – gdy wystawiają fa",
+"source_type": "web",
+"on_topic": false,
+"kind": "regulation"
+},
+{
+"url": "https://podatnik.info/publikacje/nowelizacja-ustawy-o-vat-jakie-zmiany-w-2026-r,66311d",
+"title": "Nowelizacja ustawy o VAT — jakie zmiany w 2026 r. | Podatnik.info",
+"snippet": "200 000 zł do 240 000 zł rocznej wartości sprzedaży (bez VAT). Oznacza to, że większa grupa podatników zwolnionych z VAT będzie mogła kontynuować działalność bez obowiązku rejestracji jako czynny podatnik.",
+"source_type": "web",
+"on_topic": false,
+"kind": "regulation"
+},
+{
+"url": "https://inforlex.pl/dok/tresc,I78.2025.012.006000000,VAT.html",
+"title": "VAT -",
+"snippet": "Zmiany od 1 stycznia 2026 r. ### 1.1. Na czym polegają zmiany Od 1 stycznia 2026 r. limit zwolnienia podmiotowego z VAT zostanie podniesiony z 200 000 zł do 240 000 zł. Dlatego w 2026 r. prawo do zwolnienia będzie przysługiwało podatnikom, u których wartość sprzedaży netto nie przekroczyła łącznie w 2025 r. kwoty 240 000 zł. ### 1.2. Stosowanie przepisów w okresie przejściowym Jak wynika z art. 2 ustawy zmieniającej z 24 czerwca 2025 r. podatnicy posiadający siedzibę działalności gospodarczej na terytorium kraju, u których wartość sprzedaży w 2025 r. była wyższa niż 200 000 zł i nie przekroczyła 240 000 zł, będą mogli skorzystać ze zwolnienia w 2026 r. Zasada ta będzie miała także zastosowanie do podatników, którzy rozpoczęli działalność w 2025 r., a u których wartość sprzedaży, w proporcji do okresu prowadzonej działalności gospodarczej, przekroczyła 200 000 zł i nie przekroczyła 240 000 zł. Oznacza to, że w okresie przejściowym nie będzie miał zastosowania przepis art. 113 ust.11 ustawy o VAT, który nakazuj",
+"source_type": "web",
+"on_topic": false,
+"kind": "regulation"
+},
+{
+"url": "https://inforlex.pl/dok/tresc,FOB0000000000007060163,GLOS-INFORLEX-Faktury-poza-KSeF-zwolnienie-podmiotowe-z-VAT-w-2026-r-i-umowa-o-prace-w-formie-elektronicznej.html",
+"title": "Faktury poza KSeF, zwolnienie podmiotowe z VAT w 2026 ...",
+"snippet": "## Powrót do zwolnienia podmiotowego z VAT w 2026 roku Od 2026 roku przedsiębiorcy będą mogli skorzystać z wyższego limitu zwolnienia z VAT – próg zostanie podniesiony z 200 tys. zł do 240 tys. zł. Nowelizacja ustawy o VAT umożliwia powrót do zwolnienia także tym podatnikom, którzy w 2025 roku przekroczyli",
+"source_type": "web",
+"on_topic": true,
+"kind": "news"
+},
+{
+"url": "https://biznes.gov.pl/pl/portal/004651",
+"title": "Krajowy System e-Faktur",
+"snippet": "Krajowy System e-Faktur służy między innymi do: nadawania, zmiany lub odbierania uprawnień do korzystania KSeF powiadamiania podmiotów uprawnionych do korzystania z KSeF o nadanych uprawnieniach do korzystania z KSeF lub o ich odebraniu uwierzytelnienia i weryfikacji uprawnień do korzystania z KSeF wystawiania, otrzymywania i przechowywania faktur ustrukturyzowanych oznaczania faktur ustrukturyzowanych numerem identyfikującym nadanym w KSeF przydzielania identyfikatora zbiorczego dla co najmniej dwóch faktur ustrukturyzowanych weryfikacji danych z",
+"source_type": "web",
+"on_topic": false,
+"kind": "generic"
+},
+{
+"url": "https://eu-einvoicing.com/poland/regulations/ksef-small-businesses-freelancers-guide",
+"title": "KSeF for Small Businesses and Freelancers in Poland: 2026 Guide",
+"snippet": "The KSeF mandate applies based on **VAT registration status**, not on revenue or company size:\n- **VAT-registered businesses (*czynni podatnicy VAT*)**: Mandatory from **1 April 2026** for businesses with revenue above PLN 200 million in 2023, and from **1 February 2026** for large businesses generally. For the vast majority of SMEs, the effective mandatory date is **1 April 2026**.\n- **VAT-exempt businesses (*podatnicy zwolnieni z VAT*)**: Mandatory from **1 April 2026** (same date — the original plan for a later date for exempt businesses was revised).\n\nOther exemptions and exclusions:\n| Scenario | KSeF Required? |\n|---|---|\n| Registered VAT payer, B2B domestic invoice | ✅ Yes |\n| VAT-exempt (zwolnienie podmiotowe/przedmiotowe), B2B | ✅ Yes (from April 2026) |\n| Invoice to a **consumer** (B2C, osoba fizyczna nieprowadząca działalności) | ❌ No (KSeF not applicable to B2C) |\n| **Foreign buyer** (cross-border B2B export) | ❌ No (outside KSeF scope) |\n| Invoice issued by a **foreign business** with Polish VAT r",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://ksefuj.to/en/blog/vat-exempt-ksef",
+"title": "VAT-exempt and KSeF: when your invoices go in",
+"snippet": "VAT exemption does not exempt you from KSeF (Krajowy System e-Faktur, Poland's national e-invoicing system). As a rule, an invoice you issue to another business goes through KSeF, just as it does for VAT-registered taxpayers (the exceptions are below). Until the end of 2026 you can still stay outside it if your invoices total no more than 10,000 zł gross in a month, and from 1 January 2027 there is no limit.\nLegal status as of 7 October 2026.\n[MF FAQ: „każdy podatnik (czynny i zwolniony), który ma obowiązek wystawienia faktury, będzie wystawiał ją w KSeF” (every taxpayer, VAT-registered or exempt, who must issue an invoice will issue it in KSeF)](https://ksef.podatki.gov.pl/pytania-i-odpowiedzi-ksef-20/)\n## Do you have to issue an invoice at all\nNo. Art. 106b ust. 2 of the VAT Act removes the duty to issue invoices for sales exempt under art. 113 ust. 1 (since 2026 the sales limit is 240,000 zł) or art. 43 ust. 1. If the buyer asks for one, though, you must issue it, as long as the request comes within 3 mont",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://ksef.pl/ksef-dla-kogo",
+"title": "KSeF – dla kogo jest obowiązkowy? | ksef.pl",
+"snippet": "Sprawdź, czy KSeF Cię dotyczy  KSeF jest obowiązkowy dla prawie każdej firmy, która wystawia faktury innym firmom – niezależnie od formy działalności i od tego, czy jest czynnym podatnikiem VAT, czy korzysta ze zwolnienia z VAT. Od 1 stycznia 2027 r. obowiązek obejmie także najmniejsze firmy, które do końca 2026 r.\n\nDla kogo KSeF jest obowiązkowy? Krajowy System e-Faktur (KSeF) od 1 kwietnia 2026 r. jest obowiązkowy dla większości czynnych podatników VAT – w tym jednoosobowych działalności i firm z sektora MŚP. Oznacza to, że faktury sprzedaży między firmami (B2B) muszą być wystawiane jako faktury ustrukturyzowane i przesyłane do KSeF. Obowiązek obejmuje także podatników zwolnionych z VAT – zarówno podmiotowo, jak i przedmiotowo. Obowiązują ich te same terminy co czynnych podatników VAT. Najmniejsi podatnicy, u których miesięczna wartość sprzedaży udokumentowanej fakturami nie przekracza 10 000 zł brutto, wchodzą w obowiązek dopiero od 1 stycznia 2027 r.\n\nAni zwolnienie podmiotowe, ani przedmiotowe z VAT nie ",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://effepro.pl/zwolnienie-z-vat-2026-limit-240-000-zl-zasady-i-faktura-bez-vat",
+"title": "Zwolnienie z VAT 2026 – limit 240 000 zł, zasady i faktura bez VAT",
+"snippet": "Co ważne, od 2026 roku limit zwolnienia podmiotowego z VAT wynosi 240 000 zł, a nie 200 000 zł. Dlatego starsze poradniki o limicie 200 tys. zł mogą być już nieaktualne.\n\nPrzykład Zwolnienie podmiotowe z VAT Zależy od wartości sprzedaży podatnika. W 2026 roku limit wynosi 240 000 zł. Grafik, fotograf, copywriter, korepetytor albo mała firma usługowa, która nie przekracza limitu i nie wykonuje czynności wyłączonych.\n\nLimit zwolnienia z VAT w 2026 roku – 240 000 zł zamiast 200 000 zł Od 2026 roku limit zwolnienia podmiotowego z VAT wynosi 240 000 zł. To oznacza, że podatnik posiadający siedzibę działalności gospodarczej w Polsce może korzystać ze zwolnienia, jeżeli wartość jego sprzedaży nie przekroczyła w poprzednim ani bieżącym roku podatkowym tej kwoty. To ważna zmiana, ponieważ przez wiele lat przedsiębiorcy kojarzyli zwolnienie z VAT z limitem 200 000 zł. Od 2026 roku taki limit nie jest już aktualną granicą dla zwolnienia podmiotowego. Rok Limit zwolnienia podmiotowego z VAT Co to oznacza dla przedsiębior",
+"source_type": "web",
+"on_topic": false,
+"kind": "regulation"
+},
+{
+"url": "https://wnp.pl/rynki/1-kwietnia-zmieni-wszystko-przy-okazji-ksef-tylna-furtka-chca-zaostrzyc-zasady-rozliczen,1033662.html",
+"title": "1 kwietnia zmieni wszystko. Podatkowa pułapka uderzy najmocniej w jedną grupę",
+"snippet": "partnerzy serwisu  Od 1 kwietnia 2026 r. KSeF obejmie małe i średnie firmy, jednoosobowe działalności gospodarcze i podatników zwolnionych z VAT – setki tysięcy podmiotów. Przy okazji KSeF, fiskus próbuje ograniczyć wystawianie rachunków, co eksperci nazywają “tylną furtką do zmiany przepisów”. Problemy techniczne i niejasności interpretacyjne przepisów rodzą “pułapki podatkowe”. To realne zagrożenie dla małych firm, które nie mają zespołów prawnych. Organizacje biznesowe naciskają na rząd i posłów w sprawie odroczenia KSeF dla najmniejszych przedsiębiorstw, jednak Ministerstwo Finansów pozostaje nieugięte. 1 kwietnia przedsiębiorcy prowadzący jednoosobową działalność gospodarczą, mali i średni przedsiębiorcy oraz nawet podatnicy korzystający ze zwolnienia z VAT, będą musieli wystawiać faktury w KSeF. Jeśli faktura nie trafi do systemu, to w świetle obowiązujących przepisów podatkowych po prostu jej nie ma. Dla setek tysięcy firm w Polsce 1 kwietnia będzie nie tylko datą zmiany systemu księgowego, wyższych ko",
+"source_type": "web",
+"on_topic": true,
+"kind": "news"
+},
+{
+"url": "https://ediverse.io/en/countries/poland",
+"title": "Poland — KSeF, FA(2): the 2026 wave-based clearance mandate",
+"snippet": "Poland has chosen a full clearance model: every B2B invoice flows through the Krajowy System e-Faktur (KSeF), operated by the Ministry of Finance, which assigns a KSeF number (UPO) acting as legal timestamp.\n\n- **1 January 2022**. KSeF launches in voluntary B2B mode. Initial FA(1) schema.\n- **Law of 16 June 2023** (Dz.U. 2023 poz. 1598). Establishes the B2B obligation, with go-live initially scheduled for 1 July 2024.\n- **Ministry of Finance announcement of 19 January 2024**. Deferral to 2025 then 2026 following a technical audit (the *KSeF stress test* incident at the end of 2023).\n- **Law of 9 May 2024**. Sets the final timeline: 1 February 2026 for large taxpayers, 1 April 2026 for the rest.\n\n- [**Mandatory KSeF 2026**](/en/countries/poland/ksef-mandatory-2026/) · Krajowy System e-Faktur, pure clearance, mandatory 1 Feb 2026 (large taxpayers > 200M PLN), 1 Apr 2026 universal. Legal basis art. 106nf-106nm.\n\n- [**KSeF API specifications**](/en/countries/poland/ksef-api-spec/) · REST on ksef.mf.gov.pl, OAuth ",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://docs.dentalpin.com/adr/0033-poland-ksef-and-p1-position",
+"title": "0033 — Poland: KSeF barely touches a dental practice; P1 / EDM is the real ask, and it is open to us",
+"snippet": "KSeF is the state clearing house for invoices, \"służącym w szczególności do: wystawiania, otrzymywania, dostępu, przechowywania faktur ustrukturyzowanych\", and \"Każdej wystawionej w KSeF fakturze system przydziela automatycznie unikatowy numer identyfikujący (numer KSeF)\". The timetable has slipped twice: Dz.U. 2023 poz. 1598 set 1 July 2024, Dz.U. 2024 poz. 852 replaced that with \"z dniem 1 lutego 2026 r.\", and Dz.U. 2025 poz. 1203 staged it:\n| From | Who | Instrument |\n|---|---|---|\n| 2026-02-01 | 2024 sales with VAT above 200 000 000 zł | art. 145l |\n| 2026-04-01 | everyone else (\"od 1 kwietnia 2026 r. dla pozostałych przedsiębiorców\") | art. 145l a contrario |\n| 2027-01-01 | those invoicing ≤ 10 000 zł a month, on paper/e-invoice until 2026-12-31 | art. 145m |\n| 2027-01-01 | penalties: up to 100 % of the VAT shown, or 18,7 % of the gross on an exempt invoice | art. 106ni, deferred by poz. 1203 |\nCash-register invoices and paragony treated as simplified invoices up to 450 zł stay outside KSeF until 2026-12",
+"source_type": "web",
+"on_topic": true,
+"kind": "generic"
+},
+{
+"url": "https://ksiegowosc365.com/en/blog/ksef-dla-zwolnionych-z-vat-2026.html",
+"title": "KSeF for VAT-Exempt Businesses in 2026 — Do You Need to Comply?",
+"snippet": "If you're VAT-exempt in Poland and issue B2B invoices, you must use KSeF (Krajowy System e-Faktur — Poland's National e-Invoice System) from 1 April 2026. This guide explains who exactly is affected, what exceptions exist,\n\nYes — if you hold a VAT exemption and invoice other businesses (B2B), you are required to implement KSeF. The obligation applies from **1 April 2026**. The only exception: if the total gross value of your B2B invoices in a given month does not exceed 10,000 PLN, you receive a deferral until 1 January 2027.\n\nMandatory KSeF is being introduced in stages. The table below shows the full schedule:\n| Date | Who It Applies To | Condition |\n|---|---|---|\n| **1 February 2026** | Large VAT taxpayers | Turnover above 200 million PLN in 2024 |\n| **1 April 2026** | All active VAT taxpayers + VAT-exempt businesses (B2B) | B2B invoices — mandatory submission to KSeF |\n| **1 January 2027** | Micro-businesses (deferred) | B2B invoices ≤ 10,000 PLN gross/month |\nAs you can see, VAT-exempt businesses enter t",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://ksef.podatki.gov.pl/wyjasnienia/rozporzadzenia-wykonawcze-do-krajowego-systemu-e-faktur",
+"title": "Rozporządzenia wykonawcze do Krajowego Systemu e-Faktur",
+"snippet": "## Rozporządzenie Ministra Finansów i Gospodarki z dnia 7 grudnia 2025 r. w sprawie przypadków, w których nie ma obowiązku wystawiania faktur ustrukturyzowanych (Dz. U. poz. 1740) Rozporządzenie określa przypadki w których nie ma obowiązku wystawiania faktur w KSeF. Dotyczą one: - świadczenia usług przejazdów autostradą płatną, dokumentowanych paragonem z NIP uznanym za fakturę, - świadczenia usług przewozu osób, a usługi te są dokumentowane biletami uznanymi za faktury, - świadczenia usług w zakresie kontroli i nadzoru lotniczego, za które są pobierane opłaty trasowe dokumentowane fakturami, - usług finansowych i ubezpieczeniowych zwolnionych z VAT, dokumentowanych fakturami uproszczonymi o węższym zakresie danych, - faktur wystawianych w ramach samofakturowania przez nabywcę będącego tzw. podmiotem zagranicznym, w przypadku jeżeli ten nabywca nie posiada NIP, - faktur wystawianych przez nabywcę w ramach samofakturowania, do którego nabywcę upoważnił podatnik będący tzw. podmiotem zagranicznym, w przypadku j",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://gofin.pl/podatki/vat-i-akcyza/45218/wystawianie-faktur-w-ksef-przez-podatnikow-zwolnionych-z-vat",
+"title": "Wystawianie faktur w KSeF przez podatników zwolnionych ...",
+"snippet": "### Rachunek czy faktura? Wprowadzenie obowiązkowego KSeF wywołało wątpliwości, czy podatnik zwolniony z VAT może wystawiać rachunki (zamiast faktur). MF podkreśliło, że faktura VAT i rachunek są różnymi dokumentami, o czym świadczy choćby fakt ich uregulowania w różnych aktach prawnych (faktura - w ustawie o VAT, rachunek - w Ordynacji podatkowej). Zdaniem MF, zbieg obowiązków przedsiębiorcy do wystawienia faktury i rachunku będzie mieć zawsze charakter pozorny, gdyż na gruncie podatku VAT pierwszeństwo ma obowiązek wystawienia faktury. Do wystawienia faktury zobowiązani są, co do zasady, wszyscy podatnicy VAT (zarówno podatnicy czynni, jak i zwolnieni), wykonujący działalność gospodarczą w rozumieniu ustawy o VAT. Faktury są dokumentami potwierdzającymi wykonywanie czynności podlegającej opodatkowaniu. W piśmie MF wskazano: \"(...) W ustawie o VAT przewidziano pewne wyjątki, gdy podatnik nie ma obowiązku wystawienia faktury. Dotyczy to dokumentowania sprzedaży zwolnionej od podatku na podstawie art. 43 ust. ",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://inforlex.pl/dok/tresc,FOB0000000000007553573,KSeF-dla-podatnikow-zwolnionych-z-VAT-nowe-obowiazki-od-1-kwietnia-2026-r.html",
+"title": "KSeF dla podatników zwolnionych z VAT - nowe obowiązki od 1 kwietnia 2026 r. -",
+"snippet": "Z wystawianiem faktur w Krajowym Systemie e-Faktur wiążą się kolejne obowiązki. Trzeba zarejestrować się w urzędzie skarbowym dla celów VAT (nawet jako ... z VAT) i uzyskać NIP, jeżeli nie został on dotychczas nadany.",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://businessinsider.com.pl/prawo/podatki/podatnicy-zwolnieni-z-vat-i-ksef-jak-nie-wystawiac-faktur-tlumaczymy/v8vve9k",
+"title": "Podatnicy zwolnieni z VAT i KSeF. Jak nie wystawiać faktur, tłumaczymy",
+"snippet": "Dyrektor KIS w interpretacjach wskazuje, że podatnicy zwolnieni z VAT muszą wystawiać na żądanie nabywców faktury. Od 1 kwietnia 2026 r. lub 1 stycznia 2027 r. trzeba je wystawiać przy użyciu KSeF. ... -KDIPT1-3.4012.51.2026.1.",
+"source_type": "web",
+"on_topic": true,
+"kind": "news"
+},
+{
+"url": "https://kluczesoft.pl/pomoc/poradnik/ksef-od-1-kwietnia-2026",
+"title": "KSeF od 1 kwietnia 2026 — kompletny przewodnik (2026)",
+"snippet": "czytania·Zaktualizowano 3 dni temu KSeF od 1 kwietnia 2026 — kompletny przewodnik (2026) KSeF od 1 kwietnia 2026 oznacza obowiązkowe przejście wszystkich czynnych podatników VAT na Krajowy System e-Faktur. Po dwóch przesunięciach terminu (pierwotnie 2024, potem luty 2026) rząd ostatecznie wdrożył obligatoryjny KSeF dla przedsiębiorców wystawiających faktury sprzedażowe i korygujące.\n\nPowody wprowadzenia obowiązku są fiskalne i technologiczne: KSeF daje Ministerstwu Finansów podgląd w czasie zbliżonym do rzeczywistego na transakcje VAT, eliminuje lukę w podatku od towarów i usług szacowaną na 15-20 mld zł rocznie, ujednolica format dokumentów księgowych oraz przyspiesza zwroty VAT (z 60 do maksymalnie 40 dni).\n\nsystem: Czynni podatnicy VAT z siedzibą lub stałym miejscem prowadzenia działalności w Polsce — każda faktura dokumentująca sprzedaż krajową (B2B), wewnątrzwspólnotową dostawę towarów (WDT) i eksport towarów musi trafić do KSeF w ciągu 24 godzin od wystawienia. Podatnicy zwolnieni podmiotowo z VAT (limi",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://gov.pl/web/finanse/krajowy-system-e-faktur--plan-wdrozenia",
+"title": "Krajowy System e-Faktur – plan wdrożenia - Ministerstwo Finansów - Portal Gov.pl",
+"snippet": "Przedsiębiorcy mogą zgłaszać dodatkowe uwagi i opinie do projektu do 25 kwietnia 2025 r. pisząc na adressekretariat.PT@mf.gov.pl Po analizie możliwości zmian pod kątem biznesowym i prawnym oraz analizie możliwości technicznych przygotowania systemu, Ministerstwo Finansów potwierdza wprowadzenie obowiązku wystawiania e-faktur dla wszystkich podatników (czynnych i zwolnionych z VAT), w dwóch głównych etapach z dodatkowym odroczeniem dla najmniejszych przedsiębiorców:  od 1 lutego 2026 r. dla dużych podatników (o wartości sprzedaży za 2024 r. przekraczającej 200 mln zł wraz z podatkiem),  od 1 kwietnia 2026 r. dla pozostałych przedsiębiorców, z wyjątkiem najmniejszych podatników „wykluczonych cyfrowo”, których transakcje obejmują niewielkie kwoty (do 450 zł dla pojedynczej faktury i do łącznej wartości sprzedaży do 10 tys. zł miesięcznie) i którzy będą objęci tym obowiązkiem od 1 stycznia 2027 r. Faktury VAT RR dokumentujące nabycie produktów rolnych od rolników ryczałtowych nie będą objęte obowiązkiem wystawian",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://kluczesoft.pl/pomoc/poradnik/odroczenie-ksef-2026",
+"title": "Odroczenie KSeF 2026 — kompletny przewodnik",
+"snippet": "Po pierwsze, ogromna skala przedsięwzięcia — KSeF ma obsługiwać miliardy faktur rocznie wystawianych przez ponad 2 miliony czynnych podatników VAT w Polsce.\n\nDla podatników zwolnionych podmiotowo z VAT sytuacja jest szczególna — oni również zostaną objęci obowiązkiem KSeF, ale dopiero od 1 stycznia 2027 roku.\n\nWiele firm już dziś wystawia faktury ustrukturyzowane w systemie, korzystając z zachęt takich jak szybszy zwrot VAT — skrócony z 60 do 40 dni — oraz brak obowiązku przesyłania plików JPK_FA na żądanie organów podatkowych.\n\nKara ta wynosi do 100% kwoty podatku wykazanego na fakturze, a w przypadku faktur bez podatku — do 18,7% kwoty należności ogółem. W praktyce oznacza to, że jedna faktura VAT na kwotę 100 000 złotych netto może skutkować karą sięgającą 23 000 złotych. Dla firm wystawiających miesięcznie setki lub tysiące faktur, potencjalne sankcje finansowe mogą być druzgocące.\n\nFaktury wystawione poza KSeF po terminie obowiązkowym mogą być uznane za nieprawidłowe, co naraża odbiorców na utratę prawa ",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://ksef.podatki.gov.pl/ksef-news/najczestsze-pytania",
+"title": "Najczęstsze pytania - KSeF (Krajowy System e-Faktur)",
+"snippet": "### 12. Czy do limitu 10 tys. zł należy wliczać wartość sprzedaży na rzecz osób fizycznych nieprowadzących działalności gospodarczej, udokumentowaną tzw. fakturą konsumencką? Nie. Faktury konsumenckie nie są objęte obowiązkowym KSeF. Do limitu 10 000 zł wlicza się wyłącznie wartość tych faktur, w stosunku do których podatnik jest zobowiązany do ich wystawienia w KSeF. ### 13. Czy sprzedaż dla osób fizycznych nieprowadzących działalności gospodarczej zaewidencjonowana na kasie fiskalnej jest wliczana do limitu sprzedaży 10 tys. zł brutto miesięcznie? Zgodnie z informacjami zawartymi na stronie ksef.podatki.gov.pl w części „Zasady obowiązywania KSeF i przepisy prawne” do limitu 10 tys. zł nie wlicza się wartości sprzedaży na rzecz osób fizycznych nieprowadzących działalności gospodarczej udokumentowanej wyłącznie przy użyciu kasy rejestrującej. Do limitu 10 tys. zł wlicza się jedynie faktury, które obowiązkowo należy wystawić w KSeF (tj. w stosunku do których nie istnieją żadne wyłączenia lub przepisy epizodycz",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://ksef.wsparcie.symfonia.pl/hc/pl/articles/30243588191122-Czy-faktury-sprzeda%C5%BCy-dla-os%C3%B3b-fizycznych-musz%C4%85-by%C4%87-wysy%C5%82ane-do-KSeF",
+"title": "Czy faktury sprzedaży dla osób fizycznych muszą być wysyłane do KSeF? – Centrum pomocy - KSeF",
+"snippet": "## Czy faktury sprzedaży dla osób fizycznych muszą być wysyłane do KSeF? Sprzedaż typu B2C, czyli sprzedaż na rzecz osób fizycznych nieprowadzących działalności gospodarczej, nie jest obligatoryjna do wysyłania do KSeF. Istnieje jednak możliwość dobrowolnego wystawiania takich faktur w systemie. Takie dokumenty mogą być procesowane standardowymi ścieżkami i przekazywane nabywcy w uzgodniony z nim sposób (papier, mail). Osoby fizyczne nieprowadzące działalności gospodarczej nie mają dostępu do Krajowego Systemu e-Faktur (KSeF). Mają jednak możliwość anonimowego dostępu do swoich faktur w systemie KSeF np. w celu weryfikacji lub pobrania pliku XML. Umożliwia to zeskanowanie kodu QR na otrzymanej fakturze lub podanie jej szczegółowych parametrów na publicznym portalu Ministerstwa Finansów.",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://ksiegowosc.infor.pl/podatki/vat/faktura/7529636,faktury-dla-konsumentow-w-2026-r-czy-mozna-wystawiac-w-ksef-jak-przekazac-nabywcy.html",
+"title": "Faktury dla konsumentów w 2026 r. Czy można wystawiać w KSeF? Jak przekazać nabywcy? - Infor.pl",
+"snippet": "## Obowiązek wystawienia faktury VAT dla konsumenta na jego żądanie Zgodnie z przepisami ustawy o VAT obowiązek wystawienia faktury na rzecz konsumenta powstaje wyłącznie na jego wyraźne żądanie (zgłoszone w terminie 3 miesięcy). Wprowadzenie KSeF co do zasady nie zmienia tej zasady – podatnicy nadal nie mają obowiązku wystawiania faktur konsumentom, jeżeli nie zgłoszą oni takiego żądania. Pojawia się jednak pytanie: jak powinien postąpić podatnik objęty obowiązkiem stosowania KSeF, gdy konsument zgłosi żądanie wystawienia faktury? ... ## Faktura poza KSeF Obowiązek stosowania KSeF nie obejmuje faktur wystawianych na rzecz osób fizycznych nieprowadzących działalności gospodarczej (art. 106ga ust. 2 pkt 4 ustawy o VAT). W takiej sytuacji przepisy przewidują wystawienie faktur w postaci papierowej lub elektronicznej. ... ## Czy faktura na rzecz konsumenta może być wystawiona za pomocą KSeF? Choć brak obowiązku dla części sprzedawców może być ułatwieniem, niektórzy mogą jednak chcieć, aby wszystkie faktury były ",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://eztax.pl/jak-ksef-traktuje-faktury-b2c-na-rzecz-osob-fizycznych-nieprowadzacych-dzialalnosci",
+"title": "Jak KSeF traktuje faktury B2C (na rzecz osób fizycznych nieprowadzących działalności)? - ezTAX",
+"snippet": "możliwość dobrowolnego korzystania z systemu. Jeśli sprzedajesz konsumentom, nie ... WAŻNE: do 31 grudnia 2026 r. można nadal wystawiać dokumenty B2C za pomocą kas rejestrujących (w tym paragony z NIP do 450 zł netto) bez przekazywania ich do KSeF.",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://symfonia.pl/blog/firmy/male-firmy/jakich-faktur-nie-mozna-wystawic-przez-ksef",
+"title": "Jakich faktur nie wysyłamy do KSeF? Lista wyłączeń i wyjątków - Symfonia",
+"snippet": "Najważniejsze informacje w skrócie: - Faktury konsumenckie (B2C), bilety (np. kolejowe, lotnicze) oraz paragony za autostrady są ustawowo wyłączone z KSeF. - Podmioty zagraniczne bez stałego miejsca prowadzenia działalności w Polsce nie muszą korzystać z KSeF. - Do 31 grudnia 2026 roku trwa okres przejściowy dla firm, których miesięczna sprzedaż nie przekracza limitu 10 tys. zł. Mogą one nadal wystawiać faktury papierowe lub elektroniczne (poza KSeF). - Faktury z kas fiskalnych oraz paragony z NIP (do 450 zł) mogą być wystawiane w dotychczasowej formie (poza KSeF) aż do końca 2026 roku. - Do KSeF nie wysyłamy także faktur za usługi finansowe i ubezpieczeniowe zwolnione z VAT, dotyczące m.in. walut, udzielanie kredytów, pożyczek, poręczeń, gwarancji, ubezpieczeń, zarządzania depozytami oraz instrumentami finansowymi. - Faktury pro forma nie są fakturami w rozumieniu ustawy o VAT, dlatego nigdy nie wysyłamy ich do KSeF. ... ### Faktury na rzecz konsumentów (B2C) To najważniejsze wyłączenie, o którym powinien pa",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://macit.pl/wyjatki-w-ksef",
+"title": "Które faktury nie trafią do KSeF? Lista wyjątków, o których musisz wiedzieć",
+"snippet": "Od 2026 roku Krajowy System e-Faktur (KSeF) stanie się obowiązkowy dla przedsiębiorców. Oznacza to, że zdecydowana większość faktur będzie musiała być wystawiana i przesyłana wyłącznie przez ten system. Jednak przepisy przewidują **kilka wyjątków** – sytuacji, w których faktury nie będą trafiały do KSeF.\n\nGłównym celem KSeF jest ujednolicenie i cyfryzacja fakturowania w Polsce. Jednak niektóre typy transakcji albo grupy przedsiębiorców zostały z tego obowiązku wyłączone. Powody są różne:\n- ochrona konsumentów (np. zakupy B2C),\n- trudności techniczne,\n- specyfika działalności niektórych firm.\n\n### 1. Faktury konsumenckie (B2C)\n📌 Jeśli sprzedajesz swoje produkty lub usługi **osobom fizycznym nieprowadzącym działalności gospodarczej**, takie faktury **nie trafią do KSeF**.\nPrzykład:\n- prowadzisz sklep internetowy i klient kupuje buty „na paragon”,\n- fryzjer wystawia fakturę klientowi prywatnemu.\nDlaczego? Bo konsument nie ma dostępu do systemu KSeF – nie mógłby pobrać swojej faktury.\n---\n### 2. Faktury uproszczo",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://kluczesoft.pl/pomoc/poradnik/ksef-podatki-gov-p-l",
+"title": "Ksef podatki gov p l — przewodnik 2026",
+"snippet": "Od 1 stycznia 2026 roku obowiązek korzystania z KSeF rozciąga się na wszystkie podmioty prowadzące działalność gospodarczą i wystawiające faktury VAT, w tym mikroprzedsiębiorców, rolników ryczałtowych oraz jednostki sektora finansów publicznych.\n\nObowiązkowy KSeF od stycznia 2026 — kogo dotyczy, a kto ma wyjątki Zgodnie z ustawą z dnia 16 czerwca 2023 roku o zmianie ustawy o podatku od towarów i usług (z późniejszymi nowelizacjami z 2024 roku), od 1 stycznia 2026 roku obowiązek fakturowania przez KSeF objął praktycznie wszystkich czynnych podatników VAT. Oznacza to, że zarówno duże korporacje, jak i jednoosobowe działalności gospodarcze oraz spółki cywilne muszą wystawiać faktury wyłącznie poprzez system KSeF, a odbiór dokumentów zakupowych również odbywa się w tym środowisku. Ustawodawca przewidział jednak pewne wyłączenia, które w 2026 roku pozostają aktualne: Faktury konsumenckie (B2C) — transakcje na rzecz osób fizycznych nieprowadzących działalności nie podlegają obowiązkowi KSeF. Przedsiębiorca może nad",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://comarch.pl/krajowy-system-e-faktur-ksef/ksef-2026",
+"title": "KSeF - co to i od kiedy obowiązuje? Harmonogram i wyłączenia",
+"snippet": "miejsce działalności w Polsce, ale nie uczestniczy ono w danej transakcji, podmiotów korzystających z procedur szczególnych (np. OSS, IOSS, marża turystyczna), sprzedawców świadczących usługi lub dostarczających towary osobom prywatnym (faktury konsumenckie), transakcji, które zgodnie z przepisami mogą być udokumentowane inaczej niż fakturą ustrukturyzowaną (np. biletami komunikacyjnymi).\n\n4 Rozpocznij testowe wystawianie e-faktur  Wykorzystaj pilotażowy program KSeF lub samodzielnie wystawiaj faktury ustrukturyzowane.  Testuj różne funkcje systemu i identyfikuj potencjalne problemy.  Przygotuj się na sytuacje wyjątkowe (korekty faktur, awaria KSeF).\n\nJak wystawiać faktury w KSeF? Choć przystąpienie do Krajowego Systemu e-Faktur może być dla przedsiębiorców dużą zmianą, to nikt nie powinien mieć większych problemów z wystawianiem faktur tą metodą. Dokładny przebieg procesu zależy oczywiście od wybranego przez Ciebie oprogramowania księgowego, ale zawsze powinien obejmować następujące etapy: 1. Otwórz kreator ",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://bankier.pl/wiadomosc/Znicze-i-chryzantemy-pozwola-na-dodatkowy-zarobek-Bez-firmy-i-ZUS-ale-z-limitem-9216881.html",
+"title": "Znicze i chryzantemy pozwolą na dodatkowy zarobek. Bez firmy i ZUS, ale z limitem",
+"snippet": "Sprzedawcy zniczy i chryzantem, prowadzący działalność nierejestrowaną powinni zwrócić uwagę nie tylko na limit przychodów, lecz także na nowe zasady wystawiania faktur związane z KSeF obowiązujące od tego roku. Od 1 kwietnia 2026 r. co do zasady obejmuje on faktury wystawiane firmom, także przez osoby zwolnione z VAT. **Do końca 2026 r. można jednak wystawiać je poza systemem, jeżeli miesięczna wartość sprzedaży brutto udokumentowanej fakturami objętymi tym obowiązkiem nie przekracza 10 tys. zł.** Zgodnie z obecnymi przepisami ułatwienie to wygaśnie 1 stycznia 2027 r.",
+"source_type": "web",
+"on_topic": true,
+"kind": "news"
+},
+{
+"url": "https://deloitte.com/pl/pl/services/tax/perspectives/KSeF-a-kasy-fiskalne.html",
+"title": "KSeF a kasy fiskalne | Deloitte Polska",
+"snippet": "możliwości wyst ... iania ... cych ... Podatnicy będą mogli wystawiać faktury fiskalne za pomocą kas fiskalnych do końca 2026 roku. ##### Kasy fiskalne w Polsce Wsparcie Deloitte w obszarze kas fiskalnych w Polsce Wystawianie faktur ustrukturyzowanych poprzez KSeF stanie się obowiązkowe od 1 lutego 2026 r. dla podatników VAT o obrotach przekraczających 200 mln złotych, a od 1 kwietnia 2026 r. dla podmiotów o obrotach niższych (brane pod uwagę są obroty z 2024 roku). Przepisy przewidują wyjątki od ww. terminów, m.in. w odniesieniu do możliwości wystawiania faktur fiskalnych za pomocą kas rejestrujących. Podatnicy będą mogli korzystać z tego rozwiązania do końca 2026 roku. Takie wydłużenie terminu daje podatnikom więcej czasu na przygotowania w przypadku części ewidencjonowanej kasowo. Jeżeli jednak dana firma, ze względu rodzaje sprzedaży inne niż rejestrowane na kasie, musi przygotować się do wystawiania faktur ustrukturyzowanych na początku 2026 r., zasadne będzie, aby przygotowania rozpocząć także w zakresi",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://mico.pl/baza-wiedzy/ksef-a-kasa-fiskalna-co-sie-zmienia-i-kogo-to-dotyczy",
+"title": "KSeF a kasa fiskalna: zmiany, paragony i faktury gotówkowe",
+"snippet": "Inaczej wygląda sytuacja, gdy paragon wystawiany jest dla przedsiębiorcy i zawiera jego NIP. Taki paragon, do kwoty 450 zł brutto (lub 100 euro), traktowany jest jako faktura uproszczona. Czy w związku z tym powinien być “przepuszczony” przez KSeF? Paragon z NIP-em jest objęty szczególnymi przepisami. W okresie od 1 lutego 2026 roku do 31 grudnia 2026 roku tego typu dokument jest całkowicie wyłączony z obowiązku przesyłania do KSeF. Oznacza to, że przez cały okres przejściowy przedsiębiorcy nie będą musieli generować faktur ustrukturyzowanych do paragonów z NIP-em. ... Takie same przepisy dotyczą faktur generowanych przez urządzenia fiskalne. Niektórzy nasi klienci, używający w codziennej pracy kas fiskalnych o technologicznych możliwościach drukarek, emitują faktury bezpośrednio z urządzeń fiskalnych. Taką możliwość ma między innymi kasa Novitus Next Pro lub Novitus One Online Pro. Wydruk faktur z urządzeń fiskalnych jest dopuszczalny jedynie do końca 2026 roku. Gdy minie okres przejściowy, wszyscy przedsięb",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://ulve.pl/kasa-fiskalna-a-ksef",
+"title": "Kasa fiskalna a KSeF - Ulve",
+"snippet": "Termin startu obligatoryjnego KSeF zbliża się nieubłaganie. Warto zastanowić się przy tym, jaki będzie mieć to wpływ na kasy rejestrujące. Sprzedaż ewidencjonowaną na kasie rejestrującej ujmuje się w JPK_VAT – tak jak dotychczas – zbiorczo na podstawie raportu z kasy, jako dokument wewnętrzny z oznaczeniem RO (§ 10 ust. 5 rozporządzenia Ministra Finansów w sprawie szczegółowego zakresu danych zawartych w deklaracjach podatkowych i w ewidencji w zakresie podatku od towarów i usług). Jest to pozycja ewidencyjna w JPK, a nie faktura. Taki raport nie jest fakturą VAT, więc z definicji nie jest dokumentem, który może być wystawiany/otrzymywany w KSeF. Z punktu widzenia KSeF istotne są: - faktury ustrukturyzowane (XML) z nadanym numerem KSeF, które potem będą raportowane w nowej strukturze JPK – w JPK trzeba będzie wykazywać numery KSeF do faktur sprzedażowych i zakupowych; - faktury generowane z kas fiskalnych – ale tylko wtedy, gdy przepisy włączą je do obowiązkowego KSeF. Do 31 grudnia 2026 r. faktury generowane",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://jantar.pl/news/ksef-a-urzadzenia-fiskalne-zmiany-obowiazki-i-terminy-2026",
+"title": "KSeF a urządzenia fiskalne – zmiany, obowiązki i terminy 2026 - JANTAR.PL",
+"snippet": "## Przepisy dotyczące kas fiskalnych w KSeF Do końca 2026 roku: - wystawianie faktur przy użyciu kas rejestrujących jest możliwe i odbywa się poza KSeF - paragon z NIP nabywcy do 450 zł jest uznawany za fakturę i także nie jest przesyłany do KSeF. Od 1 stycznia 2027 roku nie będzie możliwe wystawianie faktur przy użyciu kas rejestrujących, a paragony fiskalne z NIP nabywcy nie będą uznane za faktury. Oznacza to, że sklep z kasą fiskalną do końca 2026 roku może wydrukować fakturę z kasy lub paragon z NIP nabywcy (do 450 zł) zamiast e-faktury i będzie to honorowane. Jednak od 2027 roku wszystkie faktury będą musiały być wystawiane już wyłącznie w KSeF. ... Od 1 kwietnia 2026 r. dla pozostałych przedsiębiorców, z wyjątkiem najmniejszych podatników „wykluczonych cyfrowo”, których transakcje obejmują niewielkie kwoty (do 450 zł dla pojedynczej faktury i do łącznej wartości sprzedaży do 10 tys. zł miesięcznie) i którzy będą objęci tym obowiązkiem od 1 stycznia 2027 r. Faktury VAT RR dokumentujące nabycie produktów ",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://taxinsight.pl/baza-wiedzy/blog/przyszlosc-kas-fiskalnych-od-kwietnia-2026-i-pozniej",
+"title": "Przyszłość kas fiskalnych od kwietnia 2026 i później - Tax Insight",
+"snippet": "Od 1 kwietnia 2026 r. Krajowy System e-Faktur (KSeF) stał się obowiązkowy dla znacznej większości przedsiębiorców. Jednak dla użytkowników kas fiskalnych zastoswanie ma doodatkowy okres przejściowy: do końca 2026 r. mogą oni nadal wystawiać tzw. paragony z NIP na dotychczasowych zasadach. Od 1 stycznia 2027 r. zasady ulegną jednak istotnej zmianie – rachunki z kas fiskalnych zastąpią faktury ustrukturyzowane w KSeF, a konkretnie faktury uproszczone oznaczone jako UPR. Poniżej wyjaśniamy, co to oznacza w praktyce i jak się do tego przygotować. ... Okres przejściowy: do końca 2026 r. kasy fiskalne funkcjonują po staremu Do 31 grudnia 2026 r. kasy fiskalne funkcjonują bez większych zmian, przedsiębiorcy mogą wystawiać paragony z NIP (do kwoty 450 PLN lub 100 EUR) jako faktury uproszczone dla podatników VAT czynnych (B2B). Dokumenty te są wyłączone z obowiązkowego KSeF. Ten okres przejściowy pozwala spokojnie dostosować systemy sprzedażowe i oprogramowanie kas fiskalnych do wystawiania ustrukturyzowanych uproszcz",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://ksiegowosc.infor.pl/podatki/vat/faktura/7505444,zwolnienie-z-ksef-w-2026-r-dla-sprzedazy-do-10-tys-zl-miesiecznie-jak-liczyc-wartosc-sprzedaz-od-kiedy-trzeba-fakturowac-w-ksef-po-przekroczeniu-limitu.html",
+"title": "Zwolnienie z KSeF w 2026 r. dla sprzedaży do 10 tys. zł miesięcznie. Jak liczyć wartość sprzedaż? Od kiedy trzeba fakturować w KSeF po przekroczeniu limitu?",
+"snippet": "Nie można wliczać natomiast sprzedaży dokumentowanej na kasie fiskalnej na podstawie raportów kasowych oraz sprzedaży niedokumentowanej ani fakturą, ani paragonem. Również nie wszystkie faktury mogą być uwzględnione w limicie.\n\nOznacza to, że nie można uwzględniać w limicie: - faktur wystawianych przy użyciu kas fiskalnych, - paragonów do 450 zł uznanych za faktury (z NIP kupującego), - faktur wystawionych na żądanie osoby fizycznej, która nie jest podatnikiem, - faktur uproszczonych, które na podstawie przepisów rozporządzenia w sprawie przypadków, w których nie ma obowiązku wystawiania faktur ustrukturyzowanych, będą wystawiane poza KSeF, np. bilety, faktury dokumentujące usługi finansowe zwolnione z VAT.\n\nNie uwzględnia się: faktur wystawianych przy użyciu kas fiskalnych; paragonów do 450 zł uznanych za faktury (z NIP kupującego); faktur na żądanie osoby fizycznej, która nie jest podatnikiem; faktur uproszczonych wystawianych poza KSeF (np. bilety); faktur dokumentujących usługi finansowe zwolnione z VAT.",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://onlinefakturowanie.pl/przewodnik-przedsiebiorcy/finanse-i-ksiegowosc/k-se-f/k-se-f-od-kiedy-terminy-2026-2027-aktualny-harmonogram",
+"title": "KSeF od kiedy? Terminy 2026-2027 – aktualny harmonogram",
+"snippet": "Ustawa przewiduje kilka okresów przejściowych: Co? Do kiedy? Faktury z kas fiskalnych (paragony z NIP do 450 zł) Do 31 grudnia 2026",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://prawo.pl/podatki/ile-faktur-wystawiono-w-ksef-dane-mf-za-pierwszy-miesiac,1539748.html",
+"title": "Do KSeF trafiło już ponad 35 milionów faktur",
+"snippet": "– najmniejsze firmy, których sprzedaż dokumentowana fakturami nie przekroczy 10 tys. zł miesięcznie (do limitu 10 tys. zł nie wlicza się sprzedaży na rzecz konsumentów udokumentowanej paragonami przy użyciu kasy rejestrującej, wartości faktur wystawionych przy użyciu kas rejestrujących, ani wartość paragonów fiskalnych do 450 zł uznanych za faktury uproszczone).\n\nCzy faktury korygujące do sprzedaży z kas fiskalnych należy wysyłać do KSeF?",
+"source_type": "web",
+"on_topic": true,
+"kind": "news"
+},
+{
+"url": "https://komplet.app/en/blog/receipt-or-invoice",
+"title": "Receipt or invoice? Receipts with your NIP, the 450 PLN rule, and KSeF",
+"snippet": "- In 2026 a till receipt showing your NIP counts as a simplified invoice for purchases up to **450 PLN gross** (100 EUR when the price is in euros).\n- Above 450 PLN, ask for an invoice. Give your NIP **before** the receipt is printed: without it, the shop may not invoice your business later.\n\n- From **1 January 2027** a receipt with your NIP is no longer an invoice: a shop selling to a business issues the invoice in KSeF.\n\nIn 2026, a till receipt that shows your NIP (your tax number) counts as an invoice for purchases up to **450 PLN gross**. For anything larger, ask the shop for an invoice, and give your NIP before the receipt is printed. From **1 January 2027** that shortcut ends: a receipt with your NIP is no longer an invoice, and a shop selling to a business issues the invoice in KSeF, the national e-invoicing system.\n## When a receipt with your NIP is enough\nA *paragon fiskalny* is the receipt a cash register prints. A *paragon z NIP* is the same receipt with the buyer’s NIP printed on it, because you g",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://naszkiewicz.com.pl/en/blog/ksef-2027-mandatory-e-invoicing-poland",
+"title": "KSeF 2027 in Poland: E-Invoicing Changes and Penalties",
+"snippet": "**Mandatory KSeF (the National e-Invoicing System) has been running since April, but 2026 is a trial year: no penalties, a way out for the smallest businesses, and invoices from a cash register (*kasa fiskalna*) as before. On 1 January 2027 the way out for the smallest businesses and the one for cash registers close on the same day, while the penalties — according to the Ministry of Finance's announcement of 16 September 2026 — are to wait another year. One of the new rules, moreover, concerns not who issues the invoice but who pays it — and that is the one most often missed by businesses that \"already have KSeF sorted\".**\n\n| Area | Until 31 December 2026 | From 1 January 2027 |\n|---|---|---|\n| The smallest businesses (invoices of up to PLN 10,000 gross a month) | may issue invoices outside KSeF | all invoices for businesses in KSeF, with no exemption for scale |\n| Invoices from a cash register and receipts showing the buyer's tax ID (NIP) of up to PLN 450 | work as invoices outside KSeF | a receipt with a NI",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://base.com/pl-PL/blog/ksef-krajowy-system-e-faktur",
+"title": "KSeF: co to jest, od kiedy i dla kogo jest obowiązkowy? Wszystko o Krajowym Systemie e-Faktur",
+"snippet": "KSeF, inaczej Krajowy System e-Faktur, to centralny, rządowy system do wystawiania, odbierania i przechowywania faktur ustrukturyzowanych. Działa jako system teleinformatyczny, który nadaje każdej fakturze unikalny numer i zarządza jej dostępem. Wystawianie i odbieranie faktur odbywa się za pomocą oprogramowania zintegrowanego z API KSeF lub przy użyciu bezpłatnych narzędzi Ministerstwa Finansów (MF), takich jak Aplikacja Podatnika, aplikacja mobilna czy e-mikrofirma. Warto też wyjaśnić, czym jest faktura ustrukturyzowana. To e‑faktura w formacie XML zgodnym z oficjalną strukturą FA. Struktura FA to format faktury i standard danych określony przez Ministerstwo Finansów, który ułatwia automatyzację i kontrolę dokumentów. Do 31 stycznia 2026 stosuje się FA(2), a od 1 lutego 2026 obowiązuje FA(3). Nowa, ujednolicona struktura faktury w KSeF zwiększa precyzję danych przekazywanych do organów skarbowych. Wprowadzenie KSeF to także – obok rozwiązań takich jak VAT OSS – kolejny krok w stronę pełnej digitalizacji obo",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://pkfbpo.pl/en/publications/ksef-what-is-the-national-e-invoicing-system-introduced-by-the-polish-ministry-of-finance",
+"title": "KSeF: What Is the National e-Invoicing System Introduced by the Polish Ministry of Finance? | PKF Polska",
+"snippet": "KSeF (Krajowy System e-Faktur) is a centralized ICT platform introduced by the Polish Ministry of Finance. Its primary objective is to standardize, streamline, and strengthen the circulation of invoices in Poland. The e-invoicing system is one of the key elements of the digital transformation of tax settlements and VAT control in Poland, aiming to improve transparency and efficiency in the Polish tax system.\n\nThe National e-Invoicing System (KSeF) is a nationwide ICT system operated by the Head of the National Revenue Administration (KAS), who acts as the data controller. The system functions as a central platform for managing structured electronic invoices in Poland.\nKSeF is primarily used for issuing, receiving, storing, and reviewing structured invoices, commonly referred to as e-invoices. Each document submitted to the KSeF system is automatically assigned a unique identification number, known as the KSeF number, which allows the invoice to be clearly identified within the Polish tax system.\n\nThe introduc",
+"source_type": "web",
+"on_topic": false,
+"kind": "generic"
+},
+{
+"url": "https://prawo.pl/podatki/ksef-a-faktura-dla-zagranicznego-kontrahenta,1538897.html",
+"title": "KSeF a faktura dla zagranicznego kontrahenta",
+"snippet": "W sytuacji gdy KSeF będzie obowiązkowy, również faktury dla zagranicznych kontrahentów należy wystawiać za jego pośrednictwem. ... KSeF jest systemem teleinformatycznym służącym do wystawiania, przesyłania i przechowywania tzw. faktur ustrukturyzowanych. Co do zasady, w okresie dobrowolnego stosowania systemu podatnik sam decyduje, czy wystawia faktury w KSeF, czy w dotychczasowej formie (papierowej lub elektronicznej). W okresie obowiązkowego stosowania KSeF podatnicy objęci tym obowiązkiem będą zobowiązani do wystawiania faktur ustrukturyzowanych przy użyciu systemu, z wyjątkiem sytuacji wyraźnie wskazanych w przepisach. Kluczowe znaczenie ma zatem ustalenie, czy obowiązek wystawiania faktur w KSeF obejmuje również faktury wystawiane na rzecz kontrahentów zagranicznych, tj. podmiotów nieposiadających siedziby ani stałego miejsca prowadzenia działalności gospodarczej na terytorium Polski. Zgodnie z konstrukcją przepisów dotyczących KSeF obowiązek wystawiania faktur ustrukturyzowanych dotyczy podatników posia",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://prawo.pl/podatki/zagraniczne-firmy-a-ksef-jak-fiskus-interpretuje-przepisy,1547670.html",
+"title": "Zagraniczne firmy a KSeF - jak fiskus interpretuje przepisy",
+"snippet": "Zagraniczna firma nie musi wystawiać faktur w KSeF, jeśli nie ma stałego miejsca prowadzenia działalności gospodarczej w Polsce. Eksperci zwracają uwagę, że ustalenie tego ma kluczowe znaczenia w rozliczeniach z zagranicznymi kontrahentami. Warto mieć potwierdzenie w postaci interpretacji indywidulanej, tym bardziej, że obecnie organy podatkowe potwierdzają stanowiska podatników. Nie zawsze tak jednak było. ... ## Kiedy zagraniczna firma wystawia faktury w KSeF Zgodnie z art. 106ga ustawy o VAT, podatnicy są obowiązani wystawiać faktury ustrukturyzowane przy użyciu KSeF. Obowiązek nie dotyczy wystawiania faktur przez m.in.: - podatnika nieposiadającego siedziby działalności gospodarczej ani stałego miejsca prowadzenia działalności gospodarczej w Polsce, - podatnika nieposiadającego siedziby działalności gospodarczej, który posiada stałe miejsce prowadzenia działalności gospodarczej w Polsce, przy czym to stałe miejsce nie uczestniczy w dostawie towarów lub świadczeniu usług, dla których wystawiono fakturę. - ",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://portalfk.pl/vat/faktura-ustrukturyzowana-dla-kontrahenta-zagranicznego-obowiazek-w-ksef-50741.html",
+"title": "Faktura ustrukturyzowana dla kontrahenta zagranicznego - Portal FK",
+"snippet": "## Faktura ustrukturyzowana dla kontrahenta zagranicznego – kiedy masz obowiązek jej wystawienia? Jeżeli jesteś polskim podatnikiem i dokonujesz dostawy towarów albo świadczenia usług dla podmiotu zagranicznego, obowiązuje Cię wystawienie faktury ustrukturyzowanej w KSeF — niezależnie od tego, czy zagraniczny kontrahent korzysta z KSeF, czy nie. Nawet w sytuacji, gdy: - miejsce świadczenia znajduje się poza terytorium Polski, - nabywca nie posiada siedziby ani stałego miejsca prowadzenia działalności gospodarczej w Polsce, - nabywca nie ma siedziby działalności gospodarczej w Polsce, ale posiada w Polsce stałe miejsce prowadzenia działalności, które jednak nie uczestniczy w danej transakcji. ... ## Faktura ustrukturyzowana poza KSeF – jak przekazać ją nabywcy bez NIP? W większości przypadków, gdy nabywcą jest krajowy podatnik z numerem NIP, otrzymuje on fakturę automatycznie przy użyciu KSeF. Jednak w ustawowo określonych sytuacjach wystąpi obowiązek przekazania faktury nabywcy w sposób z nim uzgodniony. Doty",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://jpk.info.pl/faktury/e-faktura-ustrukturyzowana-ksef/faktura-zagraniczna",
+"title": "Faktura zagraniczna w KSeF: kompletny przewodnik | JPKinfo",
+"snippet": "## KSeF a transakcje zagraniczne - zasada nadrzędna Obowiązek wystawiania faktur w KSeF zależy od tego, kto jest wystawcą, a nie od tego, kto jest odbiorcą. Jeśli masz polski NIP i jesteś czynnym podatnikiem VAT - wystawiasz fakturę w KSeF. Nie ma znaczenia, czy kontrahent jest z Niemiec, USA czy Japonii, ani jaka jest stawka VAT na fakturze. Zagraniczny kontrahent nie ma dostępu do polskiego KSeF - nie może zalogować się do systemu ani pobrać z niego faktury. Po wystawieniu e-faktury w KSeF masz obowiązek przekazać ją nabywcy w uzgodniony sposób (art. 106gb ust. 4 ustawy o VAT): jako PDF z kodem QR, przez e-mail, EDI, portal klienta lub w innej formie elektronicznej. Kod QR na wizualizacji jest obowiązkowy - umożliwia weryfikację autentyczności faktury bez logowania do KSeF. Od 2026 r. polskie firmy handlujące z zagranicą funkcjonują w modelu mieszanym: faktury sprzedażowe (WDT, eksport usług, eksport towarów) trafiają do KSeF, natomiast faktury zakupowe od kontrahentów zagranicznych (WNT, import usług, impo",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://ecovispoland.pl/ksef-a-kontrahent-zagraniczny",
+"title": "KSeF a kontrahent zagraniczny - ECOVIS POLAND",
+"snippet": "Dyrektor Krajowej Informacji Skarbowej wyjaśnił w interpretacji indywidualnej z 6 maja 2026 r. o sygn. 0111-KDIB3-1.4012.199.2026.2.IK, że podatnik świadczący usługi na rzecz zagranicznego kontrahenta zobowiązany jest wystawić dla niego fakturę poprzez KSeF. Powinien jednak uzgodnić z nim sposób udostępnienia takiej faktury – może to być wizualizacja faktury z KSeF przesłana mailem, która będzie zawierać kod QR umożliwiający kontrahentowi weryfikację znajdujących się na niej danych. Żródło Dziennik Gazeta Prawna",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://ksiega-podatkowa.pl/akademia-skp/wp-content/uploads/2026/01/ksef-a-zagraniczni-kontrahenci.pdf",
+"title": "KSeF a zagraniczni kontrahenci.",
+"snippet": "W konsekwencji zagraniczny kontrahent, nieposiadaj cy polskiego NIP i nieprowadz cy dziaCalno[ci w Polsce, nie ma obowi zku korzystania z KSeF. Jednak polski podatnik, wystawiaj cy na jego rzecz faktur , musi ju} wystawi w strukturze KSeF.",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://mi-code.pl/en/blog/ksef-2026-co-zrobic-jesli-nie-jestes-gotowy",
+"title": "What to Do If You Are Not Ready Yet",
+"snippet": "Start with the distinction that gets blurred in almost every conversation: no penalties is not the same as no obligation. The duty to issue structured invoices has been in force since 1 February 2026 for the largest taxpayers and since 1 April 2026 for everyone else. What was deferred are the monetary penalties — until 31 December 2026. That leaves under five months, and a KSeF rollout is not a swap of invoicing software: it changes dates, numbering, document flow, payments, and permissions.\n## What already applies, and what is still ahead?\nThe calendar is simple, though it has several layers. Since 1 February 2026, invoices go through KSeF for companies whose sales value including VAT exceeded PLN 200 million in 2024. From that same date every taxpayer must be able to **receive** invoices through KSeF — including those who do not issue through it yet. Since 1 April 2026 the issuing duty covers all remaining businesses, including those exempt from VAT.\nTwo groups sit outside that rhythm. Taxpayers whose month",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://gov.pl/web/kas/ksef",
+"title": "Portal Gov.pl",
+"snippet": "W czwartek (6.08.2026 r.), w godzinach 22:00-24:00, przeprowadzimy prace serwisowe. Mogą wystąpić przejściowe problemy z wyświetlaniem stron internetowych.\nW nocy z soboty na niedzielę (8/9.08.2026 r.), w godz. 20:00–04:00, mogą wystąpić krótkie niedostępności profilu zaufanego, węzła krajowego i usług podpisu.",
+"source_type": "web",
+"on_topic": false,
+"kind": "generic"
+},
+{
+"url": "https://ksefapi.pl/en/obowiazkowy-ksef-w-2026-kompleksowy-przewodnik-po-wdrozeniu-prawnym-organizacyjnym-i-technicznym",
+"title": "Obowiązkowy KSeF w 2026: Kompleksowy przewodnik po wdrożeniu prawnym, organizacyjnym i technicznym",
+"snippet": "Introduction of the National e-Invoice System ([KSeF](https://ksefapi.pl/en/ksef-plan-wdrozenia-harmonogram/)) in Poland is undergoing a fundamental transformation. The original vision of implementation, based on the “big-bang” model, has given way to a more flexible, phased and consultative approach. This change is not just a technical correction, but a strategic reset, forced by technological realities and dialogue with the market. Understanding the genesis and nature of this new opening is crucial for any company preparing for mandatory e-invoicing in 2026.\n\nThe main and direct reason for postponing the original KSeF implementation date, planned for 2024, was diagnosed critical system performance issues. Analyses and audits showed that the system architecture was unable to process the huge number of invoices that were supposed to flow into it, estimated at millions in short periods of time.1 This technical failure undermined confidence in the project and forced the Ministry of Finance to fundamentally revi",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://ksef.startupkit.app/guides/ksef-obowiazkowy-2026?locale=en",
+"title": "KSeF Mandatory 2026: Deadlines, Thresholds, Who",
+"snippet": "**KSeF is mandatory from 1 February 2026 for companies with sales above 200M PLN in 2024, and from 1 April 2026 for all other VAT payers (both active and exempt). The smallest sellers — at or below 10,000 PLN in monthly sales — aren't covered until 1 January 2027.**\nThe National e-Invoicing System (KSeF) **is already mandatory**. A B2B invoice issued outside the system is not a valid invoice under the law — it must be created as a **structured invoice** in the FA(3) format and submitted to KSeF, which assigns it a unique number and issues an official confirmation of receipt (UPO).\n\nYou must issue invoices in KSeF from **1 February 2026** (companies with sales over 200M PLN in 2024) and from **1 April 2026** (all other VAT payers). The smallest sellers (≤ 10,000 PLN/month) follow on **1 January 2027**. The obligation rolled out in stages, by **sales volume**. The first two deadlines have already passed — KSeF applies now:\n- **1 February 2026** — taxpayers whose sales (including tax) exceeded **200M PLN in 2024",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://ksef.podatki.gov.pl/media/xp2dhszg/tabela-tryby-wystawiania-faktur-24022026.pdf",
+"title": "Tabela tryby wystawiania faktur",
+"snippet": "| PROCEDURA | TRYB ONLINE | | | | | | | TRYB OFFLINE24 | TRYB OFFLINE - NIEDOSTĘPNOŚĆ KSeF | TRYB AWARYJNY | | | | | | | AWARIA CAŁKOWITA | | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | | PODSTAWA PRAWNA | Art. 106na ustawy | | | | | | | Art. 106nda ustawy, art.106nha ustawy | Art. 106nh ustawy | Art. 106nf ustawy | | | | | | | Art. 106ng ustawy | | PRZESŁANKA STOSOWANIA | Brak ograniczeń ustawowych w stosowaniu trybu online niedostępność całkowita). | (za | wyjątkiem systemu, | awaria | okoliczności KSeF, | awaria | tj. | Brak ograniczeń ustawowych. | Niedostępność KSeF ogłoszona w | BIP MF. Awaria i oprogramowaniu interfejsowym. | | KSeF | ogłoszona | | w BIP | MF | Awaria KSeF ogłoszona w środkach społecznego przekazu. | | SPOSÓB WYSTAWIENIA FAKTURY | Faktura przesłana do KSeF w dacie wskazanej w polu P_1 struktury logicznej FA. | zgodna | | ze strukturą | logiczną | | FA, | Faktura w postaci elektronicznej strukturą logiczną FA. | zgodna ze F",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://ksef.podatki.gov.pl/informacje-ogolne-ksef-20/tryb-awaryjny",
+"title": "Tryb awaryjny - KSeF (Krajowy System e-Faktur)",
+"snippet": "## Cel i podstawa prawna Tryb awaryjny to rozwiązanie, z którego korzysta się w przypadku ogłoszonego w BIP MF oraz w oprogramowaniu interfejsowym komunikatu o awarii KSeF. Dzięki temu rozwiązaniu, pomimo zidentyfikowanej usterki systemu, proces wystawiania faktur jest nadal kontynuowany. Procedury związane ze stosowaniem trybu awaryjnego określa art. 106nf ustawy o podatku od towarów i usług. ## Kto może skorzystać z trybu awaryjnego? Każdy podatnik wystawiający fakturę w okresie ogłoszonej awarii KSeF może wystawić fakturę w trybie awaryjnym. Komunikaty o awarii systemu są publikowane w BIP MF oraz w oprogramowaniu interfejsowym. ## Zasady postępowania Podatnik chcąc wystawić fakturę w trybie awaryjnym: - stosuje obowiązujący wzór struktury logicznej – od 1 lutego 2026 r. FA(3), - wystawia ją w postaci elektronicznej, - przesyła ją do KSeF – nie później niż w ciągu 7 dni roboczych od dnia zakończenia awarii w celu nadania fakturze numeru KSeF, - udostępnia ją nabywcy w sposób uzgodniony. Jeżeli w terminie 7",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://ksef.podatki.gov.pl/informacje-ogolne-ksef-20/tryb-offline-niedostepnosc-ksef",
+"title": "Tryb offline - niedostępność KSeF - KSeF (Krajowy System e-Faktur)",
+"snippet": "Tryb offline - niedostępność KSeF to rozwiązanie, z którego można skorzystać między innymi w razie zaplanowanych prac serwisowych KSeF. Dzięki temu rozwiązaniu, pomimo czasowej niedostępności systemu, procesy związane z wystawianiem faktur będą przebiegały płynnie i nieprzerwanie. Procedury związane ze stosowaniem trybu offline z uwagi na niedostępność systemu są określone w art. 106nh ustawy o podatku od towarów i usług. ... ## Kto może skorzystać z trybu offline? Każdy podatnik wystawiający fakturę w okresie ogłoszonej w BIP MF niedostępności KSeF może wystawić fakturę w trybie offline. KSeF posiada również funkcjonalność komunikowania niedostępności KSeF w oprogramowaniu interfejsowym. ## Zasady postępowania Podatnik chcąc wystawić fakturę w trybie offline: - stosuje obowiązujący wzór struktury logicznej – od 1 lutego 2026 r. FA(3), - wystawia ją w postaci elektronicznej, - przesyła ją do KSeF – nie później niż w następnym dniu roboczym po zakończeniu okresu niedostępności w celu nadania numeru KSeF faktur",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://ksef.podatki.gov.pl/informacje-ogolne-ksef-20/tryb-offline24",
+"title": "Tryb offline24 - KSeF (Krajowy System e-Faktur)",
+"snippet": "## Cel i podstawa prawna Tryb offline24 to rozwiązanie, z którego można skorzystać między innymi w razie trudności w wystawianiu i przesyłaniu e-faktur do KSeF wynikających z jakości sieci transmisyjnej lub braku połączenia z Internetem. Rozwiązanie stanowi odpowiedź na obawy przedsiębiorców związane z wydłużonym czasem oczekiwania na przetworzenie się faktur w KSeF. Procedury związane ze stosowaniem trybu offline24 określa art. 106nda ustawy o podatku od towarów i usług. ## Kto może skorzystać z trybu offline24? Każdy podatnik może wystawiać faktury w trybie offline24. Ustawa nie zawiera ograniczeń w tym zakresie. Celem jest bowiem jak najbardziej elastyczne podejście do stosowania tego trybu przez przedsiębiorców. ## Zasady postępowania Podatnik chcąc wystawić fakturę w trybie offline24: - stosuje obowiązujący wzór struktury logicznej – od 1 lutego 2026 r. FA(3), - wystawia ją w postaci elektronicznej, - niezwłocznie przesyła fakturę do KSeF – najpóźniej w następnym dniu roboczym po dniu jej wystawienia, w ",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://ksef.podatki.gov.pl/informacje-ogolne-ksef-20/tryby-szczegolne-wystawiania-faktur",
+"title": "Tryby szczególne wystawiania faktur - KSeF (Krajowy System e-Faktur)",
+"snippet": "## W systemie KSeF funkcjonują dwa tryby wystawiania faktur: tryb online i tryb offline Tryb ONLINE to wystawianie faktur w KSeF w czasie rzeczywistym. Plik xml jest przesyłany do KSeF w tym samym dniu co data wystawienia faktury, wskazana przez podatnika w polu P_1 faktury. Tryb OFFLINE sprowadza się natomiast do wystawienia faktury poza KSeF i dosłaniu jej później do systemu w określonym ustawowo terminie. Tryb OFFLINE od strony biznesowej i prawnej oznacza kilka możliwych procedur szczególnych. Należy do nich: - tryb offline24, o którym mowa w art. 106nda ustawy (stosowany np. w razie problemów z Internetem lub z wyboru wystawcy), - tryb offline-niedostępność KSeF, o którym mowa w art. 106nh ustawy (stosowany w czasie prowadzonych prac serwisowych w KSeF), - tryb awaryjny, o którym mowa w art. 106nf ustawy (wykorzystywany w przypadku ogłoszonej w BIP i oprogramowaniu interfejsowym awarii KSeF). Od strony technicznej stosowany jest w ww. trzech przypadkach jeden tryb wysyłki OFFLINE, natomiast w zależności ",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://ksef.podatki.gov.pl/ksef-news/tryb-offline-i-kody-qr",
+"title": "Tryb offline i kody QR - KSeF (Krajowy System e-Faktur)",
+"snippet": "### 1. Czy fakturę wystawioną w okresie awarii można pobrać później z systemu? Tak, faktura wystawiona w okresie awarii będzie dostępna w KSeF dla nabywcy po przesłaniu jej przez sprzedawcę (co powinno nastąpić w ciągu 7 dni roboczych od dnia zakończenia awarii) i nadaniu przez system numeru KSeF. Fakturę taką będzie można pobrać z KSeF. Faktura taka będzie wystawiana przez wystawcę według wzoru faktury ustrukturyzowanej oraz przesyłana do KSeF do 7 dni od ustania awarii. ### 2. Czy fakturę wystawioną w trybie awaryjnym przekazuje się nabywcy poza KSeF? Tak, fakturę wystawioną w trybie awaryjnym można przekazać każdemu nabywcy w sposób uzgodniony poza KSeF. Tryb awaryjny jest wtedy, gdy nastąpi awaria KSeF ogłoszona w BIP MF i oprogramowaniu interfejsowym. Faktury wystawia się wtedy w trybie offline i w terminie do 7 dni roboczych od zakończenia awarii, należy je przesłać do systemu. Faktura udostępniana nabywcy poza KSeF powinna być opatrzona dodatkowo dwoma kodami QR, z napisem „OFFLINE” oraz „CERTYFIKAT”. ",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://ksef.podatki.gov.pl/pytania-i-odpowiedzi-ksef-20?query=offline",
+"title": "Pytania i odpowiedzi KSeF 2.0 - KSeF (Krajowy System e-Faktur)",
+"snippet": "0 ... - od ... 1 ... 6 r ... ### 3. Co to jest tryb offline24? Tryb offline24 umożliwia wszystkim podatnikom wystawianie e-faktur poza KSeF (zgodnych z wzorem faktury ustrukturyzowanej) np. w przypadku problemów z siecią lub brakiem Internetu, z obowiązkiem przesłania ich do systemu najpóźniej następnego dnia roboczego. Faktury w tym trybie muszą być oznaczone dwoma kodami QR, przy czym do wygenerowania drugiego kodu konieczny będzie pobrany wcześniej certyfikat KSeF. ### 4. Czym różni się tryb online od trybu offline? Do czego potrzebny jest certyfikat KSeF? W KSeF faktury można wystawiać w trybie online (w czasie rzeczywistym) albo w trybie offline (faktura wystawiona poza KSeF z późniejszym dosłaniem jej do KSeF). Tryby offline (offline24, offline-niedostępność KSeF, tryb awaryjny) wymagają przekazania faktury do KSeF w określonym terminie oraz jej oznaczenia dwoma kodami QR w przypadku jej przekazania nabywcy poza systemem, przy czym do wygenerowania drugiego kodu konieczny będzie wygenerowany wcześniej c",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://ksef.podatki.gov.pl/informacje-ogolne-ksef-20/awaria-calkowita",
+"title": "Awaria całkowita - KSeF (Krajowy System e-Faktur)",
+"snippet": "## Brak kodu QR na fakturze wystawionej w czasie awarii całkowitej Faktura w postaci papierowej lub faktura elektroniczna wystawiona podczas awarii całkowitej i przekazywana nabywcy, z założenia poza KSeF, nie jest opatrywana kodami QR - w przeciwieństwie do faktur wystawionych w trybie offline24, offline (niedostępność KSeF) czy trybie awaryjnym, które takimi kodami są opatrywane.",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://ksef.podatki.gov.pl/komunikaty-techniczne",
+"title": "Komunikaty techniczne",
+"snippet": "Możliwe utrudnienia w dostępie do faktur w Krajowym Systemie e-Faktur opublikowano: 13.10.2026 Utrudnienia w funkcjonowaniu Aplikacji Podatnika KSeF 2.0 w wersji produkcyjnej 25.09.2026 Prace serwisowe w usługach profilu zaufanego i węzła krajowego 27.08.2026 Wymiana certyfikatów dla Węzła Krajowego 03.07.2026 Prace serwisowe na środowisku testowym i przedprodukcyjnym ( ... ) Krajowego Systemu e-Faktur 2. ... 6.20 ... cyj",
+"source_type": "web",
+"on_topic": false,
+"kind": "news"
+},
+{
+"url": "https://gov.pl/attachment/4e2a1121-5fc4-463a-aa44-488d96e2f680",
+"title": "N/A",
+"snippet": "Należy podkreślić, że KSeF 2.0 od samego początku działa stabilnie i bezawaryjnie. Niemniej w razie potencjalnej awarii lub niedostępności KSeF 2.0 przewidziane są procedury zapewniające przedsiębiorcom ciągłość działania. Jeśli system będzie przechodził przerwę techniczną, lub gdy wystąpi awaria KSeF, można będzie nadal wystawiać faktury w oprogramowaniu interfejsowym, zgodnie z wzorem e Faktury, w tzw. trybie offline. Wystąpi jednak obowiązek późniejszego dosłania ich do KSeF w ustawowym terminie. Dzięki temu zapewniona jest ciągłość wystawiania faktur pomimo różnych okoliczności. ... Co do zasady, fakturę wystawia się nie później niż 15. dnia miesiąca następującego po miesiącu, w którym dokonano dostawy towaru lub wykonano usługę. Faktura wystawiona w KSeF, która została przyjęta do systemu i został jej nadany numer KSeF, jest automatycznie dostępna po stronie nabywcy. Zgodnie z art. 106na ust. 3 ustawy o VAT, faktura ustrukturyzowana jest uznana za otrzymaną przy użyciu KSeF w dniu przydzielenia jej w tym",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://realbizdigital.net/poland/ksef/offline-modes",
+"title": "KSeF offline modes: offline24, awaria, niedostępność",
+"snippet": "**KSeF provides four states in which an invoice may be issued without a live connection to the system, and each carries its own transmission deadline — from the next working day to seven working days, and in one case no transmission at all.** Three of them are triggered by an event on the KSeF side. One, *tryb offline24*, is purely the taxpayer's decision and needs no justification whatever. English-language coverage routinely collapses all of them into a single offline mode, which is how a group ends up applying one procedure, and one deadline, to four different obligations.\nPosition as at 3 September 2026. Basis: ustawa o podatku od towarów i usług, art. 106nda, art. 106nf and art. 106nh, as amended by ustawa z dnia 5 sierpnia 2025 r., Dz.U. 2025 poz. 1203.\n\n| Mode | Trigger | When available | Transmission deadline | Basis |\n|---|---|---|---|---|\n| **offline24** | The taxpayer's decision | Without restriction, at any time | Next working day after the date of issue | art. 106nda |\n| **offline (niedostępność)",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://kluczesoft.pl/pomoc/poradnik/ksef-awaria-2026",
+"title": "KSeF awaria 2026 — kompletny przewodnik (2026)",
+"snippet": "W momencie niedostępności platformy MF przedsiębiorcy muszą natychmiast przejść na tryb awaryjny — wystawiać faktury w systemie lokalnym i wysłać je do KSeF w ciągu 7 dni roboczych od przywrócenia działania usługi. Resort finansów przewidział tę procedurę w ustawie o KSeF (art. 106nc ustawy o VAT), dlatego każdy podatnik zobowiązany do korzystania z KSeF musi znać mechanizm działania w trybie offline. Poniższy przewodnik wyjaśnia, jak rozpoznać awarię, jakie są oficjalne kanały komunikacji MF, jak krok po kroku realizować fakturowanie awaryjne, jakie sankcje grożą za niedotrzymanie terminów oraz jak oprogramowanie z segmentu ERP i narzędzi fakturowych automatyzuje przełączanie między trybami bez przerywania pracy firmy. Czym jest awaria KSeF — definicja i podstawy prawne Awaria KSeF to stan techniczny platformy centralnej Ministerstwa Finansów, w którym system nie przyjmuje, nie przetwarza ani nie udostępnia faktur ustrukturyzowanych przez okres dłuższy niż 15 minut. Podstawę prawną definiuje § 7 rozporządzen",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://status-ksef.pl",
+"title": "Monitoring systemu e-Faktur w czasie rzeczywistym",
+"snippet": "System KSeF jest niedostępny — awaria systemu. W takiej sytuacji obowiązuje tryb awaryjny KSeF, który pozwala wystawiać faktury poza systemem i przesłać je po przywróceniu działania. Czym jest KSeF i od kiedy obowiązuje? KSeF, czyli Krajowy System e-Faktur, to centralny system informatyczny Ministerstwa Finansów do wystawiania, odbierania, przechowywania i archiwizowania faktur ustrukturyzowanych w formacie XML (FA(3)), czyli e-faktur.\n\nTryb offline – niedostępność KSeF (planowana lub techniczna) Tryb offline dotyczy sytuacji, gdy KSeF jest niedostępny, ale nie ogłoszono oficjalnej awarii — np. podczas planowanej przerwy serwisowej lub krótkotrwałego problemu technicznego. Co robić: Wystaw fakturę w swoim programie księgowym, zgodnie ze wzorem FA(3). Oznacz fakturę dwoma kodami QR: kodem „OFFLINE” (dostęp do faktury w KSeF) i kodem „CERTYFIKAT” (potwierdzenie tożsamości wystawcy). Przekaż fakturę nabywcy w uzgodniony sposób (e-mail, PDF). Po przywróceniu systemu prześlij fakturę do KSeF najpóźniej następnego ",
+"source_type": "web",
+"on_topic": true,
+"kind": "generic"
+},
+{
+"url": "https://ksef.pl/blog/awaria-ksef-dlaczego-system-nie-dziala-i-jak-doslac-fakture",
+"title": "tryb offline24, błędy 450/440 i terminy",
+"snippet": "W skrócie Awaria KSeF czy błąd po Twojej stronie? Sprawdź status systemu, błędy 450 i 440 oraz terminy dosłania faktury. Zobacz, jak działać. KSeF nie działa zwykle z jednego z dwóch powodów: ogłoszonej przez Ministerstwo Finansów niedostępności lub awarii systemu, albo problemu po Twojej stronie - braku internetu, błędnych danych, wygasłego certyfikatu czy braku uprawnień. Od tego, gdzie tkwi przyczyna, zależy sposób dosłania faktury: w trybie offline24 przesyłasz ją najpóźniej następnego dnia roboczego, a po awarii ogłoszonej przez MF - w ciągu 7 dni roboczych od jej zakończenia. KSeF nie ma jednej „kontrolki“, która powie Ci, po której stronie leży problem. Poniżej znajdziesz sposób na sprawdzenie statusu systemu, znaczenie najczęstszych błędów (450, 440, uwierzytelnienie, brak uprawnień), zasady trybu offline24 oraz terminy dosłania faktury.\n\nRozróżnienie ma bezpośrednie znaczenie prawne, bo od niego zależy termin dosłania faktury: Po stronie systemu - ogłoszona niedostępność lub awaria; uruchamia to wydł",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://finowo.app/insights/ksef-offline-modes",
+"title": "KSeF Down or Delayed: Offline24 and Emergency Modes Step by Step",
+"snippet": "Offline modes in KSeF are permanent statute, not a temporary concession. When the system is unavailable, you can issue invoices locally and submit them later. The P_1 issue date on the invoice is the date you wrote it, not the date you submitted it. This preserves the legal date and the applicable NBP exchange rate.\n\n## Offline24 Mode\n**When to use:** KSeF is temporarily unavailable (timeout, 500/503 errors, maintenance window).\n**Procedure:**\n1. Issue the invoice in your invoicing software with today's date as P_1.\n2. The software generates the FA(3) XML locally and stores it.\n3. Submit the XML to KSeF by the next working day.\n4. KSeF assigns the KSeF number and issues the UPO.\n**Key detail:** The invoice carries a Kod II \"CERTYFIKAT\" QR code in addition to the standard Kod I QR code. The Kod II QR authenticates the issuer via a type-2 certificate and tells the buyer this invoice was issued offline. Your invoicing software must support type-2 certificate generation for offline24 mode to work.\n## Announced Un",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://ignashev.ai/en/blog/ksef-tryb-offline24-biuro-rachunkowe-kontrola",
+"title": "KSeF offline24 in an accounting office — what to check",
+"snippet": "KSeF 2.0 gives you more than one way to issue outside the system, and each runs on its own clock.\n**Offline24.** The taxpayer's own call, for any reason, whether KSeF is up or not. The invoice goes to KSeF no later than the next business day after issue. This is the mode your clients will actually use: a patchy connection, a salesperson at a trade fair, a laptop that refuses to authenticate.\n**KSeF unavailability.** The Ministry announces the system is down, planned or not. Anything issued during that window goes in by the next business day after it ends.\n**Failure (awaria).** Announced in the Ministry's BIP and passed through to invoicing software. The deadline here is seven business days after the failure ends. That's the longest clock of the lot, and it's the one that makes month-end messy: seven business days can easily run into the next VAT period.\n**Total failure (awaria całkowita).** Announced in the media. Invoices are issued outside KSeF and never have to be sent afterwards. It's rare in practice, bu",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://dziennikustaw.gov.pl/DU/rok/2026",
+"title": "Dziennik Ustaw 2026 r.",
+"snippet": "| Lista aktów | | | | | --- | --- | --- | --- | | Pozycja | Tytuł | Pliki | Data ogłoszenia | | 1390 | Obwieszczenie Ministra Zdrowia z dnia 15 października 2026 r. w sprawie ogłoszenia jednolitego tekstu rozporządzenia Ministra Zdrowia w sprawie sposobu i procedur przygotowania analizy weryfikacyjnej Agencji Oceny Technologii Medycznych i Taryfikacji oraz wysokości opłaty za tę analizę | | 2026-10-22 | | 1389 | Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 18 września 2026 r. w sprawie ogłoszenia jednolitego tekstu ustawy – Prawo geodezyjne i kartograficzne | | 2026-10-22 | | 1388 | Obwieszczenie Ministra Kultury i Dziedzictwa Narodowego z dnia 13 października 2026 r. w sprawie ogłoszenia jednolitego tekstu rozporządzenia Ministra Kultury i Dziedzictwa Narodowego w sprawie klasyfikacji zawodów szkolnictwa artystycznego | | 2026-10-22 | | 1387 | Obwieszczenie Ministra Infrastruktury z dnia 9 października 2026 r. w sprawie ogłoszenia jednolitego tekstu rozporządzenia Ministra Transportu, Budow",
+"source_type": "web",
+"on_topic": false,
+"kind": "directory"
+},
+{
+"url": "https://dziennikustaw.gov.pl/;",
+"title": "Strona główna",
+"snippet": "| Ostatnio opublikowane akty prawne: | | | | | --- | --- | --- | --- | | Pozycja | Tytuł | Data ogłoszenia | Pliki | | 1390 | Obwieszczenie Ministra Zdrowia z dnia 15 października 2026 r. w sprawie ogłoszenia jednolitego tekstu rozporządzenia Ministra Zdrowia w sprawie sposobu i procedur przygotowania analizy weryfikacyjnej Agencji Oceny Technologii Medycznych i Taryfikacji oraz wysokości opłaty za tę analizę | 2026-10-22 | | | 1389 | Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 18 września 2026 r. w sprawie ogłoszenia jednolitego tekstu ustawy – Prawo geodezyjne i",
+"source_type": "web",
+"on_topic": false,
+"kind": "directory"
+},
+{
+"url": "https://dziennikustaw.gov.pl/DU/2026/169",
+"title": "Dziennik Ustaw 2026 r. poz. 169",
+"snippet": "Dziennik Ustaw 2026 r. poz. 169 ## Rozporządzenie Ministra Finansów i Gospodarki z dnia 13 lutego 2026 r. zmieniające rozporządzenie w sprawie korzystania z Krajowego Systemu e-Faktur | Data ogłoszenia: | 2026-02-13 | | --- | --- | | Nazwa dziennika: | Dziennik Ustaw | | Rok: | 2026 | | Pozycja: | 169 | | Pobierz plik: | plik 1 |",
+"source_type": "web",
+"on_topic": true,
+"kind": "regulation"
+},
+{
+"url": "https://dziennikustaw.gov.pl/D2026000126301.pdf",
+"title": "Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 1 września 2026 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku od towarów i usług",
+"snippet": "## DZIENNIK USTAW ### RZECZYPOSPOLITEJ POLSKIEJ #### Warszawa, dnia 28 września 2026 r. Poz. 1263 OBWIESZCZENIE MARSZAŁKA SEJMU RZECZYPOSPOLITEJ POLSKIEJ z dnia 1 września 2026 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku od towarów i usług 1. Na podstawie art. 16 ust. 1 ustawy z dnia 20 lipca 2000 r. o ogłaszaniu aktów normatywnych i niektórych innych aktów prawnych (Dz. U. z 2019 r. poz. 1461 oraz z 2026 r. poz. 912) ogłasza się w załączniku do niniejszego obwieszczenia jednolity tekst ustawy z dnia 11 marca 2004 r. o podatku od towarów i usług (Dz. U. z 2025 r. poz. 775), z uwzględnieniem stanu prawnego na dzień 26 sierpnia 2026 r. oraz zmian wprowadzonych: 1) ustawą z dnia 16 czerwca 2023 r. o zmianie ustawy o podatku od towarów i usług oraz niektórych innych ustaw (Dz. U. poz. 1598, z 2024 r. poz. 852 i 1721 oraz z 2025 r. poz. 1203); 2) ustawą z dnia 24 czerwca 2025 r. o zmianie ustawy o Krajowej Administracji Skarbowej oraz ustawy o podatku od towarów i usług (Dz. U. poz. 894); 3) ustawą",
+"source_type": "web",
+"on_topic": false,
+"kind": "regulation"
+},
+{
+"url": "https://dziennikustaw.gov.pl/szukaj?pNumber=15&pSize=100&title=",
+"title": "Wyszukiwanie aktów prawnych",
+"snippet": "zmianie ustawy o Centralnej Ewidencji i Informacji o ... stawek podatku akcyzowego na niektóre paliwa silnikowe ... Rozporządzenie Ministra Rodziny, Pracy i Polityki ... r. w sprawie wzoru upoważnienia do przeprowadzenia kontroli",
+"source_type": "web",
+"on_topic": false,
+"kind": "directory"
+},
+{
+"url": "https://dziennikustaw.gov.pl/DU/rok/2026/9",
+"title": "Dziennik Ustaw 2026 r.",
+"snippet": "| Lista aktów | | | | | --- | --- | --- | --- | | Pozycja | Tytuł | Pliki | Data ogłoszenia | | 450 | Obwieszczenie Prezesa Rady Ministrów z dnia 19 marca 2026 r. w sprawie ogłoszenia jednolitego tekstu rozporządzenia Rady Ministrów w sprawie sprawozdań o udzielonej pomocy publicznej, informacji o nieudzieleniu takiej pomocy oraz sprawozdań o zaległościach przedsiębiorców we wpłatach świadczeń należnych na rzecz sektora finansów publicznych | | 2026-04-02 | | 449 | Obwieszczenie Prezesa Rady Ministrów z dnia 19 marca 2026 r. w sprawie ogłoszenia jednolitego tekstu rozporządzenia Rady Ministrów w sprawie zakresu informacji przedstawianych przez podmiot ubiegający się o pomoc de minimis | | 2026-04-02 | | 448 | Rozporządzenie Ministra Edukacji z dnia 31 marca 2026 r. zmieniające rozporządzenie w sprawie egzaminów eksternistycznych | | 2026-04-01 | | 447 | Rozporządzenie Ministra Rodziny, Pracy i Polityki Społecznej z dnia 26 marca 2026 r. zmieniające rozporządzenie w sprawie najwyższych dopuszczalnych stężeń i ",
+"source_type": "web",
+"on_topic": false,
+"kind": "directory"
+},
+{
+"url": "https://dziennikustaw.gov.pl/szukaj?pNumber=1&pSize=100&title=",
+"title": "Wyszukiwanie aktów prawnych",
+"snippet": "Rozporządzenie | Rozporządzenie Rady Ministrów z dnia 13 października 2026 r. ... rozporządzenie w sprawie szczegółowego zakresu i sposobów realizacji ... zakresu informacji o okolicznościach mających wpływ na prawo do zasiłków z ubezpieczenia",
+"source_type": "web",
+"on_topic": false,
+"kind": "directory"
+},
+{
+"url": "https://dziennikustaw.gov.pl/D2026000129601.pdf",
+"title": "Ustawa z dnia 4 września 2026 r. o zmianie ustawy o świadczeniu usług drogą elektroniczną oraz niektórych innych ustaw",
+"snippet": "#### Warszawa, dnia 6 października 2026 r. Poz. 1296 USTAWA z dnia 4 września 2026 r. o zmianie ustawy o świadczeniu usług drogą elektroniczną oraz niektórych innych ustaw 1) ... 4–7 w brzmieniu: „4) zadania właściwych organów, o których mowa w",
+"source_type": "web",
+"on_topic": false,
+"kind": "regulation"
+},
+{
+"url": "https://dziennikustaw.gov.pl/D2026000122701.pdf",
+"title": "Rozporządzenie Ministra Finansów i Gospodarki z dnia 15 września 2026 r. w sprawie sposobu przesyłania informacji o schemacie podatkowym za pomocą środków komunikacji elektronicznej",
+"snippet": "## DZIENNIK USTAW ### RZECZYPOSPOLITEJ POLSKIEJ #### Warszawa, dnia 21 września 2026 r. Poz. 1227 ROZPORZĄDZENIE MINISTRA FINANSÓW I GOSPODARKI 1) z dnia 15 września 2026 r. w sprawie sposobu przesyłania informacji o schemacie podatkowym za pomocą środków komunikacji elektronicznej Na podstawie art. 86n § 3 ustawy z dnia 29 sierpnia 1997 r. – Ordynacja podatkowa (Dz. U. z 2026 r. poz. 622, z późn. zm. 2)) zarządza się, co następuje: § 1. Rozporządzenie określa sposób przesyłania za pomocą środków komunikacji elektronicznej informacji, o których mowa w art. 86b § 1, art. 86c § 1 i 2, art. 86f § 4 oraz art. 86j § 1 ustawy z dnia 29 sierpnia 1997 r. – Ordynacja podatkowa, zwanych dalej „informacjami”. § 2. 1. Informacje są przesyłane za pomocą oprogramowania interfejsowego dostępnego na stronie, której adres jest podany w Biuletynie Informacji Publicznej na stronie podmiotowej urzędu obsługującego ministra właściwego do spraw finansów publicznych. 2. Informacje przesyłane w sposób, o którym mowa w ust. 1, są opa",
+"source_type": "web",
+"on_topic": false,
+"kind": "regulation"
+},
+{
+"url": "https://dziennikustaw.gov.pl/DU/rok/2026/pozycja/1259",
+"title": "Dziennik Ustaw 2026 r. poz. 1259",
+"snippet": "Dziennik Ustaw 2026 r. poz. 1259 ## Rozporządzenie Ministra Finansów i Gospodarki z dnia 23 września 2026 r. zmieniające rozporządzenie w sprawie ewidencji prowadzonej w systemie TAX FREE | Data ogłoszenia: | 2026-09-28 | | --- | --- | | Nazwa dziennika: | Dziennik Ustaw | | Rok: | 2026 | | Pozycja: | 1259 | | Pobierz plik: | plik 1 |",
+"source_type": "web",
+"on_topic": false,
+"kind": "regulation"
+},
+{
+"url": "https://dziennikustaw.gov.pl/D2026000057401.pdf",
+"title": "Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 kwietnia 2026 r. w sprawie ogłoszenia jednolitego tekstu ustawy o zarządzaniu kryzysowym",
+"snippet": "Warszawa, dnia 28 kwietnia 2026 r.\n\nUstawa określa organy właściwe w sprawach zarządzania kryzysowego oraz ich zadania i zasady działania\n\nArt. 7a.1) 1. W sytuacji kryzysowej Prezes Rady Ministrów może, z własnej inicjatywy albo na wniosek ministra wy-\ndawać polecenia obowiązujące:\n1)\norgany administracji rządowej;\n2)\npaństwowe osoby prawne oraz państwowe jednostki organizacyjne posiadające osobowość prawną;\n3)\norgany samorządu terytorialnego, samorządowe osoby prawne oraz samorządowe jednostki organizacyjne nieposiada-\njące osobowości prawnej;\n4)\nosoby prawne, inne niż określone w pkt 2, i jednostki organizacyjne nieposiadające osobowości prawnej oraz przedsię-\nbiorców.\n\n8) Dodany przez art. 189 pkt 2 ustawy, o której mowa w odnośniku 7; wszedł w życie z dniem 1 stycznia 2026 r.",
+"source_type": "web",
+"on_topic": false,
+"kind": "regulation"
+},
+{
+"url": "https://dziennikustaw.gov.pl/D2026000037801.pdf",
+"title": "ROZPORZĄDZENIE MINISTRA EDUKACJI z dnia 11 marca 2026 r. w sprawie podstawy programowej wychowania przedszkolnego oraz podstawy programowej kształcenia ogólnego dla szkoły podstawowej, w tym dla uczniów z niepełnosprawnością intelektualną w stopniu umiarkowanym lub znacznym",
+"snippet": "Załączniki do rozporządzenia Ministra Edukacji\nz dnia 11 marca 2026 r. (Dz. U. poz. 378)",
+"source_type": "web",
+"on_topic": false,
+"kind": "regulation"
+},
+{
+"url": "https://dziennikustaw.gov.pl",
+"title": "Strona główna",
+"snippet": "Zgodnie z ustawą z dnia 20 lipca 2000 r. o ogłaszaniu aktów normatywnych i niektórych innych aktów prawnych (Dz. U. z 2019r., poz. 1461), Dziennik Ustaw Rzeczypospolitej Polskiej (Dziennik Ustaw) wydaje Prezes Rady Ministrów przy pomocy Rządowego Centrum Legislacji. Od 1 stycznia 2012 r. Dziennik Ustaw wydawany jest w formie elektronicznej, z zachowaniem kolejności pozycji w danym roku kalendarzowym. Dniem ogłoszenia aktu prawnego jest dzień jego ogłoszenia w postaci elektronicznej na stronie internetowej organu wydającego Dziennik Ustaw. Dzień ogłoszenia aktu prawnego w postaci elektronicznej umieszczony jest w obrębie nagłówka strony. Wykaz aktów prawnych publikowanych w Dzienniku Ustaw Rzeczypospolitej Polskiej W Dzienniku Ustaw ogłasza się: Konstytucję; ustawy; rozporządzenia z mocą ustawy wydane przez Prezydenta Rzeczypospolitej Polskiej; rozporządzenia wydane przez Prezydenta Rzeczypospolitej Polskiej, Radę Ministrów, Prezesa Rady Ministrów, ministrów kierujących działami administracji rządowej, przewod",
+"source_type": "web",
+"on_topic": false,
+"kind": "directory"
+},
+{
+"url": "https://dziennikustaw.gov.pl/D2026000025201.pdf",
+"title": "Ustawa z dnia 23 stycznia 2026 r. o zmianie ustawy o krajowym systemie cyberbezpieczeństwa oraz niektórych innych ustaw",
+"snippet": "Warszawa, dnia 2 marca 2026 r.\n\n„1) Niniejsza ustawa wdraża dyrektywę Parlamentu Europejskiego i Rady (UE) 2022/2555 z dnia 14 grudnia 2022 r.\nw sprawie środków na rzecz wysokiego wspólnego poziomu cyberbezpieczeństwa na terytorium Unii, zmieniającą\nrozporządzenie (UE) nr 910/2014 i dyrektywę (UE) 2018/1972 oraz uchylającą dyrektywę (UE) 2016/1148 (dy-\nrektywa NIS 2) (Dz. Urz. UE L 333 z 27.12.2022, str. 80).”;\n\nrozporządzenia delegowanego Komisji (UE) 2024/1366 z dnia\n11 marca 2024 r. uzupełniającego rozporządzenie Parlamentu Europejskiego i Rady (UE) 2019/943 poprzez usta-\n\n8) Zmiana wymienionego rozporządzenia została ogłoszona w Dz. Urz. UE L 2024/90225 z 12.03.2025.",
+"source_type": "web",
+"on_topic": false,
+"kind": "regulation"
+},
+{
+"url": "https://dziennikustaw.gov.pl/DU/2026/889",
+"title": "Dziennik Ustaw 2026 r. poz. 889",
+"snippet": "Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 12 czerwca 2026 r. w sprawie ogłoszenia jednolitego tekstu ustawy o spółdzielniach mieszkaniowych Data ogłoszenia: 2026-07-02 Nazwa dziennika: Dziennik Ustaw  Rok: 2026  Pozycja: 889  Pobierz plik: plik 1",
+"source_type": "web",
+"on_topic": false,
+"kind": "regulation"
+},
+{
+"url": "https://dziennikustaw.gov.pl/DU/rok/2024/22",
+"title": "Dziennik Ustaw 2024 r.",
+"snippet": "Rozporządzenie Ministra Rodziny, Pracy i Polityki Społecznej z dnia 17 lipca 2024 r. zmieniające rozporządzenie w sprawie dokonywania z Funduszu Pracy refundacji kosztów wyposażenia lub doposażenia stanowiska pracy oraz przyznawania środków na podjęcie działalności gospodarczej   2024-07-23",
+"source_type": "web",
+"on_topic": false,
+"kind": "regulation"
+},
+{
+"url": "https://dziennikustaw.gov.pl/D2024000072801.pdf",
+"title": "Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 26 kwietnia 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o transporcie drogowym",
+"snippet": "1 i 2, wymaga uzyskania zezwolenia\nna wykonywanie zawodu przewoźnika drogowego, na zasadach określonych w rozporządzeniu Parlamentu Europejskiego\ni Rady (WE) nr 1071/2009 z dnia 21 października 2009 r. ustanawiającym wspólne zasady dotyczące warunków wykony-\nwania zawodu przewoźnika drogowego i uchylającym dyrektywę Rady 96/26/WE, zwanym dalej „rozporządzeniem (WE)\nnr 1071/2009”.",
+"source_type": "web",
+"on_topic": false,
+"kind": "regulation"
+},
+{
+"url": "https://dziennikustaw.gov.pl/DU/2023/891/D2023000089103.pdf",
+"title": "OŚWIADCZENIE RZĄDOWE z dnia 13 marca 2023 r. w sprawie wejścia w życie zmian do załączników A i B do Umowy dotyczącej międzynarodowego przewozu drogowego towarów niebezpiecznych (ADR), sporządzonej w Genewie dnia 30 września 1957 r.",
+"snippet": "Dziennik Ustaw\n– 1349 –\nPoz. 891",
+"source_type": "web",
+"on_topic": false,
+"kind": "regulation"
+},
+{
+"url": "https://dziennikustaw.gov.pl/D2021000209501.pdf",
+"title": "Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 29 października 2021 r. w sprawie ogłoszenia jednolitego tekstu ustawy o szczególnych rozwiązaniach związanych z zapobieganiem, przeciwdziałaniem i zwalczaniem COVID-19, innych chorób zakaźnych oraz wywołanych nimi sytuacji kryzysowych",
+"snippet": "Niniejsza ustawa została notyfikowana Komisji Europejskiej w dniu 29 października 2019 r. pod numerem\n2019/533/PL, zgodnie z § 4 rozporządzenia Rady Ministrów z dnia 23 grudnia 2002 r. w sprawie sposobu funk-\ncjonowania krajowego systemu notyfikacji norm i aktów prawnych (Dz. U. poz. 2039 oraz z 2004 r. poz. 597),\nktóre wdraża dyrektywę (UE) 2015/1535 Parlamentu Europejskiego i Rady z dnia 9 września 2015 r. ustanawia-",
+"source_type": "web",
+"on_topic": false,
+"kind": "regulation"
+}
+]

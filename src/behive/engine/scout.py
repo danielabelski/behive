@@ -83,6 +83,79 @@ _SCOUT_STOPWORDS = frozenset({
 _REGULATORY_INTENT = ("ustaw", "rozporządze", "regulat", "directive", "dyrektyw", "legisla", "przepis")
 _ACADEMIC_INTENT = ("study", "studies", "paper", "academic", "naukow")
 _COMMERCIAL_INTENT = ("dostawc", "ofert", "cennik", "wdroż", "supplier", "vendor", "pricing", "product", "zakup")
+# Listing/intent words describe WHAT to find about the subject, not the subject.
+_LISTING_INTENT = _COMMERCIAL_INTENT + (
+    "producen", "firm", "lista", "ranking", "manufactur", "provider", "compan", "hersteller",
+    "anbieter", "leading", "list")
+_PROCUREMENT_TOPIC = ("przetarg", "zamówie", "zamowie", "tender", "procurement", "ausschreib")
+_JOB_TOPIC = ("prac", "rekrutac", "job", "career", "kariera", "zatrudni")
+# Pages that are rarely supplier/product evidence for a commercial question:
+# public procurement notices, legal-act PDFs and BIP bulletins, job boards,
+# and author/tag/search archives. Soft penalty only (never dropped).
+_PROCUREMENT_LAW_DOMAINS = (
+    "ted.europa.eu", "op.europa.eu", "bazakonkurencyjnosci.funduszeeuropejskie.gov.pl",
+    "ezamowienia.gov.pl", "platformazakupowa.pl", "sejm.gov.pl", "dziennikustaw.gov.pl",
+    "monitorpolski.gov.pl",
+)
+_JOB_BOARD_DOMAINS = ("aplikuj.pl", "pracuj.pl", "praca.pl", "indeed.com", "glassdoor.com", "gowork.pl")
+_PROCUREMENT_PATH = re.compile(
+    r"/public-procurement/|/procurement-details/|/notice/|/ogloszenia/|/eli/acts/"
+    r"|/tenders?/|/przetargi?/|/zamowienia-publiczne/")
+_ARCHIVE_PATH = re.compile(r"(?:^|/)(?:author|autor|tag|tagi|search|szukaj|wyszukiwarka)(?:/|$)")
+
+
+def _concept_synonym(keyword: str, word: str) -> bool:
+    """Tiny, explicit concept equivalences for subject coverage (prefix based).
+
+    Telemetry IS remote monitoring: supplier pages often say "monitoring
+    zbiorników" and never "telemetria". Keep this list short and generic.
+    """
+    for concept, synonyms in _CONCEPT_SYNONYMS:
+        if keyword.startswith(concept) and word.startswith(synonyms):
+            return True
+    return False
+
+
+# Share of relevance from subject coverage; the rest is breadth over all topic words.
+_SUBJECT_WEIGHT = 0.5
+
+_CONCEPT_SYNONYMS = (
+    ("telemetr", ("monitor",)),
+    ("monitor", ("telemetr",)),
+)
+
+
+def _topic_subject_alternatives(topic: str) -> list[tuple[str, ...]]:
+    """Required subject concepts of a topic, per coordinated alternative.
+
+    "Systemy telemetrii zbiorników paliw i chemikaliów" -> (telemetrii, zbiorników,
+    paliw) | (telemetrii, zbiorników, chemikaliów): a single coordinated word
+    replaces the last modifier. "Dostawcy systemów WMS i telemetrii zbiorników"
+    -> (wms,) | (telemetrii, zbiorników). Facets after ':' and listing/intent
+    words (dostawcy, producenci, cennik ...), generic words and years are not
+    subject concepts.
+    """
+    from behive.engine.process import RelevanceFilter
+
+    subject = re.split(r"[:;]", unicodedata.normalize("NFKC", topic), maxsplit=1)[0]
+    parts = re.split(r"\s+(?:i|oraz|lub|albo|and|or|und|oder)\s+|\s+/\s+|,", subject, flags=re.I)
+    alternatives: list[tuple[str, ...]] = []
+    for part in parts:
+        words = []
+        for token in re.findall(r"[^\W_]{3,}", part.casefold()):
+            if (token in _SCOUT_STOPWORDS or token in RelevanceFilter._GENERIC_KEYWORDS
+                    or token in RelevanceFilter._CODE_KEYWORDS or token.isdigit()
+                    or token.startswith(_LISTING_INTENT)
+                    or any(RelevanceFilter._keywords_match(token, w) for w in words)):
+                continue  # inflections of one word are one concept
+            words.append(token)
+        if not words:
+            continue
+        if alternatives and len(words) == 1 and len(alternatives[-1]) > 1:
+            alternatives.append(alternatives[-1][:-1] + (words[0],))
+        else:
+            alternatives.append(tuple(words))
+    return alternatives
 
 
 def _explicit_topic_entities(topic: str) -> list[str]:
@@ -161,6 +234,7 @@ class SwarmScout:
         topic_words = (RelevanceFilter._extract_keywords(self.topic)
                        - _SCOUT_STOPWORDS - RelevanceFilter._GENERIC_KEYWORDS)
         words = RelevanceFilter._extract_keywords(combined) - _SCOUT_STOPWORDS
+        result_words = sorted(words)
 
         # Count independent matches, not substrings or domain/query tokens.
         # One result token cannot satisfy several inflected topic keywords.
@@ -173,7 +247,31 @@ class SwarmScout:
                 words.remove(word)
         # Five subject matches saturate 25; a longer brief must not dilute a
         # specific supplier page below harvest's relevance>=5 threshold.
-        score_relevance = min(25, int(25 * matches / max(1, min(5, len(topic_words)))))
+        breadth = min(25, int(25 * matches / max(1, min(5, len(topic_words)))))
+
+        # Ranking needs the topic's SUBJECT, not any topic word: a tank seller
+        # or a fuel-price article shares "zbiorników"/"paliw" with a tank-telemetry
+        # topic but not "telemetrii". Mix half the best coverage of one coordinated
+        # subject alternative with half the old breadth of all topic words
+        # (_SUBJECT_WEIGHT, chosen on labelled pools of 5 benchmark topics).
+        if getattr(self, "_subject_alts_topic", None) != self.topic:
+            self._subject_alts = _topic_subject_alternatives(self.topic)
+            self._subject_alts_topic = self.topic
+        coverage = 0.0
+        for alternative in self._subject_alts:
+            hit = sum(1 for keyword in alternative
+                      if any(RelevanceFilter._keywords_match(keyword, w)
+                             or _concept_synonym(keyword, w) for w in result_words))
+            coverage = max(coverage, hit / len(alternative))
+        if self._subject_alts:
+            # Never below the old breadth score: harvest's relevance>=5 admission
+            # (recall) stays as before; subject coverage only lifts the ranking,
+            # and only when at least half of one subject alternative is present
+            # (a dictionary entry for one word of a three-word subject is not).
+            mixed = int(round(25 * _SUBJECT_WEIGHT * coverage + (1 - _SUBJECT_WEIGHT) * breadth))
+            score_relevance = min(25, max(breadth, mixed) if coverage >= 0.5 else breadth)
+        else:
+            score_relevance = breadth
 
         # Retain entity anchoring only for an explicit name, never a topic's
         # first generic noun. Match the whole name, not an arbitrary substring
@@ -241,6 +339,22 @@ class SwarmScout:
                               r"(?:\.(?:php|aspx?|html?))?(?:/|$)", path.casefold()))
         )
         if commercial and non_content:
+            total -= 8
+        # Procurement notices, legal-act/BIP documents, job boards and archive
+        # pages are not supplier evidence unless the topic asks for them.
+        topic_cf = self.topic.casefold()
+        wants_procurement = any(p in topic_cf for p in _PROCUREMENT_TOPIC)
+        wants_jobs = any(w.startswith(_JOB_TOPIC) for w in topic_words)
+        host_labels = domain.split(".")
+        procurement_or_law = (
+            any(domain == d or domain.endswith("." + d) for d in _PROCUREMENT_LAW_DOMAINS)
+            or any(label == "bip" or label.startswith("bip-") for label in host_labels)
+            or bool(_PROCUREMENT_PATH.search(path.casefold())))
+        job_board = any(domain == d or domain.endswith("." + d) for d in _JOB_BOARD_DOMAINS)
+        archive = bool(_ARCHIVE_PATH.search(path.casefold()))
+        if commercial and not regulatory and (
+                (procurement_or_law and not wants_procurement)
+                or (job_board and not wants_jobs) or archive):
             total -= 8
         return {
             "score_total":     max(0, min(100, total)),
