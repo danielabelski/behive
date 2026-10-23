@@ -8,9 +8,10 @@ import asyncio
 import json
 import re
 import time
+import unicodedata
 import urllib.request
 from datetime import datetime
-from urllib.parse import urlparse, quote_plus
+from urllib.parse import urlparse, quote_plus, unquote
 from typing import Optional
 
 from behive.engine.db import connect as _db_connect
@@ -27,6 +28,8 @@ def _pg_connect_retry(path: str = DB_PATH, read_only: bool = False, max_retries:
     """Connect via hive2_db (PostgreSQL)."""
     return _db_connect(read_only=read_only)
 
+# Legacy public compatibility constant. Scoring no longer treats this list as
+# unconditional authority: domain prestige is not evidence of topic relevance.
 AUTHORITY_DOMAINS: dict[str, int] = {
     "statista.com":     15,
     "datareportal.com": 15,
@@ -67,6 +70,43 @@ DEPTH_SIGNALS = [
     r"\bstatistic", r"\bdata\b", r"\bsurvey\b", r"\bwhitepaper\b",
     r"\bresearch\b", r"\bfinding", r"\bresult", r"\bmarket",
 ]
+
+
+# Reuse process.RelevanceFilter's Unicode tokenizer and light PL/EN matcher;
+# supplement its EN stopwords with PL function words, not topic-specific terms.
+_SCOUT_STOPWORDS = frozenset({
+    "dla", "oraz", "jak", "jest", "się", "sie", "przez", "przy", "nad", "pod", "bez",
+    "czy", "jego", "jej", "ich", "tak", "ten", "tej", "tego", "też", "tez", "tym",
+    "jako", "aby", "które", "który", "która", "których", "między", "miedzy",
+    "był", "była", "były", "będzie", "będą", "also", "are", "was", "were",
+})
+_REGULATORY_INTENT = ("ustaw", "rozporządze", "regulat", "directive", "dyrektyw", "legisla", "przepis")
+_ACADEMIC_INTENT = ("study", "studies", "paper", "academic", "naukow")
+_COMMERCIAL_INTENT = ("dostawc", "ofert", "cennik", "wdroż", "supplier", "vendor", "pricing", "product", "zakup")
+
+
+def _explicit_topic_entities(topic: str) -> list[str]:
+    """Conservative anchors, matching the planner's rule, not a name guesser.
+
+    Quotes declare a name. Otherwise require a capitalized multiword run away
+    from a sentence start; a first word such as 'Systemy' is never an entity.
+    Ambiguous title-case runs starting a sentence require explicit quotes.
+    """
+    text = unicodedata.normalize("NFKC", topic)
+    names = [next(part for part in match if part).strip() for match in re.findall(
+        r'"([^"\n]{2,100})"|[„“]([^”"\n]{2,100})[”"]|«([^»\n]{2,100})»|(?<!\w)\'([^\'\n]{2,100})\'', text)]
+    run = []
+    tokens = list(re.finditer(r"[^\W\d_][^\W_]*(?:[-'][^\W\d_][^\W_]*)*", text))
+    for token in tokens + [None]:
+        capitalized = token is not None and token.group()[0].isupper()
+        if run and (token is None or not capitalized or not text[run[-1].end():token.start()].isspace()):
+            prefix = text[:run[0].start()].rstrip()
+            if len(run) >= 2 and prefix and prefix[-1] not in ".!?":
+                names.append(text[run[0].start():run[-1].end()])
+            run = []
+        if capitalized:
+            run.append(token)
+    return list({name.casefold(): name for name in names if any(c.isalpha() for c in name)}.values())
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -113,38 +153,44 @@ class SwarmScout:
 
     def _score_source(self, url: str, title: str, snippet: str,
                       source_type: str) -> dict:
-        combined = f"{title} {snippet} {url}".lower()
-        topic_words = set(re.findall(r"\w+", self.topic.lower())) - {
-            "and", "or", "the", "of", "in", "for", "a", "an"
-        }
+        from behive.engine.process import RelevanceFilter
 
-        # Relevance
-        matches = sum(1 for w in topic_words if w in combined)
-        score_relevance = min(25, int(matches / max(len(topic_words), 1) * 25))
+        parsed = urlparse(url)
+        path = unquote(parsed.path)
+        combined = f"{title} {snippet} {path}".casefold()
+        topic_words = (RelevanceFilter._extract_keywords(self.topic)
+                       - _SCOUT_STOPWORDS - RelevanceFilter._GENERIC_KEYWORDS)
+        words = RelevanceFilter._extract_keywords(combined) - _SCOUT_STOPWORDS
 
-        # ═══ ENTITY ANCHORING BOOST ═══
-        # Extract primary entity from topic (first significant token, usually company name)
-        _stop_scoring = {'the','a','an','of','in','for','and','or','is','to','from','with','on','at',
-                        'by','i','z','w','na','do','o','sp','polska','poland','handel','eksport',
-                        'import','zagraniczny','infrastruktura','logistyczna','dystrybutor'}
-        _topic_tokens = [w.strip('",.:;()[]').lower() for w in self.topic.split()
-                        if len(w) > 2 and w.strip('",.:;()[]').lower() not in _stop_scoring]
-        _entity_name = _topic_tokens[0] if _topic_tokens else ""
-        
-        if _entity_name and len(_entity_name) > 3:
-            if _entity_name in combined:
-                score_relevance = min(25, score_relevance + 10)  # entity match bonus
-            else:
-                score_relevance = max(0, score_relevance - 5)    # penalty for no entity
-        
-        # Entity domain boost: if URL contains entity-name pattern, it's almost certainly relevant
-        _entity_domain_patterns = [_entity_name] if _entity_name else []
-        # Add hyphenated form (lech-pol → lech-pol in URL)
-        if _entity_name and '-' not in _entity_name and len(_topic_tokens) > 1:
-            _entity_domain_patterns.append(f"{_entity_name}-{_topic_tokens[1]}")
-        url_lower = url.lower()
-        if any(pat in url_lower for pat in _entity_domain_patterns if pat):
-            score_relevance = 25  # max relevance for entity's own URLs
+        # Count independent matches, not substrings or domain/query tokens.
+        # One result token cannot satisfy several inflected topic keywords.
+        matches = 0
+        for keyword in sorted(topic_words):
+            word = next((w for w in sorted(words)
+                         if RelevanceFilter._keywords_match(keyword, w)), None)
+            if word is not None:
+                matches += 1
+                words.remove(word)
+        # Five subject matches saturate 25; a longer brief must not dilute a
+        # specific supplier page below harvest's relevance>=5 threshold.
+        score_relevance = min(25, int(25 * matches / max(1, min(5, len(topic_words)))))
+
+        # Retain entity anchoring only for an explicit name, never a topic's
+        # first generic noun. Match the whole name, not an arbitrary substring
+        # in a hostname, query parameter or a similarly named vendor.
+        entities = _explicit_topic_entities(self.topic)
+        if entities:
+            entity_match = entity_url = False
+            host_labels = (parsed.hostname or "").casefold().split(".")
+            for entity in entities:
+                tokens = re.findall(r"[^\W_]+", entity.casefold())
+                pattern = r"(?<!\w)" + r"[\W_]+".join(re.escape(t) for t in tokens) + r"(?!\w)"
+                own_host = any(label in {"-".join(tokens), "".join(tokens)} for label in host_labels)
+                entity_match |= own_host or bool(re.search(pattern, combined))
+                entity_url |= own_host or bool(re.search(pattern, path.casefold()))
+            score_relevance = min(25, score_relevance + 10) if entity_match else max(0, score_relevance - 5)
+            if entity_url:
+                score_relevance = 25
 
         # Freshness — default 8 (neutral, nie kara za brak roku w snippecie)
         score_freshness = 0
@@ -154,24 +200,19 @@ class SwarmScout:
         if score_freshness == 0:
             score_freshness = 8  # neutral baseline (previously 3 — punished undated pages)
 
-        # Authority — elevated default values (page exists = worth checking)
-        domain = urlparse(url).netloc.lower().lstrip("www.")
-        score_authority = 0
-        for auth_domain, pts in AUTHORITY_DOMAINS.items():
-            if auth_domain in domain:
-                score_authority = pts
-                break
-        if score_authority == 0:
-            if any(x in domain for x in [".gov", ".int", ".edu"]):
-                score_authority = 12  # was 6 — instytucje publiczne wysoko
-            elif any(x in domain for x in [".org"]):
-                score_authority = 9   # organizacje
-            elif any(x in domain for x in ["news", "press", "media", "journal", "report"]):
-                score_authority = 7   # was 4 — media
-            elif any(x in domain for x in [".co.", ".com", ".io", ".ai"]):
-                score_authority = 7   # was 2 — domeny komercyjne = wartościowe źródła
-            else:
-                score_authority = 6   # was 2 — pozostałe (not karz za nieznane domeny)
+        # All domains start equal. Official/academic provenance adds only 3
+        # points, and only for explicit regulatory/academic topic intent. A TLD
+        # (.org/.int/.gov) or arXiv alone says nothing about a supplier topic.
+        domain = (parsed.hostname or "").casefold()
+        regulatory = any(w.startswith(_REGULATORY_INTENT) for w in topic_words)
+        academic = any(w.startswith(_ACADEMIC_INTENT) for w in topic_words)
+        commercial = any(w.startswith(_COMMERCIAL_INTENT) for w in topic_words)
+        official = (bool(re.search(r"(?:^|\.)(?:gov|int)(?:\.[a-z]{2,3})?$", domain))
+                    or any(domain == d or domain.endswith("." + d)
+                           for d in ("europa.eu", "un.org")))
+        scholarly = (bool(re.search(r"(?:^|\.)(?:edu|ac)(?:\.[a-z]{2,3})?$", domain))
+                     or domain == "arxiv.org" or domain.endswith(".arxiv.org"))
+        score_authority = 6 + (3 if (regulatory and official) or (academic and scholarly) else 0)
 
         # Depth
         depth_hits = sum(
@@ -188,8 +229,21 @@ class SwarmScout:
         }.get(source_type.lower(), 3)
 
         total = score_relevance + score_freshness + score_authority + score_depth + type_bonus
+        # Metadata cannot outrank actual subject evidence, even in harvest's
+        # relaxed fallback. Keep the row for review, but below its total>=15 gate.
+        if score_relevance < 5:
+            total = min(14, total)
+        # A commercial supplier inquiry needs content, not a definition, ad or
+        # sign-in/cart screen. This is a soft 8/100 penalty, never an admission ban.
+        non_content = (
+            any(domain == d or domain.endswith("." + d) for d in ("sjp.pwn.pl", "wsjp.pl", "olx.pl"))
+            or bool(re.search(r"(?:^|/)(?:login|logowanie|signin|sign-in|wp-login|cart|koszyk|checkout)"
+                              r"(?:\.(?:php|aspx?|html?))?(?:/|$)", path.casefold()))
+        )
+        if commercial and non_content:
+            total -= 8
         return {
-            "score_total":     min(100, total),
+            "score_total":     max(0, min(100, total)),
             "score_relevance": score_relevance,
             "score_freshness": score_freshness,
             "score_authority": score_authority,
@@ -240,47 +294,9 @@ class SwarmScout:
         if any(_domain == bd or _domain.endswith("." + bd) for bd in _BLACKLISTED_DOMAINS):
             return False
 
-        # ── SUPERSCOUT SCORE GATE — minimum quality ───────────────────────────
-        # Preliminary score based on URL+title+snippet alone
-        _pre_score = 0
-        _combined_pre = f"{url} {title or ''} {snippet or ''}".lower()
-        # Bonus za znane premium domeny
-        _PREMIUM_DOMAINS = {
-            "statista.com", "datareportal.com", "gsma.com", "itu.int",
-            "worldbank.org", "imf.org", "reuters.com", "bloomberg.com",
-            "ft.com", "mckinsey.com", "gartner.com", "forrester.com",
-            "emarketer.com", "idc.com", "pwc.com", "deloitte.com",
-            "hbr.org", "techcrunch.com", "wired.com", "venturebeat.com",
-            "businessinsider.com", "forbes.com", "wsj.com",
-            "europa.eu", "ec.europa.eu", "eur-lex.europa.eu", "consilium.europa.eu",
-            "oecd.org", "fao.org", "wto.org", "un.org", "arxiv.org",
-            "wikipedia.org",
-            # PL premium
-            "gov.pl", "stat.gov.pl", "nask.pl", "computerworld.pl",
-            "spidersweb.pl", "antyweb.pl", "telepolis.pl",
-        }
-        if any(_domain == pd or _domain.endswith("." + pd) for pd in _PREMIUM_DOMAINS):
-            _pre_score += 10
-        # Freshness bonus w URL/tytule
-        import re as _re
-        if _re.search(r"202[4-6]", _combined_pre):
-            _pre_score += 5
-        # Bonus for research keywords
-        for kw in ["report", "study", "data", "statistics", "survey", "research",
-                   "market", "analysis", "trend", "benchmark", "raport"]:
-            if kw in _combined_pre:
-                _pre_score += 2
-                break
-        # Filter weak sources at scout stage (threshold = 5)
-        if _pre_score < 5 and source_type not in ("rss_gov", "rss_industry", "gov_stat"):
-            if _domain == "wikipedia.org" or _domain.endswith(".wikipedia.org"):
-                pass
-            elif not any(x in _combined_pre for x in ["saas", "tiktok", "social media", "marketing",
-                                                      "b2b", "consulting", "poland", "polska",
-                                                      "turkey", "georgia", "linkedin", "roi",
-                                                      "mercosur", "tariff", "quota", "trade",
-                                                      "lithium", "beef", "cattle"]):
-                return False
+        # Scoring/harvest decide topical value. A premium-domain/fixed-keyword
+        # admission gate used to discard undated supplier pages *before* their
+        # topic relevance could be scored. Unknown domains are not low quality.
 
         self._seen_urls.add(url)
 
@@ -316,13 +332,21 @@ class SwarmScout:
     # ── Scout method: web search (multi-backend) ────────────────────────────────
 
     async def _ddg_text(self, query: str, region: str = "en-us",
-                        max_results: int = 40) -> list[dict]:
-        """Web search using best available backend (Brave/Serper/SearXNG/DDG)."""
+                        max_results: int = 40, *, lang: Optional[str] = None) -> list[dict]:
+        """Generic web search; retain the legacy method name for saved plans."""
         async with self._ddg_sem:
             try:
                 from behive.engine.search_backends import get_engine
                 engine = get_engine()
-                results = await engine.search(query, max_results)
+                try:
+                    results = await engine.search(query, max_results, lang=lang or region.split("-")[0])
+                except TypeError as exc:
+                    # Older SearchEngine installations lack the lang kwarg. Do
+                    # not retry TypeErrors raised *inside* a modern backend.
+                    if (exc.__traceback__ is None or exc.__traceback__.tb_next is not None
+                            or not re.search(r"unexpected keyword argument ['\"]lang['\"]", str(exc))):
+                        raise
+                    results = await engine.search(query, max_results)
                 return [
                     {"url": r.get("url", ""), "title": r.get("title", ""),
                      "snippet": r.get("snippet", "")}
@@ -354,25 +378,25 @@ class SwarmScout:
     # ── Scout method: DDG site: ───────────────────────────────────────────────
 
     async def _ddg_site(self, query: str, site: str,
-                        max_results: int = 35) -> list[dict]:
+                        max_results: int = 35, *, lang: Optional[str] = None) -> list[dict]:
         full_query = f"site:{site} {query}" if site else query
-        return await self._ddg_text(full_query, max_results=max_results)
+        return await self._ddg_text(full_query, max_results=max_results, lang=lang)
 
     # ── Scout method: DDG filetype:pdf ───────────────────────────────────────
 
-    async def _ddg_filetype(self, query: str, max_results: int = 30) -> list[dict]:
-        return await self._ddg_text(f"{query} filetype:pdf", max_results=max_results)
+    async def _ddg_filetype(self, query: str, max_results: int = 30, *, lang: Optional[str] = None) -> list[dict]:
+        return await self._ddg_text(f"{query} filetype:pdf", max_results=max_results, lang=lang)
 
     # ── Scout method: DDG reddit ──────────────────────────────────────────────
 
-    async def _ddg_reddit(self, query: str, max_results: int = 30) -> list[dict]:
-        return await self._ddg_text(f"site:reddit.com {query}", max_results=max_results)
+    async def _ddg_reddit(self, query: str, max_results: int = 30, *, lang: Optional[str] = None) -> list[dict]:
+        return await self._ddg_text(f"site:reddit.com {query}", max_results=max_results, lang=lang)
 
     # ── Scout method: DDG academic ────────────────────────────────────────────
 
-    async def _ddg_academic(self, query: str, max_results: int = 25) -> list[dict]:
+    async def _ddg_academic(self, query: str, max_results: int = 25, *, lang: Optional[str] = None) -> list[dict]:
         full_q = f"site:arxiv.org OR site:scholar.google.com {query}"
-        return await self._ddg_text(full_q, max_results=max_results)
+        return await self._ddg_text(full_q, max_results=max_results, lang=lang)
 
     # ── Scout method: Google News RSS ────────────────────────────────────────
 
@@ -564,28 +588,27 @@ class SwarmScout:
     # ── Task dispatcher ───────────────────────────────────────────────────────
 
     async def _run_task(self, task: dict) -> int:
-        """Execute one scout task. Fan-out: fires multiple engines in parallel per query."""
+        """Execute the requested method; companion news searches are opt-in."""
         method      = task.get("method", "ddg_text")
         query       = task.get("query", self.topic)
         region      = task.get("region", "en-us")
         site        = task.get("site", "")
-        source_type = task.get("source", "ddg")
+        source_type = "web" if method == "web" else task.get("source", "ddg")
         lang        = task.get("language", task.get("lang", "en"))
 
         try:
-            # ── Fan-out: always fire DDG text + DDG news simultaneously ──────
-            # Plus the explicitly requested method if it differs from the above.
             fan_coros = []
             fan_methods = set()
 
-            # Primary (explicitly requested)
+            # Primary (explicitly requested); old saved plans stay executable.
             primary_map = {
-                "ddg_text":       lambda: self._ddg_text(query, region),
+                "web":            lambda: self._ddg_text(query, region, lang=lang),
+                "ddg_text":       lambda: self._ddg_text(query, region, lang=lang),
                 "ddg_news":       lambda: self._ddg_news(query, region),
-                "ddg_site":       lambda: self._ddg_site(query, site),
-                "ddg_filetype":   lambda: self._ddg_filetype(query),
-                "ddg_reddit":     lambda: self._ddg_reddit(query),
-                "ddg_academic":   lambda: self._ddg_academic(query),
+                "ddg_site":       lambda: self._ddg_site(query, site, lang=lang),
+                "ddg_filetype":   lambda: self._ddg_filetype(query, lang=lang),
+                "ddg_reddit":     lambda: self._ddg_reddit(query, lang=lang),
+                "ddg_academic":   lambda: self._ddg_academic(query, lang=lang),
                 "google_rss":     lambda: self._google_rss(query, lang),
                 "wayback_cdx":    lambda: self._wayback_cdx(site, query),
                 "jina_search":    lambda: self._jina_search(query),
@@ -597,13 +620,20 @@ class SwarmScout:
                 fan_coros.append(primary_map[method]())
                 fan_methods.add(method)
 
-            # Automatic fan-out companions (always bolt these on)
-            if "ddg_text" not in fan_methods:
-                fan_coros.append(self._ddg_text(query, region))
-            if "ddg_news" not in fan_methods:
-                fan_coros.append(self._ddg_news(query, region))
-            if "google_rss" not in fan_methods and lang in ("en", "pl", "tr"):
-                fan_coros.append(self._google_rss(query, lang))
+            # A legacy unknown method still gets a generic search, not three
+            # unrelated searches. News/RSS companions require explicit intent.
+            if not fan_coros:
+                fan_coros.append(self._ddg_text(query, region, lang=lang))
+            news_intent = (
+                method in {"ddg_news", "google_rss"}
+                or task.get("source", "").lower() in {"news", "rss", "gnews", "rss_news"}
+                or task.get("intent", "").lower() in {"news", "latest_news", "current_news", "wiadomości", "aktualności"}
+            )
+            if news_intent:
+                if "ddg_news" not in fan_methods:
+                    fan_coros.append(self._ddg_news(query, region))
+                if "google_rss" not in fan_methods:
+                    fan_coros.append(self._google_rss(query, lang))
 
             results_nested = await asyncio.gather(*fan_coros, return_exceptions=True)
 
@@ -697,76 +727,9 @@ class SwarmScout:
 # ──────────────────────────────────────────────────────────────────────────────
 
 def generate_standalone_plan(topic: str) -> list[dict]:
-    """
-    Generate a 50-task basic plan when no Queen plan is provided.
-    Covers DDG text/news in multiple regions, RSS, filetype, academic, reddit,
-    plus site-specific searches.
-    """
-    t = topic
-    _cy = datetime.utcnow().year          # current year (2026, 2027, …)
-    _py = _cy - 1                          # previous year
-    plan = [
-        # ── Core DDG text (multiple regions) ──────────────────────────────
-        {"query": t,                                  "region": "pl-pl",  "method": "ddg_text",     "source": "ddg"},
-        {"query": f"{t} statistics {_py} {_cy}",     "region": "en-us",  "method": "ddg_text",     "source": "ddg"},
-        {"query": f"{t} raport dane",                 "region": "pl-pl",  "method": "ddg_text",     "source": "ddg"},
-        {"query": f"{t} market overview",             "region": "en-us",  "method": "ddg_text",     "source": "ddg"},
-        {"query": f"{t} data analysis",               "region": "en-us",  "method": "ddg_text",     "source": "ddg"},
-        {"query": f"{t} trends {_py}",                "region": "en-us",  "method": "ddg_text",     "source": "ddg"},
-        {"query": f"{t} key findings",                "region": "en-us",  "method": "ddg_text",     "source": "ddg"},
-        {"query": t,                                  "region": "uk-en",  "method": "ddg_text",     "source": "ddg"},
-        {"query": f"{t} market share",                "region": "en-us",  "method": "ddg_text",     "source": "ddg"},
-        {"query": f"{t} growth rate",                 "region": "en-us",  "method": "ddg_text",     "source": "ddg"},
-        # ── DDG news ──────────────────────────────────────────────────────
-        {"query": t,                                  "region": "en-us",  "method": "ddg_news",     "source": "news"},
-        {"query": t,                                  "region": "pl-pl",  "method": "ddg_news",     "source": "news"},
-        {"query": f"{t} {_py}",                       "region": "en-us",  "method": "ddg_news",     "source": "news"},
-        {"query": f"{t} {_cy}",                       "region": "en-us",  "method": "ddg_news",     "source": "news"},
-        {"query": f"{t} report",                      "region": "en-us",  "method": "ddg_news",     "source": "news"},
-        # ── Google RSS ────────────────────────────────────────────────────
-        {"query": t,                                  "lang": "en",       "method": "google_rss",   "source": "rss"},
-        {"query": t,                                  "lang": "pl",       "method": "google_rss",   "source": "rss"},
-        {"query": f"{t} statistics",                  "lang": "en",       "method": "google_rss",   "source": "rss"},
-        # ── filetype:pdf ──────────────────────────────────────────────────
-        {"query": f"{t} market report",               "method": "ddg_filetype", "source": "document"},
-        {"query": f"{t} statistics annual",           "method": "ddg_filetype", "source": "document"},
-        {"query": f"{t} whitepaper",                  "method": "ddg_filetype", "source": "document"},
-        # ── Academic ──────────────────────────────────────────────────────
-        {"query": f"{t} research paper",              "method": "ddg_academic", "source": "academic"},
-        {"query": f"{t} analysis study",              "method": "ddg_academic", "source": "academic"},
-        # ── Reddit ────────────────────────────────────────────────────────
-        {"query": t,                                  "method": "ddg_reddit",   "source": "reddit"},
-        {"query": f"{t} discussion",                  "method": "ddg_reddit",   "source": "reddit"},
-        # ── Site-specific DDG ─────────────────────────────────────────────
-        {"query": t, "site": "statista.com",          "method": "ddg_site",     "source": "primary"},
-        {"query": t, "site": "datareportal.com",      "method": "ddg_site",     "source": "primary"},
-        {"query": t, "site": "gsma.com",              "method": "ddg_site",     "source": "primary"},
-        {"query": t, "site": "itu.int",               "method": "ddg_site",     "source": "primary"},
-        {"query": t, "site": "worldbank.org",         "method": "ddg_site",     "source": "primary"},
-        {"query": t, "site": "imf.org",               "method": "ddg_site",     "source": "primary"},
-        {"query": t, "site": "europa.eu",             "method": "ddg_site",     "source": "primary"},
-        {"query": t, "site": "un.org",                "method": "ddg_site",     "source": "primary"},
-        {"query": t, "site": "oecd.org",              "method": "ddg_site",     "source": "report"},
-        {"query": t, "site": "mckinsey.com",          "method": "ddg_site",     "source": "report"},
-        {"query": t, "site": "deloitte.com",          "method": "ddg_site",     "source": "report"},
-        {"query": t, "site": "pwc.com",               "method": "ddg_site",     "source": "report"},
-        {"query": t, "site": "gartner.com",           "method": "ddg_site",     "source": "report"},
-        {"query": t, "site": "forrester.com",         "method": "ddg_site",     "source": "report"},
-        {"query": t, "site": "idc.com",               "method": "ddg_site",     "source": "report"},
-        {"query": t, "site": "arxiv.org",             "method": "ddg_site",     "source": "academic"},
-        {"query": t, "site": "researchgate.net",      "method": "ddg_site",     "source": "academic"},
-        # ── Wayback CDX for top authority domains ─────────────────────────
-        {"query": t, "site": "datareportal.com",      "method": "wayback_cdx",  "source": "wayback"},
-        {"query": t, "site": "statista.com",          "method": "wayback_cdx",  "source": "wayback"},
-        {"query": t, "site": "gsma.com",              "method": "wayback_cdx",  "source": "wayback"},
-        # ── Broader queries ───────────────────────────────────────────────
-        {"query": f"{t} overview",                    "region": "en-us",  "method": "ddg_text",     "source": "ddg"},
-        {"query": f"{t} industry analysis",           "region": "en-us",  "method": "ddg_text",     "source": "ddg"},
-        {"query": f"{t} global market",               "region": "en-us",  "method": "ddg_text",     "source": "ddg"},
-        {"query": f"{t} forecast",                    "region": "en-us",  "method": "ddg_text",     "source": "ddg"},
-        {"query": f"{t} benchmark comparison",        "region": "en-us",  "method": "ddg_text",     "source": "ddg"},
-    ]
-    return plan
+    """Reuse Queen's bounded deterministic fallback; standalone never calls a model."""
+    from behive.engine.orchestrator import QueenPlanner
+    return QueenPlanner(topic)._fallback_plan()
 
 
 # ──────────────────────────────────────────────────────────────────────────────

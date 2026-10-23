@@ -1,0 +1,317 @@
+[
+  {
+    "id": 1,
+    "query": "Systemy telemetrii zbiorników paliw i chemikaliów w Polsce: dostawcy i wdrożenia",
+    "region": "pl-pl",
+    "method": "ddg_text",
+    "source": "ddg",
+    "language": "pl",
+    "priority": 5,
+    "rationale": "fallback base query"
+  },
+  {
+    "id": 2,
+    "query": "Systemy telemetrii zbiorników paliw i chemikaliów w Polsce: dostawcy i wdrożenia",
+    "region": "en-us",
+    "method": "ddg_text",
+    "source": "ddg",
+    "language": "en",
+    "priority": 5,
+    "rationale": "fallback base query"
+  },
+  {
+    "id": 3,
+    "query": "Systemy telemetrii zbiorników paliw i chemikaliów w Polsce: dostawcy i wdrożenia",
+    "region": "tr-tr",
+    "method": "ddg_text",
+    "source": "ddg",
+    "language": "tr",
+    "priority": 5,
+    "rationale": "fallback base query"
+  },
+  {
+    "id": 4,
+    "query": "Systemy telemetrii zbiorników paliw i chemikaliów w Polsce: dostawcy i wdrożenia statistics 2025 2026",
+    "region": "pl-pl",
+    "method": "ddg_text",
+    "source": "ddg",
+    "language": "pl",
+    "priority": 5,
+    "rationale": "fallback base query"
+  },
+  {
+    "id": 5,
+    "query": "Systemy telemetrii zbiorników paliw i chemikaliów w Polsce: dostawcy i wdrożenia statistics 2025 2026",
+    "region": "en-us",
+    "method": "ddg_text",
+    "source": "ddg",
+    "language": "en",
+    "priority": 5,
+    "rationale": "fallback base query"
+  },
+  {
+    "id": 6,
+    "query": "Systemy telemetrii zbiorników paliw i chemikaliów w Polsce: dostawcy i wdrożenia statistics 2025 2026",
+    "region": "tr-tr",
+    "method": "ddg_text",
+    "source": "ddg",
+    "language": "tr",
+    "priority": 5,
+    "rationale": "fallback base query"
+  },
+  {
+    "id": 7,
+    "query": "Systemy telemetrii zbiorników paliw i chemikaliów w Polsce: dostawcy i wdrożenia market report analysis",
+    "region": "pl-pl",
+    "method": "ddg_text",
+    "source": "ddg",
+    "language": "pl",
+    "priority": 5,
+    "rationale": "fallback base query"
+  },
+  {
+    "id": 8,
+    "query": "Systemy telemetrii zbiorników paliw i chemikaliów w Polsce: dostawcy i wdrożenia market report analysis",
+    "region": "en-us",
+    "method": "ddg_text",
+    "source": "ddg",
+    "language": "en",
+    "priority": 5,
+    "rationale": "fallback base query"
+  },
+  {
+    "id": 9,
+    "query": "Systemy telemetrii zbiorników paliw i chemikaliów w Polsce: dostawcy i wdrożenia market report analysis",
+    "region": "tr-tr",
+    "method": "ddg_text",
+    "source": "ddg",
+    "language": "tr",
+    "priority": 5,
+    "rationale": "fallback base query"
+  },
+  {
+    "id": 10,
+    "query": "Systemy telemetrii zbiorników paliw i chemikaliów w Polsce: dostawcy i wdrożenia raport dane statystyki",
+    "region": "pl-pl",
+    "method": "ddg_text",
+    "source": "ddg",
+    "language": "pl",
+    "priority": 5,
+    "rationale": "fallback base query"
+  },
+  {
+    "id": 11,
+    "query": "Systemy telemetrii zbiorników paliw i chemikaliów w Polsce: dostawcy i wdrożenia raport dane statystyki",
+    "region": "en-us",
+    "method": "ddg_text",
+    "source": "ddg",
+    "language": "en",
+    "priority": 5,
+    "rationale": "fallback base query"
+  },
+  {
+    "id": 12,
+    "query": "Systemy telemetrii zbiorników paliw i chemikaliów w Polsce: dostawcy i wdrożenia raport dane statystyki",
+    "region": "tr-tr",
+    "method": "ddg_text",
+    "source": "ddg",
+    "language": "tr",
+    "priority": 5,
+    "rationale": "fallback base query"
+  },
+  {
+    "id": 13,
+    "query": "Systemy telemetrii zbiorników paliw i chemikaliów w Polsce: dostawcy i wdrożenia annual report",
+    "region": "pl-pl",
+    "method": "ddg_text",
+    "source": "ddg",
+    "language": "pl",
+    "priority": 5,
+    "rationale": "fallback base query"
+  },
+  {
+    "id": 14,
+    "query": "Systemy telemetrii zbiorników paliw i chemikaliów w Polsce: dostawcy i wdrożenia annual report",
+    "region": "en-us",
+    "method": "ddg_text",
+    "source": "ddg",
+    "language": "en",
+    "priority": 5,
+    "rationale": "fallback base query"
+  },
+  {
+    "id": 15,
+    "query": "Systemy telemetrii zbiorników paliw i chemikaliów w Polsce: dostawcy i wdrożenia annual report",
+    "region": "tr-tr",
+    "method": "ddg_text",
+    "source": "ddg",
+    "language": "tr",
+    "priority": 5,
+    "rationale": "fallback base query"
+  },
+  {
+    "id": 16,
+    "query": "Systemy telemetrii zbiorników paliw i chemikaliów w Polsce: dostawcy i wdrożenia research study findings",
+    "region": "pl-pl",
+    "method": "ddg_text",
+    "source": "ddg",
+    "language": "pl",
+    "priority": 5,
+    "rationale": "fallback base query"
+  },
+  {
+    "id": 17,
+    "query": "Systemy telemetrii zbiorników paliw i chemikaliów w Polsce: dostawcy i wdrożenia research study findings",
+    "region": "en-us",
+    "method": "ddg_text",
+    "source": "ddg",
+    "language": "en",
+    "priority": 5,
+    "rationale": "fallback base query"
+  },
+  {
+    "id": 18,
+    "query": "Systemy telemetrii zbiorników paliw i chemikaliów w Polsce: dostawcy i wdrożenia research study findings",
+    "region": "tr-tr",
+    "method": "ddg_text",
+    "source": "ddg",
+    "language": "tr",
+    "priority": 5,
+    "rationale": "fallback base query"
+  },
+  {
+    "id": 19,
+    "query": "Systemy telemetrii zbiorników paliw i chemikaliów w Polsce: dostawcy i wdrożenia",
+    "method": "ddg_site",
+    "site": "datareportal.com",
+    "source": "primary_intel",
+    "region": "en-us",
+    "language": "en",
+    "priority": 9,
+    "rationale": "authority site datareportal.com"
+  },
+  {
+    "id": 20,
+    "query": "Systemy telemetrii zbiorników paliw i chemikaliów w Polsce: dostawcy i wdrożenia",
+    "method": "ddg_site",
+    "site": "statista.com",
+    "source": "primary_intel",
+    "region": "en-us",
+    "language": "en",
+    "priority": 9,
+    "rationale": "authority site statista.com"
+  },
+  {
+    "id": 21,
+    "query": "Systemy telemetrii zbiorników paliw i chemikaliów w Polsce: dostawcy i wdrożenia",
+    "method": "ddg_site",
+    "site": "gsma.com",
+    "source": "primary_intel",
+    "region": "en-us",
+    "language": "en",
+    "priority": 9,
+    "rationale": "authority site gsma.com"
+  },
+  {
+    "id": 22,
+    "query": "Systemy telemetrii zbiorników paliw i chemikaliów w Polsce: dostawcy i wdrożenia",
+    "method": "ddg_site",
+    "site": "itu.int",
+    "source": "primary_intel",
+    "region": "en-us",
+    "language": "en",
+    "priority": 9,
+    "rationale": "authority site itu.int"
+  },
+  {
+    "id": 23,
+    "query": "Systemy telemetrii zbiorników paliw i chemikaliów w Polsce: dostawcy i wdrożenia",
+    "method": "ddg_site",
+    "site": "worldbank.org",
+    "source": "primary_intel",
+    "region": "en-us",
+    "language": "en",
+    "priority": 9,
+    "rationale": "authority site worldbank.org"
+  },
+  {
+    "id": 24,
+    "query": "Systemy telemetrii zbiorników paliw i chemikaliów w Polsce: dostawcy i wdrożenia",
+    "method": "ddg_site",
+    "site": "imf.org",
+    "source": "primary_intel",
+    "region": "en-us",
+    "language": "en",
+    "priority": 9,
+    "rationale": "authority site imf.org"
+  },
+  {
+    "id": 25,
+    "query": "Systemy telemetrii zbiorników paliw i chemikaliów w Polsce: dostawcy i wdrożenia filetype:pdf report 2024",
+    "method": "ddg_filetype",
+    "source": "document",
+    "region": "en-us",
+    "language": "en",
+    "priority": 8,
+    "rationale": "PDF report search"
+  },
+  {
+    "id": 26,
+    "query": "Systemy telemetrii zbiorników paliw i chemikaliów w Polsce: dostawcy i wdrożenia",
+    "method": "google_rss",
+    "source": "rss",
+    "language": "en",
+    "priority": 7,
+    "rationale": "Google RSS en"
+  },
+  {
+    "id": 27,
+    "query": "Systemy telemetrii zbiorników paliw i chemikaliów w Polsce: dostawcy i wdrożenia",
+    "region": "en-us",
+    "method": "ddg_news",
+    "source": "news",
+    "language": "en",
+    "priority": 8,
+    "rationale": "DDG news en"
+  },
+  {
+    "id": 28,
+    "query": "Systemy telemetrii zbiorników paliw i chemikaliów w Polsce: dostawcy i wdrożenia",
+    "method": "google_rss",
+    "source": "rss",
+    "language": "pl",
+    "priority": 7,
+    "rationale": "Google RSS pl"
+  },
+  {
+    "id": 29,
+    "query": "Systemy telemetrii zbiorników paliw i chemikaliów w Polsce: dostawcy i wdrożenia",
+    "region": "en-us",
+    "method": "ddg_news",
+    "source": "news",
+    "language": "pl",
+    "priority": 8,
+    "rationale": "DDG news pl"
+  },
+  {
+    "id": 30,
+    "query": "Systemy telemetrii zbiorników paliw i chemikaliów w Polsce: dostawcy i wdrożenia site:reddit.com",
+    "method": "ddg_reddit",
+    "source": "reddit",
+    "region": "en-us",
+    "language": "en",
+    "priority": 6,
+    "rationale": "community discussion"
+  },
+  {
+    "id": 31,
+    "query": "Systemy telemetrii zbiorników paliw i chemikaliów w Polsce: dostawcy i wdrożenia",
+    "method": "wayback_cdx",
+    "site": "statista.com",
+    "source": "archive",
+    "region": "en-us",
+    "language": "en",
+    "priority": 5,
+    "rationale": "archived Statista reports"
+  }
+]
