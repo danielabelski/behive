@@ -1033,15 +1033,25 @@ class HarvesterBee:
             # MAX_HARVEST = 300 top-scoring sources per mission
             # Filtr: score_relevance >= 5 (entity anchoring: sources without entity name penalized by -5)
             #        score_total >= 15 (eliminuje losowy szum)
+            # Operator seeds are additive: they never replace automatic sources
+            # nor suppress the relaxed fallback below.
+            seeds = self.con.execute("""
+                SELECT id, url, source_type, score_total, score_relevance
+                FROM hive_sources
+                WHERE mission_id = ?
+                  AND status IN ('pending', 'scouted')
+                  AND source_type = 'operator_seed'
+                ORDER BY id
+            """, [self.mission_id]).fetchall()
             rows = self.con.execute("""
                 SELECT id, url, source_type, score_total, score_relevance
                 FROM hive_sources
                 WHERE mission_id = ?
                   AND status IN ('pending', 'scouted')
-                  AND (source_type = 'operator_seed'
-                       OR (score_relevance >= 5 AND score_total >= 15))
-                ORDER BY (source_type = 'operator_seed') DESC NULLS LAST,
-                         score_total DESC NULLS LAST
+                  AND source_type IS DISTINCT FROM 'operator_seed'
+                  AND score_relevance >= 5
+                  AND score_total >= 15
+                ORDER BY score_total DESC NULLS LAST
                 LIMIT 300
             """, [self.mission_id]).fetchall()
             if not rows:
@@ -1052,9 +1062,11 @@ class HarvesterBee:
                     FROM hive_sources
                     WHERE mission_id = ?
                       AND status IN ('pending', 'scouted')
+                      AND source_type IS DISTINCT FROM 'operator_seed'
                     ORDER BY score_total DESC NULLS LAST
                     LIMIT 100
                 """, [self.mission_id]).fetchall()
+            rows = list(seeds) + list(rows)
             cols = ["source_id", "url", "source_type", "score_total", "score_relevance"]
             return [dict(zip(cols, r)) for r in rows]
         except Exception as exc:

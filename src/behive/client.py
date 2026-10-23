@@ -114,7 +114,7 @@ class BeHiveClient:
         
         # Run pipeline
         try:
-            mission_id = await asyncio.to_thread(
+            returned = await asyncio.to_thread(
                 cmd_run, topic, think=False, deep=False, force=True, scale=actual_scale
             )
         except Exception as e:
@@ -123,6 +123,16 @@ class BeHiveClient:
                 mission_id="",
                 status="error",
                 error=str(e),
+            )
+        # orchestrator.cmd_run returns None; it records the id it ran.
+        mission_id = returned if isinstance(returned, str) and returned else \
+            getattr(cmd_run, "_active_mission_id", None)
+        if not mission_id:
+            return ResearchResult(
+                topic=topic,
+                mission_id="",
+                status="error",
+                error="Pipeline did not report a mission id",
             )
         
         duration = time.time() - start

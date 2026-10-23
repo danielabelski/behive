@@ -293,7 +293,20 @@ def _check_env():
 # ═══════════════════════════════════════════════════════════════════════════════
 
 async def cmd_research(args):
-    """Run a research mission and print results."""
+    """Run a research mission and print results.
+
+    With --json, stdout carries only the JSON document; banners and in-process
+    phase progress lines go to stderr.
+    """
+    if not getattr(args, "json", False):
+        return await _cmd_research(args, sys.stdout)
+    import contextlib
+    json_out = sys.stdout
+    with contextlib.redirect_stdout(sys.stderr):
+        return await _cmd_research(args, json_out)
+
+
+async def _cmd_research(args, json_out):
     import os
     from behive import research, BeHiveClient
 
@@ -336,7 +349,7 @@ async def cmd_research(args):
 
     if args.json:
         import json
-        print(json.dumps(result.to_dict(), indent=2, ensure_ascii=False))
+        print(json.dumps(result.to_dict(), indent=2, ensure_ascii=False), file=json_out, flush=True)
     else:
         _print_result(result)
 
