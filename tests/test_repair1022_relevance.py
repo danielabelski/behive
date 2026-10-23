@@ -1,7 +1,9 @@
 """B2 relevance regressions; captured excerpts are labelled at their definitions.
 
-The real filter is exercised. A rejecting provider boundary is an explicit
-negative control, not a model response or a relevance-quality evaluation.
+The real filter is exercised. Since 2026-10-23 every keyword candidate (>=0.10) is
+graded by the model on content; the keyword rules below now define the DEGRADED
+path used when the model batch fails (keep only strong keyword evidence >=0.25).
+The tests therefore run with an explicitly failing provider boundary.
 """
 import asyncio
 
@@ -14,13 +16,14 @@ TOPIC = 'Dostawcy systemów WMS i telemetrii zbiorników w Polsce: oferta, cenni
 
 @pytest.fixture
 def rejecting_relevance(monkeypatch):
+    """Model outage control: the filter must fall back to strong keyword evidence."""
     seen = []
 
-    async def reject_unknown(self, docs):
+    async def unavailable(self, docs):
         seen.extend(d['url'] for d in docs)
-        return [0.0] * len(docs)
+        raise RuntimeError('model unavailable (test control)')
 
-    monkeypatch.setattr(RelevanceFilter, 'score_batch', reject_unknown)
+    monkeypatch.setattr(RelevanceFilter, 'score_batch', unavailable)
     return seen
 
 
@@ -33,12 +36,12 @@ def test_captured_previous_selection_is_not_auto_passed_as_topic_evidence(source
 
 
 @pytest.mark.parametrize('source_id', [73350, 73359])
-def test_captured_english_wms_pages_match_polish_topic_without_a_model(source_id, monkeypatch):
-    async def no_model(self, docs):
-        pytest.fail('An explicit warehouse-management expansion is strong keyword evidence')
-    monkeypatch.setattr(RelevanceFilter, 'score_batch', no_model)
+def test_captured_english_wms_pages_match_polish_topic_without_a_model(source_id, rejecting_relevance):
+    """An explicit warehouse-management expansion is strong keyword evidence: it
+    survives a model outage (and reaches the model when it is available)."""
     doc = dict(CAPTURED[source_id])
     assert asyncio.run(RelevanceFilter(TOPIC).filter([doc])) == [doc]
+    assert rejecting_relevance == [doc['url']]
 
 
 @pytest.mark.parametrize('text', [
@@ -76,14 +79,12 @@ def test_meaningful_inflections_work_in_all_supported_content_fields(topic, text
 
 
 def test_model_review_receives_readable_excerpt_not_legacy_css(monkeypatch):
-    # Explicit negative provider-boundary control; no model is contacted.
-    from behive.engine import process
+    # Explicit negative provider-boundary control (grade 0); no model is contacted.
     prompts = []
-    def reject(prompt, *args):
+    def reject(prompt, *args, **kwargs):
         prompts.append(prompt)
-        return '[0.0]'
-    monkeypatch.setattr(process._sglang, 'is_available', lambda: True)
-    monkeypatch.setattr(process._sglang, 'invoke', reject)
+        return '[{"index": 0, "grade": 0, "reason": "test control"}]'
+    monkeypatch.setattr('behive.engine.llm.complete', reject)
     doc = dict(CAPTURED[73397])
     original = doc['raw_text']
     assert asyncio.run(RelevanceFilter(TOPIC).filter([doc])) == []
@@ -105,9 +106,9 @@ def test_polish_english_inflections_survive_the_real_keyword_filter(monkeypatch)
     doc = {'url': 'https://offline.example.test/telemetry', 'title': 'Telemetry zbiornika',
            'raw_text': ('Telemetry zbiornika pozwala odczytać poziom cieczy. '
                         'Operator otrzymuje aktualny pomiar i historię wskazań. ' * 3)}
-    async def reject_unknown(self, docs):
-        return [0.0] * len(docs)
-    monkeypatch.setattr(RelevanceFilter, 'score_batch', reject_unknown)
+    async def unavailable(self, docs):
+        raise RuntimeError('model unavailable (test control)')
+    monkeypatch.setattr(RelevanceFilter, 'score_batch', unavailable)
     assert asyncio.run(RelevanceFilter('Telemetrii zbiorników').filter([doc])) == [doc]
 
 
