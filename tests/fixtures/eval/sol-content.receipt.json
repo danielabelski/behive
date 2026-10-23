@@ -1,0 +1,14 @@
+{
+  "path": "/root/outputs/behive-eval-2026-10-23/E/captures/sol/b000-25717a14a099e7f1",
+  "judge": "sol",
+  "model": "openai/gpt-6.1-sol",
+  "prompt_sha256": "25717a14a099e7f137d27003410482395025455d0568bfa3f424f56ae0bb7e66",
+  "indices": [
+    0
+  ],
+  "status": "ok",
+  "attempted_at": 1792770247.4721217,
+  "kind": "page",
+  "response_sha256": "848819d62c31fbf906b425474de666502f88ce03d9f2254f354edd8be4d9cb24",
+  "completed_at": 1792770252.6852446
+}

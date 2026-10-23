@@ -1,0 +1,28 @@
+{
+  "judge": "claude",
+  "model": "claude-sonnet-5-5",
+  "prompt_sha256": "e022cc7daa91d78041e5b62f1aac928e652601827ba6c17e8e0b2cb842bcdee2",
+  "indices": [
+    225,
+    226,
+    227,
+    228,
+    229,
+    230,
+    231,
+    232,
+    233,
+    234,
+    235,
+    236,
+    237,
+    238,
+    239
+  ],
+  "status": "failed",
+  "attempted_at": 1792770902.2550073,
+  "kind": "page",
+  "response_sha256": "3771683cde44ae5ff4eb5fc18bd4c4919b876604c7b8ae255ab3494891718f0d",
+  "error_type": "ValueError",
+  "completed_at": 1792770907.9735506
+}

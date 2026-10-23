@@ -1,0 +1,27 @@
+{
+  "judge": "claude",
+  "model": "claude-sonnet-5-5",
+  "prompt_sha256": "6ae572b52cc9e1cbee867d6dfed32d6bdd50b8709640dde2545ea122731d8c47",
+  "indices": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14
+  ],
+  "status": "ok",
+  "attempted_at": 1792770766.7452364,
+  "kind": "page",
+  "response_sha256": "941ed7216d7c662950beeb8e28da30fe29130d226f9c0bef1d2fab3ceb6a433f",
+  "completed_at": 1792770773.287488
+}

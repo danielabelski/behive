@@ -1,0 +1,1 @@
+[{"index":0,"grade":2,"reason":"Polish supplier FLOTLIS offers diesel and LPG storage tank telemetry, online inventory monitoring, consumption forecasting, and delivery planning."}]
