@@ -85,7 +85,7 @@ _ACADEMIC_INTENT = ("study", "studies", "paper", "academic", "naukow")
 _COMMERCIAL_INTENT = ("dostawc", "ofert", "cennik", "wdroż", "supplier", "vendor", "pricing", "product", "zakup")
 # Listing/intent words describe WHAT to find about the subject, not the subject.
 _LISTING_INTENT = _COMMERCIAL_INTENT + (
-    "producen", "firm", "lista", "ranking", "manufactur", "provider", "compan", "hersteller",
+    "producen", "firm", "lista", "ranking", "manufacturer", "provider", "compan", "hersteller",
     "anbieter", "leading", "list")
 _PROCUREMENT_TOPIC = ("przetarg", "zamówie", "zamowie", "tender", "procurement", "ausschreib")
 _JOB_TOPIC = ("prac", "rekrutac", "job", "career", "kariera", "zatrudni")
@@ -125,6 +125,15 @@ _CONCEPT_SYNONYMS = (
 )
 
 
+_EN_FUNCTION_WORDS = frozenset({
+    "the", "and", "for", "with", "from", "into", "use", "using", "uses", "of", "in", "on", "at",
+    "to", "by", "an", "as", "or", "is", "are", "this", "that", "these", "those", "how", "what",
+})
+# A coordinated part with a pronoun referring back ("w ich produkcji", "in their
+# manufacturing") continues the previous subject instead of being an alternative.
+_ANAPHORA = re.compile(r"(?<![^\W_])(?:ich|jego|jej|nich|nim|nimi|its|their|them)(?![^\W_])", re.I)
+
+
 def _topic_subject_alternatives(topic: str) -> list[tuple[str, ...]]:
     """Required subject concepts of a topic, per coordinated alternative.
 
@@ -141,9 +150,13 @@ def _topic_subject_alternatives(topic: str) -> list[tuple[str, ...]]:
     parts = re.split(r"\s+(?:i|oraz|lub|albo|and|or|und|oder)\s+|\s+/\s+|,", subject, flags=re.I)
     alternatives: list[tuple[str, ...]] = []
     for part in parts:
+        anaphoric = bool(_ANAPHORA.search(part))
         words = []
-        for token in re.findall(r"[^\W_]{3,}", part.casefold()):
-            if (token in _SCOUT_STOPWORDS or token in RelevanceFilter._GENERIC_KEYWORDS
+        acronyms = {t.casefold() for t in re.findall(r"(?<![^\W_])[A-Z]{2}(?![^\W_])", part)}
+        for token in re.findall(r"[^\W_]{2,}", part.casefold()):
+            if len(token) == 2 and token not in acronyms:
+                continue  # keep two-letter acronyms such as AI/ML only
+            if (token in _SCOUT_STOPWORDS or token in _EN_FUNCTION_WORDS or _ANAPHORA.fullmatch(token) or token in RelevanceFilter._GENERIC_KEYWORDS
                     or token in RelevanceFilter._CODE_KEYWORDS or token.isdigit()
                     or token.startswith(_LISTING_INTENT)
                     or any(RelevanceFilter._keywords_match(token, w) for w in words)):
@@ -151,7 +164,11 @@ def _topic_subject_alternatives(topic: str) -> list[tuple[str, ...]]:
             words.append(token)
         if not words:
             continue
-        if alternatives and len(words) == 1 and len(alternatives[-1]) > 1:
+        if alternatives and anaphoric:
+            # "X i ... w ICH produkcji": the part refers back to X -> one subject.
+            merged = alternatives.pop()
+            alternatives.append(merged + tuple(w for w in words if w not in merged))
+        elif alternatives and len(words) == 1 and len(alternatives[-1]) > 1:
             alternatives.append(alternatives[-1][:-1] + (words[0],))
         else:
             alternatives.append(tuple(words))

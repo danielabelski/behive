@@ -1096,6 +1096,16 @@ Return ONLY the JSON array."""
         def words(text):
             return re.findall(r"[^\W_]+(?:[-'][^\W_]+)*", text, re.UNICODE)
 
+        # A part referring back with a pronoun ("w ich produkcji") continues the
+        # previous subject: merge it instead of searching it on its own.
+        merged_subjects = []
+        for subject in subjects:
+            if merged_subjects and re.search(
+                    r'(?<![^\W_])(?:ich|jego|jej|nich|nim|nimi|its|their|them)(?![^\W_])', subject, re.I):
+                merged_subjects[-1] = merged_subjects[-1] + ' ' + subject
+            else:
+                merged_subjects.append(subject)
+        subjects = merged_subjects
         subject_words = []
         for subject in subjects[:4]:
             tokens = words(subject)
