@@ -43,7 +43,7 @@ def test_model_proposed_sites_are_expressed_in_generic_search_queries(monkeypatc
         assert len(task['query'].split()) <= 8
 
 
-@pytest.mark.parametrize('kind', ['effective_site_words', 'bidi_query', 'surrogate_query', 'bidi_rationale', 'nonfinite', 'non_string_response', 'json_integer_limit'])
+@pytest.mark.parametrize('kind', ['bidi_query', 'surrogate_query', 'bidi_rationale', 'nonfinite', 'non_string_response', 'json_integer_limit'])
 def test_remaining_malformed_outputs_cannot_escape_fallback(monkeypatch, caplog, kind):
     items = json.loads(captured('captured_pl_wms_telemetry'))
     if kind == 'effective_site_words':
@@ -78,3 +78,13 @@ def test_invalid_primer_values_are_ignored_without_coercion(monkeypatch):
     plan = orchestrator.QueenPlanner(POLISH, recommended_queries=[None, {}, 10, 'WMS cennik Polska']).plan()
     assert plan[0]['query'] == 'WMS cennik Polska'
     assert plan[0]['language'] == 'pl'
+
+
+def test_site_operator_word_budget_drops_only_that_item(monkeypatch):
+    """A site operator counts inside the 8-word budget; an over-long item is an
+    ordinary quality fault (dropped), not a reason to distrust the whole plan."""
+    items = json.loads(captured('captured_pl_wms_telemetry'))
+    items[0].update(query='WMS suppliers in Poland warehouse software vendor directory', site='uodo.gov.pl')
+    model_boundary(monkeypatch, json.dumps(items, ensure_ascii=False))
+    plan = orchestrator.QueenPlanner(POLISH).plan()
+    assert [t['query'] for t in plan] == [item['query'] for item in items[1:]]

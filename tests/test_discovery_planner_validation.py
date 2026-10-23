@@ -57,16 +57,23 @@ def invalid_response(kind):
     return json.dumps(items, ensure_ascii=False)
 
 
-@pytest.mark.parametrize('kind', [
+# Structural faults and items that suggest manipulation reject the whole response.
+SUSPICIOUS = [
     'invalid_json', 'markdown', 'not_array', 'too_many', 'too_few', 'oversized_text',
-    'duplicate_keys', 'dedupe_below_minimum', 'long_query', 'long_word', 'short_query',
-    'colon_list', 'comma_list', 'generic_spam', 'full_topic', 'wrong_language',
-    'unrecognised_language', 'wrong_intent', 'numeric_query', 'missing_rationale',
-    'long_rationale', 'injection_query', 'injection_rationale', 'html', 'shell',
-    'control_char', 'nonacademic_topic', 'private_site', 'url_site',
-    'irrelevant_macro_site', 'irrelevant_inline_macro_site', 'invalid_site_type',
+    'duplicate_keys', 'dedupe_below_minimum', 'injection_query', 'injection_rationale',
+    'html', 'shell', 'control_char', 'private_site', 'url_site', 'invalid_site_type',
     'method_injection',
-])
+]
+# Ordinary quality faults drop only that item (2026-10-23: a live holdout plan was
+# discarded entirely because one query had an inadmissible intent).
+BENIGN = [
+    'long_query', 'long_word', 'short_query', 'colon_list', 'comma_list', 'generic_spam',
+    'full_topic', 'wrong_language', 'unrecognised_language', 'wrong_intent', 'numeric_query',
+    'missing_rationale', 'long_rationale', 'irrelevant_macro_site', 'irrelevant_inline_macro_site',
+]
+
+
+@pytest.mark.parametrize('kind', SUSPICIOUS)
 def test_invalid_model_response_falls_back_once(monkeypatch, caplog, kind):
     text = invalid_response(kind)
     calls = model_boundary(monkeypatch, text)
@@ -78,6 +85,37 @@ def test_invalid_model_response_falls_back_once(monkeypatch, caplog, kind):
     assert 'invalid_output' in caplog.text
     assert text not in caplog.text
     assert 'attacker.example' not in caplog.text
+
+
+@pytest.mark.parametrize('kind', BENIGN)
+def test_ordinary_invalid_item_is_dropped_not_the_whole_plan(monkeypatch, caplog, kind):
+    items = json.loads(captured('captured_pl_wms_telemetry'))
+    text = invalid_response(kind)
+    model_boundary(monkeypatch, text)
+    plan = orchestrator.QueenPlanner(POLISH).plan()
+    assert [t['query'] for t in plan] == [item['query'] for item in items[1:]]
+    assert 'invalid_output' not in caplog.text
+    assert 'dropped invalid items' in caplog.text
+    assert text not in caplog.text
+
+
+def test_academic_intent_on_nonacademic_topic_becomes_web_query(monkeypatch, caplog):
+    items = json.loads(captured('captured_pl_wms_telemetry'))
+    model_boundary(monkeypatch, invalid_response('nonacademic_topic'))
+    plan = orchestrator.QueenPlanner(POLISH).plan()
+    assert [t['query'] for t in plan] == [item['query'] for item in items]
+    assert plan[0]['source'] == 'market_data' and plan[0]['method'] == 'web'
+    assert 'academic->web 1' in caplog.text
+
+
+def test_too_many_dropped_items_still_fall_back(monkeypatch, caplog):
+    items = json.loads(captured('captured_pl_wms_telemetry'))
+    for item in items[:7]:
+        item['language'] = 'zz'
+    model_boundary(monkeypatch, json.dumps(items, ensure_ascii=False))
+    planner = orchestrator.QueenPlanner(POLISH)
+    assert planner.plan() == planner._fallback_plan()
+    assert 'too_few_unique_queries' in caplog.text
 
 
 def test_casefolded_duplicate_queries_are_removed(monkeypatch):
