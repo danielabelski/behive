@@ -1,0 +1,105 @@
+{
+  "kind": "captured_real_vendor_responses",
+  "client_title": "behive",
+  "captures": [
+    {
+      "vendor": "exa",
+      "phase": "capture",
+      "language": "pl",
+      "query": "dostawca systemu telemetrii zbiorników paliwa",
+      "url": "https://mcp.exa.ai/mcp",
+      "requested_at": 1792745345.65893,
+      "status": 200,
+      "content_type": "text/event-stream",
+      "fixture": "exa_pl.txt",
+      "sha256": "b7e377f793499065924eb2142a6f936c1731c5619c18ab63c7679f83dee4ef58",
+      "bytes": 33592
+    },
+    {
+      "vendor": "exa",
+      "phase": "capture",
+      "language": "en",
+      "query": "warehouse management system vendors Poland",
+      "url": "https://mcp.exa.ai/mcp",
+      "requested_at": 1792745347.821506,
+      "status": 200,
+      "content_type": "text/event-stream",
+      "fixture": "exa_en.txt",
+      "sha256": "d2bfabd24983abd00361f1f65b650576dc734b432583c84a6996fec5e1682140",
+      "bytes": 33391
+    },
+    {
+      "vendor": "parallel",
+      "phase": "capture",
+      "language": "pl",
+      "query": "dostawca systemu telemetrii zbiorników paliwa",
+      "url": "https://search.parallel.ai/mcp",
+      "requested_at": 1792745350.4587355,
+      "status": 200,
+      "content_type": "application/json",
+      "fixture": "parallel_pl.txt",
+      "sha256": "8c9cd9e2231f1b7772428afb9755ad835d780711193df666b7bb3757a14dc53c",
+      "bytes": 21869
+    },
+    {
+      "vendor": "parallel",
+      "phase": "capture",
+      "language": "en",
+      "query": "warehouse management system vendors Poland",
+      "url": "https://search.parallel.ai/mcp",
+      "requested_at": 1792745352.6108136,
+      "status": 200,
+      "content_type": "application/json",
+      "fixture": "parallel_en.txt",
+      "sha256": "1837872dfb5fb9477cf581e3530efd7845fb2a84f35966dc61c296b6f801a428",
+      "bytes": 40158
+    },
+    {
+      "vendor": "keenable",
+      "phase": "capture",
+      "language": "pl",
+      "query": "dostawca systemu telemetrii zbiorników paliwa",
+      "url": "https://api.keenable.ai/v1/search/public",
+      "requested_at": 1792745354.6795766,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "fixture": "keenable_pl.txt",
+      "sha256": "f4857aceebd28d14a828502f5c1b2e841a6de08331e0aaac32f3a3b6adeae8dc",
+      "bytes": 14930
+    },
+    {
+      "vendor": "keenable",
+      "phase": "capture",
+      "language": "en",
+      "query": "warehouse management system vendors Poland",
+      "url": "https://api.keenable.ai/v1/search/public",
+      "requested_at": 1792745356.305041,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "fixture": "keenable_en.txt",
+      "sha256": "1d8eccb78c398b347e4c064f8a635c543d1815dc7094196c1737324503d065ff",
+      "bytes": 23897
+    },
+    {
+      "vendor": "searxng",
+      "phase": "capture",
+      "language": "pl",
+      "requested_at": 1792745985.7066276,
+      "status": 200,
+      "fixture": "searxng_pl.txt",
+      "content_type": "application/json",
+      "sha256": "07f5746f02b544d70c3158654d1f1f1274c34a909f7a2c54489cc4b3ecaaff2a"
+    },
+    {
+      "vendor": "exa",
+      "phase": "diagnostic",
+      "language": "pl",
+      "query": "dostawca systemu telemetrii zbiorników paliwa",
+      "requested_at": 1792746509.9301422,
+      "status": 200,
+      "content_type": "text/event-stream",
+      "fixture": "exa_pl_followup.txt",
+      "sha256": "434e18aa4909d96843742f692381736fdfef0d52f4de6016fc3b0ba898d64078"
+    }
+  ]
+}

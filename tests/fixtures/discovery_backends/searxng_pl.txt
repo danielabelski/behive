@@ -1,0 +1,1 @@
+{"query": "dostawca systemu telemetrii zbiornik\u00f3w paliwa", "results": [], "answers": [], "corrections": [], "infoboxes": [], "suggestions": [], "unresponsive_engines": [["yep", "access denied"]]}
