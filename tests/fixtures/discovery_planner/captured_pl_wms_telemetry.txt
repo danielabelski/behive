@@ -1,0 +1,86 @@
+[
+  {
+    "query": "dostawcy systemów WMS w Polsce",
+    "language": "pl",
+    "intent": "vendors_list",
+    "rationale": "Identyfikacja dostawców systemów zarządzania magazynem działających na polskim rynku."
+  },
+  {
+    "query": "systemy WMS porównanie dostawców",
+    "language": "pl",
+    "intent": "directories_rankings",
+    "rationale": "Znalezienie zestawień dostawców i porównań zakresu oferowanych systemów."
+  },
+  {
+    "query": "system WMS moduły integracje",
+    "language": "pl",
+    "intent": "product_pages",
+    "rationale": "Sprawdzenie funkcjonalności WMS oraz integracji z ERP i automatyką magazynową."
+  },
+  {
+    "query": "WMS cennik licencja abonament",
+    "language": "pl",
+    "intent": "pricing",
+    "rationale": "Znalezienie publicznych cenników i modeli rozliczeń za system WMS."
+  },
+  {
+    "query": "koszt wdrożenia WMS Polska",
+    "language": "pl",
+    "intent": "pricing",
+    "rationale": "Rozpoznanie kosztów uruchomienia, konfiguracji i usług wdrożeniowych."
+  },
+  {
+    "query": "WMS wdrożenia klienci Polska",
+    "language": "pl",
+    "intent": "case_studies",
+    "rationale": "Znalezienie opisów polskich wdrożeń z nazwami klientów i zakresem realizacji."
+  },
+  {
+    "query": "dostawcy telemetrii zbiorników Polska",
+    "language": "pl",
+    "intent": "vendors_list",
+    "rationale": "Identyfikacja firm oferujących monitoring i telemetrię zbiorników w Polsce."
+  },
+  {
+    "query": "monitoring poziomu cieczy zbiorniki system",
+    "language": "pl",
+    "intent": "product_pages",
+    "rationale": "Rozpoznanie kompletnych systemów pomiaru poziomu i zdalnego nadzoru zbiorników."
+  },
+  {
+    "query": "telemetria zbiorników paliw LPG",
+    "language": "pl",
+    "intent": "product_pages",
+    "rationale": "Sprawdzenie ofert przeznaczonych do zbiorników paliw i gazu płynnego."
+  },
+  {
+    "query": "monitoring zbiorników wody chemikaliów",
+    "language": "pl",
+    "intent": "product_pages",
+    "rationale": "Znalezienie rozwiązań dla innych mediów i wymagań pomiarowych."
+  },
+  {
+    "query": "telemetria zbiorników cennik abonament",
+    "language": "pl",
+    "intent": "pricing",
+    "rationale": "Wyszukanie cen platform telemetrycznych oraz opłat za transmisję i dostęp do danych."
+  },
+  {
+    "query": "zdalny monitoring zbiornika zestaw cena",
+    "language": "pl",
+    "intent": "pricing",
+    "rationale": "Znalezienie cen zestawów obejmujących czujniki i urządzenia komunikacyjne."
+  },
+  {
+    "query": "telemetria zbiorników wdrożenia Polska",
+    "language": "pl",
+    "intent": "case_studies",
+    "rationale": "Znalezienie referencji i opisów realizacji u polskich klientów."
+  },
+  {
+    "query": "telemetria zbiorników integracja API ERP",
+    "language": "pl",
+    "intent": "product_pages",
+    "rationale": "Sprawdzenie możliwości wymiany danych z systemami zarządzania zapasami i przedsiębiorstwem."
+  }
+]

@@ -1,0 +1,12 @@
+{
+  "provenance": "captured real configured LLM response (not synthetic)",
+  "captured_at": "2026-10-23T08:50:11.518215+00:00",
+  "model": "openai/gpt-6.1-sol",
+  "stage": "scout",
+  "topic": "European heat pump market 2025: installed base, leading manufacturers, subsidies",
+  "prompt_sha256": "58fe0a4f1fdb951c4fd0d01f4b4df4980d0571162c5fb758807fa0a39d921e0c",
+  "response_file": "captured_en_heat_pumps.txt",
+  "attempt": 2,
+  "status": "captured",
+  "response_sha256": "04e839002fae947a44f7bb44e52fddf754756e296be7c99007760f30f5a5397b"
+}

@@ -117,8 +117,10 @@ class TestQueenPlannerFullPipeline:
         qp = QueenPlanner("AI chips", scale=30)
         ctx = qp._detect_context()
         tasks = qp._bedrock_batch(0, "AI chip market sizing", ctx, 0)
+        # Since 2026-10-23 _bedrock_batch is a legacy adapter over the single
+        # bounded plan() call (no second batch request to the model).
         assert isinstance(tasks, list)
-        assert len(tasks) == 3
+        assert 8 <= len(tasks) <= 16
         assert tasks[0]["id"] == 1
 
     @patch("behive.engine.orchestrator._llm_complete", side_effect=_mock_llm)

@@ -1,0 +1,94 @@
+[
+  {
+    "query": "European heat pump installed base 2025",
+    "language": "en",
+    "intent": "market_data",
+    "rationale": "Find the total installed stock and distinguish cumulative installations from annual sales."
+  },
+  {
+    "query": "European heat pump sales by country 2025",
+    "language": "en",
+    "intent": "market_data",
+    "rationale": "Compare national market sizes and identify the largest European markets."
+  },
+  {
+    "query": "Europe heat pump stock technology breakdown 2025",
+    "language": "en",
+    "intent": "market_data",
+    "rationale": "Identify installed-base differences between air-source, ground-source and other heat pump types."
+  },
+  {
+    "query": "EHPA heat pump market report 2025",
+    "language": "en",
+    "intent": "market_data",
+    "rationale": "Locate industry association data and check reporting periods, geographic coverage and methodology.",
+    "site": "ehpa.org"
+  },
+  {
+    "query": "European heat pump manufacturers market share 2025",
+    "language": "en",
+    "intent": "directories_rankings",
+    "rationale": "Identify leading manufacturers and look for comparable European market-share estimates."
+  },
+  {
+    "query": "Largest heat pump manufacturers Europe 2025 revenue",
+    "language": "en",
+    "intent": "directories_rankings",
+    "rationale": "Find manufacturer rankings while checking whether revenue refers to heat pumps or broader business segments."
+  },
+  {
+    "query": "European heat pump manufacturers association directory",
+    "language": "en",
+    "intent": "vendors_list",
+    "rationale": "Build a supplier list and distinguish European manufacturers from international companies serving Europe."
+  },
+  {
+    "query": "European heat pump market developments 2025",
+    "language": "en",
+    "intent": "news",
+    "rationale": "Find reporting on demand changes, manufacturer restructuring and policy effects during 2025."
+  },
+  {
+    "query": "Europe heat pump subsidies comparison 2025",
+    "language": "en",
+    "intent": "market_data",
+    "rationale": "Locate cross-country comparisons of grants, tax incentives and subsidised financing."
+  },
+  {
+    "query": "EU heat pump subsidy rules 2025",
+    "language": "en",
+    "intent": "regulation_official",
+    "rationale": "Find EU-level policy and funding rules and distinguish them from national household incentives.",
+    "site": "europa.eu"
+  },
+  {
+    "query": "Germany heat pump grants eligibility 2025",
+    "language": "en",
+    "intent": "regulation_official",
+    "rationale": "Find official German support amounts, eligibility requirements and application conditions applicable in 2025."
+  },
+  {
+    "query": "France heat pump subsidies eligibility 2025",
+    "language": "en",
+    "intent": "regulation_official",
+    "rationale": "Find official French incentives and income, property or equipment conditions applicable in 2025."
+  },
+  {
+    "query": "UK heat pump grants eligibility 2025",
+    "language": "en",
+    "intent": "regulation_official",
+    "rationale": "Identify official UK grant schemes and differences in geographic coverage during 2025."
+  },
+  {
+    "query": "Poland heat pump subsidies eligibility 2025",
+    "language": "en",
+    "intent": "regulation_official",
+    "rationale": "Find official Polish support programmes and equipment or applicant restrictions applicable in 2025."
+  },
+  {
+    "query": "Italy heat pump tax incentives 2025",
+    "language": "en",
+    "intent": "regulation_official",
+    "rationale": "Find official Italian tax incentives and qualifying installation requirements for 2025."
+  }
+]

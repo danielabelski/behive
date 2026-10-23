@@ -1,0 +1,12 @@
+{
+  "provenance": "captured real configured LLM response (not synthetic)",
+  "captured_at": "2026-10-23T08:49:45.305563+00:00",
+  "model": "openai/gpt-6.1-sol",
+  "stage": "scout",
+  "topic": "Dostawcy systemów WMS i telemetrii zbiorników w Polsce: oferta, cennik, wdrożenia",
+  "prompt_sha256": "ed8a8018d114dafdc99785a61b6165d09c26514e0bb6540ac115af84c07f4670",
+  "response_file": "captured_pl_wms_telemetry.txt",
+  "attempt": 1,
+  "status": "captured",
+  "response_sha256": "89b4dfeabc748a8fb0e6535f1c4600323042a96d053e089785d36dfe1396ffaf"
+}

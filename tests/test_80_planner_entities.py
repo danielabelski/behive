@@ -89,12 +89,13 @@ class TestQueenPlannerPure:
         assert isinstance(ctx, dict)
 
     def test_fallback_plan(self):
-        """_fallback_plan generates 50 tasks without LLM — PURE function!"""
+        """_fallback_plan is a bounded offline plan (2026-10-23 discovery repair:
+        the old 30-50 task generic spray was replaced by 8-16 short queries)."""
         from behive.engine.orchestrator import QueenPlanner
         qp = QueenPlanner("AI semiconductor market NVIDIA", scale=200)
         plan = qp._fallback_plan()
         assert isinstance(plan, list)
-        assert len(plan) >= 30  # Should generate many tasks
+        assert 8 <= len(plan) <= 16
         # Each task should have required keys
         for task in plan[:5]:
             assert isinstance(task, dict)
@@ -103,13 +104,13 @@ class TestQueenPlannerPure:
         from behive.engine.orchestrator import QueenPlanner
         qp = QueenPlanner("CRISPR gene editing research papers 2024")
         plan = qp._fallback_plan()
-        assert len(plan) >= 20
+        assert 8 <= len(plan) <= 16  # bounded plan since the 2026-10-23 repair
 
     def test_fallback_plan_geopolitical(self):
         from behive.engine.orchestrator import QueenPlanner
         qp = QueenPlanner("sanctions Russia energy exports 2024")
         plan = qp._fallback_plan()
-        assert len(plan) >= 20
+        assert 8 <= len(plan) <= 16  # bounded plan since the 2026-10-23 repair
 
     @patch("behive.engine.llm.complete")
     def test_generate_plan_with_llm(self, mock_llm):
