@@ -164,6 +164,8 @@ class ClaimsRepairTests(unittest.TestCase):
         with self.conn, self.conn.cursor() as cur:
             for i in range(8):
                 mission = f'repair_{i}'
+                # Salvage judges relevance against the mission topic (2026-10-23).
+                cur.execute("INSERT INTO hive_missions VALUES (%s, 'Acme revenue')", (mission,))
                 cur.execute("INSERT INTO hive_content VALUES (%s, %s, %s, %s, 'Annual report', 500)",
                             (i + 2, mission, URL, ' '.join(CLAIMS)))
                 cur.execute("INSERT INTO hive_facts VALUES (nextval('hive_facts_seq'), %s, 42, 'million', %s, %s, 'HIGH')",

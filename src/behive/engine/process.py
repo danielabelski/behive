@@ -1918,6 +1918,7 @@ class ProcessingDrones:
         log.info(f"Phase A1: RelevanceFilter (threshold={self.relevance_threshold})")
         rel_filter  = RelevanceFilter(topic, self.relevance_threshold, self.debug)
         scored_docs = await rel_filter.filter(docs)
+        self._record_relevance_gate(docs, scored_docs)
 
         if not scored_docs:
             log.warning("All documents filtered out by relevance. Raising threshold? Exiting.")
@@ -2354,6 +2355,37 @@ class ProcessingDrones:
         except Exception as e:
             log.debug(f"Suppressed in process.py: {e}")
             return "Unknown topic"
+
+    def _record_relevance_gate(self, docs: list[dict], accepted: list[dict]) -> None:
+        """Persist which harvested URLs passed Phase A1 (hive_missions.config).
+
+        Later no-model salvage (process/_finalize, cmd_run, the API wrapper) runs
+        in other code paths and must only use these documents.
+        """
+        from contextlib import closing
+        from behive.engine.db import get_pg_connection
+
+        gate = {"version": 1, "considered": len(docs),
+                "accepted_urls": sorted({str(d["url"]) for d in accepted if d.get("url")})}
+        try:
+            # Merge in Python: works for both jsonb (init-db.sql) and json
+            # (legacy orchestrator DDL) config columns.
+            with closing(get_pg_connection()) as conn, conn, conn.cursor() as cur:
+                cur.execute("SELECT config FROM hive_missions WHERE id = %s FOR UPDATE",
+                            (self.mission_id,))
+                row = cur.fetchone()
+                if row is None:
+                    return
+                config = row[0]
+                if isinstance(config, str):
+                    config = json.loads(config or "{}")
+                config = dict(config) if isinstance(config, dict) else {}
+                config["relevance_gate"] = gate
+                cur.execute("UPDATE hive_missions SET config = %s WHERE id = %s",
+                            (json.dumps(config, ensure_ascii=False), self.mission_id))
+        except Exception as exc:
+            log.warning("Relevance gate not recorded (%s); salvage falls back to topic "
+                        "keyword relevance", type(exc).__name__)
 
     def _finalize(
         self,

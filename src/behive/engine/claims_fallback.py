@@ -58,6 +58,36 @@ def sentences_from_text(text: str, limit: int = 8) -> list[str]:
     return out
 
 
+# Same bar as RelevanceFilter's keyword auto-pass: used only when the process
+# phase never recorded its relevance decision (legacy missions, crash before A1).
+_NO_GATE_MIN_OVERLAP = 0.25
+
+
+def _relevance_admitted(docs, topic, config):
+    """Keep only (url, text, title) rows that passed the mission's relevance gate.
+
+    Salvage must not turn pages the relevance filter rejected into claims: live
+    mission hive_1792744015_96a356 got 3 regex claims, and status done, from its
+    only (rejected, off-topic) page.
+    """
+    if isinstance(config, str):
+        import json
+        try:
+            config = json.loads(config)
+        except ValueError:
+            config = None
+    gate = config.get("relevance_gate") if isinstance(config, dict) else None
+    if isinstance(gate, dict) and isinstance(gate.get("accepted_urls"), list):
+        accepted = {u for u in gate["accepted_urls"] if isinstance(u, str) and u}
+        return [d for d in docs if d[0] in accepted]
+    if not (topic or "").strip():
+        return []  # relevance cannot be judged: no salvage
+    from behive.engine.process import RelevanceFilter
+    relevance = RelevanceFilter(topic)
+    return [d for d in docs
+            if relevance._keyword_overlap({"title": d[2], "raw_text": d[1]}) >= _NO_GATE_MIN_OVERLAP]
+
+
 def _connect():
     import psycopg2
 
@@ -105,6 +135,19 @@ def salvage_claims_from_content(mission_id: str, per_doc: int = 5, cap: int = 24
             (mission_id,),
         )
         docs = cur.fetchall()
+        # Installations created from the legacy orchestrator DDL or minimal schemas
+        # may lack hive_missions.config; never abort the salvage transaction on it.
+        cur.execute(
+            "SELECT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'hive_missions' "
+            "AND column_name = 'config' AND table_schema = ANY(current_schemas(false)))")
+        has_config = bool(cur.fetchone()[0])
+        cur.execute("SELECT topic, " + ("config" if has_config else "NULL") +
+                    " FROM hive_missions WHERE id = %s", (mission_id,))
+        topic, config = cur.fetchone() or (None, None)
+        docs = _relevance_admitted(docs, topic, config)
+        if not docs:
+            conn.commit()
+            return 0
         cur.execute(
             "SELECT LEFT(claim, 160) FROM hive_claims WHERE mission_id = %s",
             (mission_id,),
