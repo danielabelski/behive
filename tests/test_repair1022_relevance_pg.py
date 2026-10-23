@@ -53,7 +53,8 @@ def test_loaded_operator_seed_survives_keyword_and_negative_model_filters(loaded
     seen = []
     async def reject(self, docs):
         seen.extend(d['url'] for d in docs)
-        return [0.0] * len(docs)
+        # Negative model (grade 0 for everything; contract since 2026-10-23).
+        return [{'index': i, 'grade': 0, 'reason': 'test control'} for i in range(len(docs))]
     monkeypatch.setattr(process.RelevanceFilter, 'score_batch', reject)
     selected = asyncio.run(process.RelevanceFilter('WMS telemetry supplier pricing').filter(loaded_documents))
     assert [d['url'] for d in selected] == ['https://operator.example.test/seed']

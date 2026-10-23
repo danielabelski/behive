@@ -22,7 +22,12 @@ class TestRelevanceFilterAsync:
                                    "NVIDIA reported $26.3 billion in Q3 revenue, up 94% YoY.")
             return score
         
-        result = asyncio.run(run())
+        # Since 2026-10-23 score() is graded by the configured model (no invented
+        # score on errors); control the model boundary instead of a live call.
+        from unittest.mock import patch
+        with patch("behive.engine.llm.complete",
+                   return_value='[{"index": 0, "grade": 2, "reason": "test control"}]'):
+            result = asyncio.run(run())
         assert isinstance(result, float)
         assert 0.0 <= result <= 1.0
 

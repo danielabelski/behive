@@ -80,13 +80,18 @@ class TestRelevanceFilterSync:
     @patch("behive.engine.process._sglang")
     @patch("behive.engine.process._byok_available", False)
     def test_score_no_llm_fallback(self, mock_sglang):
-        """When no LLM available, score returns 1.0 (process everything)."""
+        """Without a working model, score() raises instead of inventing 1.0.
+
+        2026-10-23: inventing "process everything" scores let every page through
+        the relevance gate; the filter now degrades explicitly (keyword fallback).
+        """
         mock_sglang.is_available.return_value = False
         
         from behive.engine.process import RelevanceFilter
         rf = RelevanceFilter("AI market")
-        score = asyncio.run(rf.score("doc1", "Any title", "Any text"))
-        assert score == 1.0
+        with patch("behive.engine.llm.complete", side_effect=RuntimeError("no model")):
+            with pytest.raises(RuntimeError):
+                asyncio.run(rf.score("doc1", "Any title", "Any text"))
 
 
 class TestProcessUtilities:
