@@ -17,6 +17,7 @@ import sys
 import time
 import traceback
 from datetime import datetime, timezone
+from html.parser import HTMLParser
 from urllib.parse import urlparse
 
 # ---------------------------------------------------------------------------
@@ -60,6 +61,65 @@ logging.basicConfig(
     datefmt="%H:%M:%S",
 )
 log = logging.getLogger("hive2.harvest")
+
+
+class _VisibleHTMLParser(HTMLParser):
+    """Dependency-free text fallback; never treat executable/hidden bodies as prose."""
+
+    _HIDDEN = frozenset({'script', 'style', 'noscript', 'svg', 'template'})
+    _BREAKS = frozenset({
+        'address', 'article', 'aside', 'blockquote', 'br', 'dd', 'div', 'dl',
+        'dt', 'footer', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'hr',
+        'li', 'main', 'nav', 'ol', 'p', 'pre', 'section', 'table', 'td', 'th',
+        'title', 'tr', 'ul',
+    })
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.parts: list[str] = []
+        self.hidden: list[str] = []
+
+    def handle_starttag(self, tag, attrs):
+        if tag in self._HIDDEN:
+            self.hidden.append(tag)
+        if tag in self._BREAKS or tag in self._HIDDEN:
+            self.parts.append(' ')
+
+    def handle_endtag(self, tag):
+        if tag in self.hidden:
+            # Also unwind malformed, unclosed nested hidden elements.
+            del self.hidden[len(self.hidden) - 1 - self.hidden[::-1].index(tag):]
+        if tag in self._BREAKS or tag in self._HIDDEN:
+            self.parts.append(' ')
+
+    def handle_startendtag(self, tag, attrs):
+        if tag in self._BREAKS:
+            self.parts.append(' ')
+
+    def handle_data(self, data):
+        if not self.hidden:
+            self.parts.append(data)
+
+
+def _html_to_text(html: str) -> str:
+    """Discard comments/hidden bodies, decode entities once, normalize whitespace."""
+    parser = _VisibleHTMLParser()
+    parser.feed(html)
+    parser.close()
+    return ' '.join(''.join(parser.parts).split())
+
+
+def _web_text_error(text: str) -> str | None:
+    """Reject empty shells and short challenge/denial pages, not articles about them."""
+    words = re.findall(r'[^\W_]+', text, flags=re.UNICODE)
+    if len(words) <= 120 and re.search(
+        r'just a moment|attention required|access denied|enable javascript',
+        text, flags=re.IGNORECASE,
+    ):
+        return 'blocked_web_page'
+    if len(words) < 3:
+        return 'insufficient_web_text'
+    return None
 
 
 # ---------------------------------------------------------------------------
@@ -774,12 +834,13 @@ class HarvesterBee:
                 )
                 text = extracted or ""
             else:
-                # Naive HTML strip
-                text = re.sub(r"<[^>]+>", " ", html)
-                text = re.sub(r"\s+", " ", text).strip()
+                text = _html_to_text(html)
             result["text"] = text
             result["word_count"] = len(text.split())
-            result["success"] = bool(text)
+            error = _web_text_error(text)
+            result["success"] = error is None
+            if error:
+                result["error"] = error
 
         return result
 

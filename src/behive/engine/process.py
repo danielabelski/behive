@@ -31,6 +31,7 @@ import os
 import re
 import sys
 import time
+import unicodedata
 import uuid
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
@@ -449,36 +450,144 @@ class RelevanceFilter:
     v2 (2026-07-27): Stricter scoring with keyword overlap pre-filter + longer excerpts.
     """
 
+    # Generic geography/system words can constrain a model judgment, but are not
+    # independent subject evidence (and 'system-ui' is not a software supplier).
+    _GENERIC_KEYWORDS = frozenset({
+        'system', 'systems', 'systemy', 'systemu', 'systemów', 'systemie', 'systemom',
+        'poland', 'polish', 'polska', 'polski', 'polsce',
+    })
+    _CODE_KEYWORDS = frozenset({
+        'html', 'body', 'script', 'style', 'div', 'span', 'rgba', 'rgb', 'var',
+        'const', 'function', 'return', 'webkit', 'window', 'document', 'font',
+        'display', 'padding', 'margin', 'px', 'rem', 'url', 'undefined',
+    })
+    _ACRONYM_EXPANSIONS = {
+        'wms': re.compile(r'\bwarehouse\s+management\s+(?:systems?|software)\b', re.I),
+        'erp': re.compile(r'\benterprise\s+resource\s+planning\b', re.I),
+    }
+
     def __init__(self, topic: str, threshold: float = 0.4, debug: bool = False):
         self.topic     = topic
         self.threshold = threshold
         self.debug     = debug
         # Pre-compute topic keywords for fast pre-filter
         self._topic_keywords = self._extract_keywords(topic)
+        self._topic_keywords.update(
+            acronym for acronym, pattern in self._ACRONYM_EXPANSIONS.items()
+            if pattern.search(topic)
+        )
 
     @staticmethod
     def _extract_keywords(text: str) -> set[str]:
-        """Extract meaningful keywords (3+ chars, lowercased, no stopwords). Includes years."""
+        """Unicode letters/digits, 3+ chars (no underscore); preserve years/diacritics."""
         stopwords = {'the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can',
                      'had', 'her', 'was', 'one', 'our', 'out', 'has', 'have', 'from',
                      'they', 'been', 'said', 'each', 'which', 'their', 'will', 'other',
                      'about', 'many', 'then', 'them', 'some', 'what', 'would', 'make',
                      'like', 'into', 'than', 'its', 'over', 'such', 'after', 'with',
                      'this', 'that', 'how', 'does', 'comparison', 'between', 'versus'}
-        words = re.findall(r'[a-zA-Z0-9]{3,}', text.lower())
-        return {w for w in words if w not in stopwords}
+        words = re.findall(r'[^\W_]{3,}', unicodedata.normalize('NFKC', text).casefold())
+        return {w for w in words if w not in stopwords and w not in RelevanceFilter._CODE_KEYWORDS}
+
+    @staticmethod
+    def _keywords_match(left: str, right: str) -> bool:
+        """Light PL/EN inflection: >=5 shared letters, <=2 unmatched on the
+        shorter word, length difference <=4. Short acronyms/numbers need equality.
+        This is a deterministic pre-filter, not translation or a full stemmer.
+        """
+        if left == right:
+            return True
+        if not left.isalpha() or not right.isalpha() or abs(len(left) - len(right)) > 4:
+            return False
+        common = 0
+        for a, b in zip(left, right):
+            if a != b:
+                break
+            common += 1
+        return common >= 5 and min(len(left), len(right)) - common <= 2
+
+    @staticmethod
+    def _readable_text(doc: dict) -> str:
+        """A bounded scoring view, never a rewrite of source/evidence text.
+
+        Old harvested rows have lost HTML tags but retained CSS/JS/JSON bodies.
+        Discard balanced brace/bracket bodies, comments, fences and obvious JS
+        assignments before taking the excerpt; otherwise leading CSS hides prose.
+        This intentionally conservative cleanup is only for relevance decisions.
+        """
+        from behive.engine.harvest import _html_to_text
+
+        raw = (doc.get('content') or doc.get('text') or doc.get('raw_text') or '')[:100_000]
+        text = f"{doc.get('title') or ''} {raw}"
+        text = re.sub(r'```[\s\S]*?(?:```|$)|/\*[\s\S]*?(?:\*/|$)', ' ', text)
+        text = _html_to_text(text)
+        text = re.sub(r'\b(?:var|let|const)\s+[\w$]+\s*=.*?(?:;|$)', ' ', text, flags=re.S)
+        parts = []
+        depth = 0
+        quote = ''
+        escaped = False
+        for char in text:
+            if depth:
+                if escaped:
+                    escaped = False
+                elif char == '\\' and quote:
+                    escaped = True
+                elif quote:
+                    if char == quote:
+                        quote = ''
+                elif char in {'"', "'", '`'}:
+                    quote = char
+                elif char in '{[':
+                    depth += 1
+                elif char in '}]':
+                    depth -= 1
+                    if not depth:
+                        parts.append(' ')
+            elif char in '{[':
+                depth = 1
+            else:
+                parts.append(char)
+        text = ''.join(parts)
+        # Selector names are code too, including .wms and #telemetry.
+        text = re.sub(r'(?<!\w)[.#][a-zA-Z_][\w-]*', ' ', text)
+        return ' '.join(text.split())[:6000]
 
     def _keyword_overlap(self, doc: dict) -> float:
-        """Fast keyword overlap score (0.0-1.0). Used as pre-filter."""
-        if not self._topic_keywords:
-            return 0.5
-        text = f"{doc.get('title', '')} {(doc.get('content') or doc.get('text') or doc.get('raw_text') or '')[:2000]}".lower()
-        # Skip pre-filter for very short docs (let LLM decide)
-        if len(text) < 100:
-            return 0.5
-        doc_words = set(re.findall(r'[a-zA-Z0-9]{3,}', text))
-        overlap = len(self._topic_keywords & doc_words)
-        return min(1.0, overlap / max(1, len(self._topic_keywords) * 0.4))
+        """Meaningful PL/EN overlap; a lone word is model-review, not auto-pass.
+
+        Require two independent matches, except explicit multiword WMS/ERP
+        expansions. Merely naming a company 'Wms' does not satisfy that rule.
+        """
+        from behive.engine.harvest import _web_text_error
+
+        text = doc.get('_relevance_text')
+        if text is None:
+            text = self._readable_text(doc)
+        if not text or _web_text_error(text) == 'blocked_web_page':
+            return 0.0
+        keywords = self._topic_keywords - self._GENERIC_KEYWORDS
+        if not keywords:
+            return 0.2  # no meaningful subject: ask the model, never auto-pass
+        words = self._extract_keywords(text) - self._GENERIC_KEYWORDS
+        expansions = {acronym for acronym, pattern in self._ACRONYM_EXPANSIONS.items()
+                      if pattern.search(text)}
+        words.update(expansions)
+        # One document token cannot count as several inflected topic words.
+        matched = set()
+        for keyword in sorted(keywords):
+            word = next((w for w in sorted(words) if self._keywords_match(keyword, w)), None)
+            if word is not None:
+                words.remove(word)
+                matched.add(keyword)
+        score = min(1.0, len(matched) / max(1, len(keywords) * 0.4))
+        if expansions & keywords:
+            return max(0.25, score)
+        if len(matched) < 2:
+            # Preserve short-document review without the old 0.5 auto-pass.
+            if len(text) < 100:
+                return 0.2
+            return min(0.2, score)
+        return score
 
     async def score(self, doc_id: str, title: str, text_sample: str) -> float:
         """Returns relevance score 0.0–1.0. Uses local SGLang/Qwen (free), Bedrock fallback."""
@@ -527,7 +636,7 @@ class RelevanceFilter:
             return [1.0] * len(docs)  # --no-filter bypass
 
         items = "\n".join(
-            f"{i+1}. [{(doc.get('title') or 'untitled')[:80]}] {((doc.get('content') or doc.get('text') or doc.get('raw_text') or ''))[:400]}"
+            f"{i+1}. [{(doc.get('title') or 'untitled')[:80]}] {(doc.get('_relevance_text') or self._readable_text(doc))[:400]}"
             for i, doc in enumerate(docs)
         )
         prompt = (
@@ -563,13 +672,20 @@ class RelevanceFilter:
         """Score all docs and return those that pass threshold.
         
         v2: Two-stage filter:
-          Stage 0: Pass through pre-scored API docs (already validated)
+          Stage 0: Pass through operator seeds and pre-scored API docs
           Stage 1: Fast keyword overlap pre-filter (drops obvious garbage, no LLM call)
           Stage 2: LLM scoring on survivors (batch 20/call, concurrent)
         """
-        # ── Stage 0: Pass through pre-scored docs (from API Scout) ──
-        pre_scored = [d for d in docs if d.get('_from_api') and d.get('relevance_score', 0) > 0]
-        remaining = [d for d in docs if not d.get('_from_api')]
+        # ── Stage 0: Explicit operator intent precedes automatic relevance ──
+        def is_operator_seed(doc):
+            return doc.get('_operator_seed') is True or doc.get('source_type') == 'operator_seed'
+
+        operator_seeds = [d for d in docs if is_operator_seed(d)]
+        for doc in operator_seeds:
+            doc['_relevance_score'] = 1.0
+        automatic = [d for d in docs if not is_operator_seed(d)]
+        pre_scored = [d for d in automatic if d.get('_from_api') and d.get('relevance_score', 0) > 0]
+        remaining = [d for d in automatic if not d.get('_from_api')]
         
         # ── Stage 1: Keyword pre-filter (free, instant) ──
         pre_passed = []
@@ -578,6 +694,7 @@ class RelevanceFilter:
         KEYWORD_AUTO_PASS = 0.25  # Keyword match = auto-pass (SGLang LLM too aggressive)
         auto_passed = []
         for doc in remaining:
+            doc['_relevance_text'] = self._readable_text(doc)
             kw_score = self._keyword_overlap(doc)
             doc["_keyword_score"] = kw_score
             if kw_score >= KEYWORD_AUTO_PASS:
@@ -648,10 +765,11 @@ class RelevanceFilter:
         log.info(
             f"RelevanceFilter: {len(passed)} pass / {skipped} skip "
             f"(threshold={self.threshold})"
+            + (f" + {len(operator_seeds)} operator seeds" if operator_seeds else "")
             + (f" + {len(pre_scored)} API docs" if pre_scored else "")
             + (f" + {len(auto_passed)} keyword-autopass" if auto_passed else "")
         )
-        return pre_scored + auto_passed + passed
+        return operator_seeds + pre_scored + auto_passed + passed
 
 
 # ---------------------------------------------------------------------------
@@ -2208,13 +2326,19 @@ class ProcessingDrones:
     def _load_content(self) -> list[dict]:
         try:
             rows = self.con.execute("""
-                SELECT id, url, domain, title, raw_text, word_count, language, harvest_method
-                FROM hive_content
-                WHERE mission_id = ?
-                ORDER BY quality_score DESC NULLS LAST
+                SELECT c.id, c.url, c.domain, c.title, c.raw_text, c.word_count,
+                       c.language, c.harvest_method,
+                       EXISTS (
+                           SELECT 1 FROM hive_sources s
+                           WHERE s.mission_id = c.mission_id AND s.url = c.url
+                             AND s.source_type = 'operator_seed'
+                       ) AS operator_seed
+                FROM hive_content c
+                WHERE c.mission_id = ?
+                ORDER BY c.quality_score DESC NULLS LAST
             """, [self.mission_id]).fetchall()
             cols = ["source_id", "url", "domain", "title", "raw_text",
-                    "word_count", "language", "harvest_method"]
+                    "word_count", "language", "harvest_method", "_operator_seed"]
             return [dict(zip(cols, r)) for r in rows]
         except Exception as exc:
             log.error(f"Failed to load content: {exc}")
