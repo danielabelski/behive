@@ -1,0 +1,23 @@
+[
+  {
+    "id": "T1",
+    "topic": "Dostawcy systemów WMS i telemetrii zbiorników w Polsce: oferta, cennik, wdrożenia",
+    "seed_domains": ["jmblab.com", "erp24.pl", "system.wms.net.pl", "easystorage.io", "aspekt.net.pl", "anteeowms.com", "iluo.pl", "telemetria24.pl", "gok.pl", "aiut.com", "tankomaty.pl"]
+  },
+  {
+    "id": "T2",
+    "topic": "Systemy telemetrii zbiorników paliw i chemikaliów w Polsce: dostawcy i wdrożenia"
+  },
+  {
+    "id": "T3",
+    "topic": "Wymogi KSeF 2026 dla małych firm: terminy, sankcje, wyjątki"
+  },
+  {
+    "id": "T4",
+    "topic": "European heat pump market 2025: installed base, leading manufacturers, subsidies"
+  },
+  {
+    "id": "T5",
+    "topic": "Producenci okien PCV w Polsce: lista firm, zakłady produkcyjne"
+  }
+]
