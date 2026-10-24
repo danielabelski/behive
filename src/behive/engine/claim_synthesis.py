@@ -191,11 +191,17 @@ def _md(text):
     return re.sub(r'([\\`*\[\]#_])', r'\\\1', text)
 
 
-def _cap_line(capped, pl):
+def _cap_line(capped, pl, model=True):
     if not capped:
         return []
-    return [(f'Poza limitem wejścia modelu: {capped} twierdzeń. Raport deterministyczny zachowuje także te twierdzenia.' if pl
-             else f'Beyond the model input cap: {capped} claims. A deterministic report retains these claims too.'), '']
+    if model:
+        # The model report contains only the claims that fit the input cap.
+        return [(f'Poza limitem wejścia modelu: {capped} twierdzeń (kolejność według pewności) nie weszło do syntezy; '
+                 'pozostają na liście twierdzeń misji.' if pl
+                 else f'Beyond the model input cap: {capped} claims (ordered by confidence) were not included in this '
+                 'synthesis; they remain in the mission claim list.'), '']
+    return [(f'Raport obejmuje wszystkie twierdzenia, także {capped} spoza limitu wejścia modelu.' if pl
+             else f'This report lists all claims, including {capped} beyond the model input cap.'), '']
 
 
 def render_model(topic, claims, document, capped=0):
@@ -232,7 +238,7 @@ def _fallback(topic, claims, original_rows, capped):
         groups[row['domain']].append(row)
     lines = [f'# {_md(topic)}', '',
              (f'Raport deterministyczny: {len(claims)} twierdzeń, pogrupowanych według domen. Bez wnioskowania modelu.' if pl else
-              f'Deterministic report: {len(claims)} claims, grouped by domain. No model inference.'), '', *_cap_line(capped, pl)]
+              f'Deterministic report: {len(claims)} claims, grouped by domain. No model inference.'), '', *_cap_line(capped, pl, model=False)]
     document = {'summary': [], 'sections': [], 'gaps': []}
     for domain, items in sorted(groups.items(), key=lambda item: (-len(item[1]), item[0])):
         lines.extend([f'## {_md(domain)}', ''])

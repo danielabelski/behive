@@ -169,3 +169,16 @@ def test_markdown_in_claim_is_data_not_additional_citation(monkeypatch):
     assert '<script>' not in result['report']
     assert '\n## Fake' not in result['report']
     assert r'\[777\]' in result['report']
+
+
+def test_model_report_cap_line_does_not_claim_capped_claims_are_in_it():
+    """Live E2E (314 claims, cap 200): the model report said the capped claims were retained, which it does not do."""
+    from behive.engine import claim_synthesis as cs
+    claims = [{'number': 1, 'id': 1, 'claim': 'Firma A dostarcza blachy okrętowe.', 'source_url': 'https://a.pl/x',
+               'domain': 'a.pl', 'confidence': 0.9}]
+    doc = {'summary': [{'text': 'Firma A dostarcza blachy okrętowe.', 'cites': [1]}], 'sections': [], 'gaps': []}
+    model = cs.render_model('Produkcja stali okrętowej w Polsce', claims, doc, capped=114)
+    assert '114' in model and 'nie weszło do syntezy' in model
+    assert 'zachowuje' not in model
+    english = cs.render_model('Naval steel production', claims, doc, capped=7)
+    assert 'not included in this synthesis' in english and 'retains' not in english
