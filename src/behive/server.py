@@ -1280,10 +1280,7 @@ def _bridge_done_mission(mission_id: str) -> None:
         if mission_id in held_ids:
             log.info("Automatic SR bridge held for manual review")
             return
-    import sys
-    if "/root" not in sys.path:
-        sys.path.insert(0, "/root")
-    from sr_bridge import bridge_mission
+    from behive.sr_bridge import bridge_mission
     bridge_mission(mission_id)
 
 

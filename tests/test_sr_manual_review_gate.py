@@ -22,14 +22,14 @@ def gate(monkeypatch):
     isolated = ast.Module(body=[function], type_ignores=[])
     namespace = {'os': os, 'json': json, 'log': logging.getLogger('gate_under_test')}
     exec(compile(isolated, str(source), 'exec'), namespace)
-    bridge = ModuleType('sr_bridge')
+    bridge = ModuleType('behive.sr_bridge')
     bridge.bridge_mission = Mock()
-    monkeypatch.setitem(sys.modules, 'sr_bridge', bridge)
+    monkeypatch.setitem(sys.modules, 'behive.sr_bridge', bridge)
     # Verify both no import and no call for held/bad gate cases.
     original_import = builtins.__import__
     imports = []
     def watched_import(name, *args, **kwargs):
-        if name == 'sr_bridge':
+        if name == 'behive.sr_bridge':
             imports.append(name)
         return original_import(name, *args, **kwargs)
     monkeypatch.setattr(builtins, '__import__', watched_import)
@@ -41,7 +41,7 @@ def gate(monkeypatch):
 def test_unset_flag_preserves_bridge(gate):
     gate.call('mission-A')
     gate.bridge.assert_called_once_with('mission-A')
-    assert gate.imports == ['sr_bridge']
+    assert gate.imports == ['behive.sr_bridge']
 
 
 def test_held_id_skips_bridge_import_and_call(gate, tmp_path, monkeypatch, caplog):
@@ -108,7 +108,7 @@ def test_gate_is_reread_on_each_mission_for_atomic_parent_updates(gate, tmp_path
     replacement.replace(path)
     gate.call('mission-B')
     assert gate.bridge.call_count == 1
-    assert gate.imports == ['sr_bridge']
+    assert gate.imports == ['behive.sr_bridge']
 
 
 def test_gate_compares_exact_ids_without_normalization(gate, tmp_path, monkeypatch):

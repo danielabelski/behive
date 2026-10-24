@@ -2,19 +2,31 @@
 """
 BeHive → Singularity Room Bridge
 =================================
-Hook that runs after BeHive mission completes.
-Extracts claims from hive_claims and POSTs them to SR /ingest endpoint.
+Hook that runs after a BeHive mission completes.
+Extracts claims from hive_claims and POSTs them to the SR /ingest endpoint.
 
 Features:
-- Filters garbage claims (is_garbage = false)
+- Filters garbage claims (is_garbage = false), JSON blobs and rows below the
+  quality / confidence thresholds
 - Maps confidence + quality_score → SR confidence
 - Tags source as "behive:{mission_id}" for traceability
-- Deduplication: checks if mission was already bridged (idempotent)
+- Idempotent: sr_bridge_log records bridged missions
 - Batches claims in groups of 50 for API efficiency
 
+Encoder: there is deliberately NO re-encode step here. SR's /ingest handler
+already extends its live encoder in-process for every new claim and persists
+it, so a full re-encode of the snapshot is redundant, takes ~20 min on CPU for the whole index, and a hot-reload of an
+index built from an older snapshot could drop vectors of concurrently ingested claims.
+After sending, the bridge only VERIFIES the encoder by reading SR's /health:
+ok == encoder.attached and encoder.n == occupied. The result is stored in
+sr_bridge_log.sr_response["encoder"] and returned; a failed check logs a
+warning but never fails the bridge.
+
 Usage:
-  Called from _run_pipeline() after subprocess.run completes.
+  from behive.sr_bridge import bridge_mission
   bridge_mission("hive_1234567_topic_name")
+
+  python -m behive.sr_bridge <mission_id> | --all
 """
 
 import os
@@ -22,8 +34,6 @@ import sys
 import json
 import time
 import logging
-import subprocess
-from pathlib import Path
 from typing import List, Dict, Optional
 
 import psycopg2
@@ -37,6 +47,7 @@ if not log.handlers:
 # ─── Configuration ──────────────────────────────────────────────────────────
 
 SR_INGEST_URL = os.environ.get("SR_INGEST_URL", "http://localhost:8092/ingest")
+SR_HEALTH_URL = os.environ.get("SR_HEALTH_URL", "http://127.0.0.1:8092/health")
 SR_TIMEOUT = int(os.environ.get("SR_BRIDGE_TIMEOUT", "30"))
 BATCH_SIZE = 50
 MIN_QUALITY = 0.4  # Skip claims below this quality threshold
@@ -100,24 +111,32 @@ def _mark_bridged(mission_id: str, claims_sent: int, sr_response: dict):
     conn.close()
 
 
-def _sync_encoder(mission_id: str) -> None:
-    """Re-encode snapshot and hot-reload SR vectors. Must not fail the bridge."""
-    encode = "/root/math-workspace/singularity-room/scripts/encode_claims.py"
-    py = "/root/stealth-research-env/bin/python3"
+def _verify_encoder() -> Dict:
+    """Check SR's live encoder via /health. Never raises.
+
+    ok is True only when encoder.attached is True and encoder.n == occupied.
+    """
     try:
-        r = subprocess.run([py, "-u", encode], timeout=180, capture_output=True, text=True)
-        log.info("[BRIDGE] encode exit=%s tail=%s", r.returncode, (r.stdout or "")[-200:].replace("\n", " "))
-        if r.returncode != 0:
-            log.warning("[BRIDGE] encode stderr=%s", (r.stderr or "")[-400:])
-            return
-        rr = requests.post("http://127.0.0.1:8092/internal/reload-encoder", timeout=30)
-        log.info("[BRIDGE] encoder reload %s %s", rr.status_code, rr.text[:200])
-        Path("/tmp/sr_encoder_synced.json").write_text(
-            json.dumps({"mission_id": mission_id, "reload": rr.text[:300], "ts": time.time()}),
-            encoding="utf-8",
-        )
+        resp = requests.get(SR_HEALTH_URL, timeout=10)
+        if resp.status_code != 200:
+            result = {"ok": False, "error": f"http_{resp.status_code}"}
+        else:
+            data = resp.json()
+            enc = data.get("encoder") or {}
+            attached = enc.get("attached")
+            n = enc.get("n")
+            occupied = data.get("occupied")
+            result = {
+                "ok": attached is True and n is not None and n == occupied,
+                "attached": attached,
+                "n": n,
+                "occupied": occupied,
+            }
     except Exception as e:
-        log.warning("[BRIDGE] encoder sync failed: %s", e)
+        result = {"ok": False, "error": e.__class__.__name__}
+    if not result["ok"]:
+        log.warning("[BRIDGE] SR encoder not in sync: %s", result)
+    return result
 
 
 # ─── Core Logic ────────────────────────────────────────────────────────────
@@ -213,7 +232,7 @@ def bridge_mission(mission_id: str) -> Optional[Dict]:
     Bridge a completed BeHive mission's claims into Singularity Room.
     
     Returns:
-        dict with {claims_fetched, claims_sent, sr_response} on success
+        dict with {mission_id, claims_fetched, claims_sent, sr_response, encoder} on success
         None if already bridged or no claims found
     """
     _ensure_bridge_table()
@@ -236,16 +255,19 @@ def bridge_mission(mission_id: str) -> Optional[Dict]:
     sr_response = _send_to_sr(claims)
     total_sent = sr_response.get("total_ingested", 0)
     
+    # Verify SR's live encoder (no re-encode: /ingest extends it in-process)
+    sr_response["encoder"] = _verify_encoder()
+    
     # Record
     _mark_bridged(mission_id, total_sent, sr_response)
     
     log.info(f"[BRIDGE] Mission {mission_id}: {total_sent}/{len(claims)} claims ingested into SR")
-    _sync_encoder(mission_id)
     return {
         "mission_id": mission_id,
         "claims_fetched": len(claims),
         "claims_sent": total_sent,
         "sr_response": sr_response,
+        "encoder": sr_response["encoder"],
     }
 
 
@@ -278,21 +300,27 @@ def bridge_all_pending() -> List[Dict]:
 
 # ─── CLI ────────────────────────────────────────────────────────────────────
 
-if __name__ == "__main__":
+def main(argv: Optional[List[str]] = None) -> None:
+    if argv is None:
+        argv = sys.argv[1:]
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
-    
-    if len(sys.argv) > 1 and sys.argv[1] == "--all":
+
+    if argv and argv[0] == "--all":
         # Bridge all pending missions
         results = bridge_all_pending()
         print(f"Bridged {len(results)} missions")
         for r in results:
             print(f"  {r['mission_id']}: {r['claims_sent']}/{r['claims_fetched']} claims")
-    elif len(sys.argv) > 1:
+    elif argv:
         # Bridge specific mission
-        result = bridge_mission(sys.argv[1])
+        result = bridge_mission(argv[0])
         if result:
             print(json.dumps(result, indent=2))
         else:
             print("Already bridged or no claims")
     else:
-        print("Usage: sr_bridge.py <mission_id> | --all")
+        print("Usage: python -m behive.sr_bridge <mission_id> | --all")
+
+
+if __name__ == "__main__":
+    main()
