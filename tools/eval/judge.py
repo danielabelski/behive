@@ -125,7 +125,7 @@ def live_complete(prompt, judge):
     return result
 
 
-def judge_items(topic, items, judge, out_dir, batch_size=15, kind='page', complete=None, ledger=DEFAULT_LEDGER):
+def judge_items(topic, items, judge, out_dir, batch_size=15, kind='page', complete=None, ledger=DEFAULT_LEDGER, prompt_builder=None):
     if judge not in MODELS or not 1 <= batch_size <= (20 if kind == 'claim' else 15):
         raise ValueError('invalid judge or batch size')
     items = [dict(row, index=row.get('index', n)) for n, row in enumerate(items)]
@@ -137,7 +137,7 @@ def judge_items(topic, items, judge, out_dir, batch_size=15, kind='page', comple
     labels, failures, batches = [], [], []
     for start in range(0, len(items), batch_size):
         batch = items[start:start + batch_size]
-        prompt = build_prompt(topic, batch, kind)
+        prompt = (prompt_builder or build_prompt)(topic, batch, kind)
         ph = digest(prompt)
         directory = out_dir / f'b{start // batch_size:03d}-{ph[:16]}'
         directory.mkdir(parents=True, exist_ok=True)

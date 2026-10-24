@@ -100,19 +100,19 @@ def test_all_documents_failing_still_fails_the_batch(monkeypatch, caplog):
     assert _summary(caplog).source_extraction_status == "failed"
 
 
-def test_three_consecutive_failed_documents_stop_the_batch(monkeypatch, caplog):
+def test_three_consecutive_failures_stop_admission_with_one_inflight_sibling(monkeypatch, caplog):
     docs = [_doc(i) for i in range(5)]
     failures = {i: [BadGatewayError(), BadGatewayError()] for i in (1, 2, 3)}
     with caplog.at_level(logging.DEBUG), pytest.raises(BadGatewayError):
         _, calls = _run(monkeypatch, docs, failures)
     counts = _summary(caplog).source_extraction_counts
-    assert counts["model_calls"] == 7, "1 ok + 3 docs x 2 attempts, then stop; doc 5 never called"
+    assert 7 <= counts["model_calls"] <= 8, "1 ok + 3 failed pages x 2 attempts, plus at most one admitted sibling"
     assert counts["documents_failed"] == 3
 
 
-def test_non_transient_provider_error_is_still_fatal_without_retry(monkeypatch, caplog):
+def test_non_transient_error_drains_admitted_sibling_without_retry(monkeypatch, caplog):
     docs = [_doc(i) for i in range(2)]
     with caplog.at_level(logging.DEBUG), pytest.raises(AuthenticationError):
         _run(monkeypatch, docs, {0: [AuthenticationError()]})
     counts = _summary(caplog).source_extraction_counts
-    assert counts["model_calls"] == 1 and counts["responses"] == 0
+    assert counts["model_calls"] == 2 and counts["responses"] == 1

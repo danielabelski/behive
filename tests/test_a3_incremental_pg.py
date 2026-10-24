@@ -75,6 +75,9 @@ def summary(caplog):
 
 @pytest.fixture(autouse=True)
 def controlled_edges(monkeypatch):
+    # These incremental/ordering tests exercise the supported one-slot setting;
+    # default-two persistence and clean draining live in test_a3_parallel_pg.py.
+    monkeypatch.setenv('BEHIVE_A3_CONCURRENCY', '1')
     monkeypatch.delenv('BEHIVE_PHASE_DEADLINE', raising=False)
     monkeypatch.setattr(source_extraction, 'TRANSIENT_RETRY_DELAY_S', 0)
     def blocked(*args, **kwargs):
@@ -82,7 +85,7 @@ def controlled_edges(monkeypatch):
     monkeypatch.setattr(llm, 'complete', blocked)
 
 
-def test_finished_document_commits_before_next_completion(live_db, monkeypatch):
+def test_one_slot_finished_document_commits_before_next_completion(live_db, monkeypatch):
     docs = documents(2)
     seed(live_db, docs)
     calls = []
@@ -92,7 +95,7 @@ def test_finished_document_commits_before_next_completion(live_db, monkeypatch):
             rows, config = readback(live_db)
             assert rows == [(docs[0]['raw_text'], docs[0]['url'], 'source_extraction', 'byok_source_extraction')], \
                 'Document 1 must be committed before document 2 inference'
-            assert config['source_extraction'] == {'version': 1, 'attempted_urls': [docs[0]['url']]}
+            assert config['source_extraction'] == {'version': 1, 'attempted_urls': [docs[0]['url']], 'pending': 1}
         calls.append(doc)
         return response(doc)
     monkeypatch.setattr(llm, 'complete', complete)
@@ -230,7 +233,7 @@ def test_later_round_skips_attempts_including_empty_and_rejected_responses(live_
     assert summary(caplog).phase_a3_counts['documents_already_attempted'] == 3
     rows, config = readback(live_db)
     assert [r[0] for r in rows] == [d['raw_text'] for d in docs[2:]]
-    assert config['source_extraction'] == {'version': 1, 'attempted_urls': sorted(d['url'] for d in docs)}
+    assert config['source_extraction'] == {'version': 1, 'attempted_urls': sorted(d['url'] for d in docs), 'pending': 0}
     assert config['keep'] == {'unrelated': True}
 
 
@@ -324,4 +327,4 @@ def test_malformed_attempt_state_is_not_partially_trusted(live_db, monkeypatch, 
     monkeypatch.setattr(llm, 'complete', complete)
     assert asyncio.run(drones()._extract_source_claims(docs, TOPIC)) == 1
     assert calls == [1]
-    assert readback(live_db)[1]['source_extraction'] == {'version': 1, 'attempted_urls': [docs[0]['url']]}
+    assert readback(live_db)[1]['source_extraction'] == {'version': 1, 'attempted_urls': [docs[0]['url']], 'pending': 0}

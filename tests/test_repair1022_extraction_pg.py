@@ -71,9 +71,14 @@ def test_a3_zero_candidates_reports_provenance_cap_and_valid_empty_response(priv
     monkeypatch.setattr(source_extraction, 'MAX_DOCUMENTS', 2)
     monkeypatch.setattr('behive.engine.llm.complete', lambda **kwargs: CAPTURED_RESPONSE)
     doc = {'url': CAPTURED_URL, 'raw_text': CAPTURED_SOURCE}
+    # Three distinct pages, rather than three copies of one attempted URL.
+    docs = [dict(doc, url=CAPTURED_URL + f'?a3-page={i}') for i in range(3)]
+    with private_pg, private_pg.cursor() as cur:
+        cur.executemany('INSERT INTO hive_content VALUES (%s,%s)',
+                        [('repair1022-b', d['url']) for d in docs])
     with caplog.at_level(logging.DEBUG):
         count = asyncio.run(drones()._extract_source_claims(
-            [doc] * 3 + [{'url': 'https://not-harvested.test', 'raw_text': CAPTURED_SOURCE}], CAPTURED_TOPIC))
+            docs + [{'url': 'https://not-harvested.test', 'raw_text': CAPTURED_SOURCE}], CAPTURED_TOPIC))
     assert count == 0
     record = phase_summary(caplog)
     assert record.phase_a3_status == 'completed'
@@ -82,7 +87,7 @@ def test_a3_zero_candidates_reports_provenance_cap_and_valid_empty_response(priv
         'documents_input': 4, 'documents_with_provenance': 3,
         'documents_selected': 2, 'documents_capped': 1,
         'documents_already_attempted': 0, 'documents_deadline_deferred': 0,
-        'claims_extracted': 0, 'claims_duplicates': 0, 'claims_saved': 0,
+        'claims_extracted': 0, 'claims_duplicates': 0, 'claims_saved': 0, 'pending': 1,
     }
     with private_pg, private_pg.cursor() as cur:
         cur.execute('SELECT count(*) FROM hive_claims')
@@ -93,9 +98,13 @@ def test_a3_persistence_summary_matches_real_committed_rows(private_pg, monkeypa
     # Explicitly synthetic quote control, not a captured mission/model claim.
     response = json.dumps([{'claim': CLEAN_CLAIM, 'evidence': CLEAN_CLAIM, 'confidence': .9}])
     monkeypatch.setattr('behive.engine.llm.complete', lambda **kwargs: response)
+    other_url = 'https://synthetic-other.example.test/report'
+    with private_pg, private_pg.cursor() as cur:
+        cur.execute('INSERT INTO hive_content VALUES (%s,%s)', ('repair1022-b', other_url))
     with caplog.at_level(logging.DEBUG):
         count = asyncio.run(drones()._extract_source_claims(
-            [{'url': CAPTURED_URL, 'raw_text': CLEAN_CLAIM}] * 2, CAPTURED_TOPIC))
+            [{'url': CAPTURED_URL, 'raw_text': CLEAN_CLAIM},
+             {'url': other_url, 'raw_text': CLEAN_CLAIM}], CAPTURED_TOPIC))
     assert count == 1
     record = phase_summary(caplog)
     assert record.phase_a3_status == 'completed'
@@ -104,7 +113,9 @@ def test_a3_persistence_summary_matches_real_committed_rows(private_pg, monkeypa
     assert record.phase_a3_counts['claims_duplicates'] == record.phase_a3_counts['claims_saved'] == 1
     with private_pg, private_pg.cursor() as cur:
         cur.execute('SELECT claim,source_url FROM hive_claims')
-        assert cur.fetchall() == [(CLEAN_CLAIM, CAPTURED_URL)]
+        rows = cur.fetchall()
+        assert len(rows) == 1 and rows[0][0] == CLEAN_CLAIM
+        assert rows[0][1] in (CAPTURED_URL, other_url)
 
 
 def test_a3_failure_summary_exposes_stage_and_type_not_provider_payload(private_pg, monkeypatch, caplog):

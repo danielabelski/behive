@@ -20,6 +20,7 @@ import os
 import json
 import logging
 import math
+import time
 from typing import Optional
 
 # Ensure Bedrock knows our region (litellm needs this for cross-region inference profiles)
@@ -180,6 +181,89 @@ def _codex_bridge_enabled(strict: bool, model: str) -> bool:
     return True
 
 
+_BRIDGE_BUSY_MESSAGE = "Local concurrency limit reached; retry later."
+_BUSY_DEADLINE_MARGIN_S = 2.0
+
+
+def _local_bridge_busy(exc: Exception) -> bool:
+    """Only the bridge's stable local 429 signal, never a provider quota denial."""
+    if getattr(exc, "status_code", None) != 429 and type(exc).__name__ != "RateLimitError":
+        return False
+    text = str(exc)
+    if ("upstream_rate_limit" in text
+            or "Upstream quota/rate limit denied the request." in text):
+        return False
+    code = getattr(exc, "code", None)
+    # LiteLLM replaces the original code/body with the generic string "429".
+    codes = {code} if isinstance(code, str) and code != "429" else set()
+    bodies = [getattr(exc, "body", None)]
+    response = getattr(exc, "response", None)
+    if response is not None:
+        try:
+            bodies.append(response.json())
+        except (AttributeError, TypeError, ValueError):
+            pass
+    for body in bodies:
+        if isinstance(body, str):
+            try:
+                body = json.loads(body)
+            except ValueError:
+                continue
+        if isinstance(body, dict):
+            error = body.get("error", body)
+            if isinstance(error, dict):
+                code = error.get("code")
+                if isinstance(code, str):
+                    codes.add(code)
+    codes.discard(None)
+    # A structured denial wins over coincidental busy text in a wrapped body.
+    if codes:
+        return codes == {"bridge_busy"}
+    return _BRIDGE_BUSY_MESSAGE in str(exc)
+
+
+class _BridgeBusyWait:
+    """Per-call wait budget. Retry only the same, locally rejected request."""
+
+    def __init__(self):
+        try:
+            limit = float(os.environ.get("BEHIVE_LLM_BUSY_WAIT_S", "90"))
+        except ValueError:
+            limit = 90.0
+        self.limit = max(0.0, limit) if math.isfinite(limit) else 90.0
+        self.started = time.monotonic()
+        self.waited = 0.0
+        self.retries = 0
+        try:
+            deadline = float(os.environ.get("BEHIVE_PHASE_DEADLINE", ""))
+        except ValueError:
+            deadline = math.inf
+        self.deadline = deadline if math.isfinite(deadline) else math.inf
+
+    def delay(self, exc: Exception) -> float | None:
+        if not _local_bridge_busy(exc):
+            return None
+        remaining = min(self.limit - self.waited,
+                        self.limit - (time.monotonic() - self.started),
+                        self.deadline - time.time() - _BUSY_DEADLINE_MARGIN_S)
+        if remaining <= 0:
+            return None
+        delay = min(5.0 * 2 ** min(self.retries, 3), 30.0, remaining)
+        self.waited += delay
+        self.retries += 1
+        log.info("LLM local busy wait: retry=%s wait_s=%s error_type=%s",
+                 self.retries, delay, type(exc).__name__)
+        return delay
+
+    def prepare_retry(self, kwargs: dict) -> bool:
+        remaining = self.deadline - time.time() - _BUSY_DEADLINE_MARGIN_S
+        if remaining <= 0:
+            return False
+        if math.isfinite(remaining):
+            kwargs["timeout"] = min(kwargs.get("timeout") or remaining, remaining)
+        return True
+
+
 def complete(
     prompt: str,
     stage: str = "process",
@@ -201,7 +285,9 @@ def complete(
     
     Returns:
         Generated text (str). Legacy failures may fall back to direct APIs.
-        BEHIVE_LLM_STRICT=1 propagates failures with no retries or fallback.
+        BEHIVE_LLM_STRICT=1 propagates failures with no provider retries/fallback.
+        Only local bridge_busy waits: 5/10/20/30 s backoff, capped by
+        BEHIVE_LLM_BUSY_WAIT_S (default 90) and the phase deadline minus 2 s.
         BEHIVE_LLM_TIMEOUT: finite seconds in (0, 3600]; default 25 (strict: 180).
         BEHIVE_LLM_CODEX_BRIDGE=1 requires strict + exact model/loopback base;
         only that route omits temperature/max_tokens, without a hard token cap.
@@ -257,8 +343,18 @@ def complete(
         
         if strict:
             _strict_completion_options(litellm, kwargs)
-            response = litellm.completion(**kwargs)
-            return response.choices[0].message.content or ""
+            busy = _BridgeBusyWait()
+            while True:
+                try:
+                    response = litellm.completion(**kwargs)
+                    return response.choices[0].message.content or ""
+                except Exception as exc:
+                    delay = busy.delay(exc)
+                    if delay is None:
+                        raise
+                    time.sleep(delay)
+                    if not busy.prepare_retry(kwargs):
+                        raise
 
         # Retry with exponential backoff (handles rate limits, transient failures)
         last_error = None
@@ -357,6 +453,19 @@ async def complete_async(
         
         if strict:
             _strict_completion_options(litellm, kwargs)
+            import asyncio as _busy_asyncio
+            busy = _BridgeBusyWait()
+            while True:
+                try:
+                    response = await litellm.acompletion(**kwargs)
+                    return response.choices[0].message.content or ""
+                except Exception as exc:
+                    delay = busy.delay(exc)
+                    if delay is None:
+                        raise
+                    await _busy_asyncio.sleep(delay)
+                    if not busy.prepare_retry(kwargs):
+                        raise
 
         response = await litellm.acompletion(**kwargs)
         return response.choices[0].message.content or ""

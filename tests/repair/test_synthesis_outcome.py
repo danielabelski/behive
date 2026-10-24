@@ -3,7 +3,7 @@ import ast
 import inspect
 import pytest
 from behive.engine import orchestrator as orch
-from behive.engine import fact_synth
+from behive.engine import fact_synth, claim_synthesis
 from test_pipeline_failures import DB
 
 
@@ -22,9 +22,15 @@ def synthesis(mid, query, timings):
 @pytest.fixture
 def boundary(monkeypatch):
     db = DB()
+    db.execute('ALTER TABLE hive_missions ADD COLUMN synth_done_at TEXT')
     events = []
     monkeypatch.setattr(orch,'_connect_db',lambda **kw: db)
     monkeypatch.setattr(orch,'_emit',lambda mid,phase,event,**kw: events.append((phase,event,kw)))
+    # These legacy unit tests deliberately exercise the exception-only chain;
+    # the primary path itself is covered against real PG in test_claim_synthesis_pg.
+    def primary_unavailable(mid):
+        raise RuntimeError('controlled primary path failure')
+    monkeypatch.setattr(claim_synthesis, 'persist_claim_synthesis', primary_unavailable)
     return db,events
 
 
@@ -40,21 +46,21 @@ def test_exhausted_synthesis_raises_and_never_emits_completed(monkeypatch,bounda
     assert 'secret-token' not in repr(events)
 
 
-def test_exit_zero_without_provenance_never_emits_completed(monkeypatch,boundary):
+def test_exit_zero_without_persisted_report_is_not_success(monkeypatch,boundary):
     db,events = boundary
     db.claim(evidence=False)
-    monkeypatch.setattr(fact_synth,'persist_fact_synthesis',lambda mid: {'claims':0})
+    monkeypatch.setattr(fact_synth,'persist_fact_synthesis',lambda mid: {'claims':0, 'chars':0})
     monkeypatch.setattr(orch,'run_phase',lambda *args,**kw: 0.1)
-    synthesis('m','topic',{})
+    with pytest.raises(RuntimeError, match='synthesis failed'):
+        synthesis('m','topic',{})
     assert not any(e == 'completed' for p,e,d in events)
-    assert any(e == 'empty' for p,e,d in events)
+    assert any(e == 'failed' for p,e,d in events)
 
 
 def test_fact_recovery_with_product_emits_completed(monkeypatch,boundary):
     db,events = boundary
     for _ in range(3): db.claim()
-    outcomes = iter([{'claims':0},{'claims':3}])
-    monkeypatch.setattr(fact_synth,'persist_fact_synthesis',lambda mid: next(outcomes))
+    monkeypatch.setattr(fact_synth,'persist_fact_synthesis',lambda mid: {'claims':3, 'chars':100})
     def fail(*args,**kw): raise RuntimeError('request-body')
     monkeypatch.setattr(orch,'run_phase',fail)
     synthesis('m','topic',{})
@@ -64,8 +70,12 @@ def test_fact_recovery_with_product_emits_completed(monkeypatch,boundary):
     assert 'inference_success' not in completed
 
 
-def test_claim_count_without_actual_evidence_is_not_fact_product(monkeypatch,boundary):
+def test_claim_count_without_report_chars_is_not_fact_product(monkeypatch,boundary):
     db,events = boundary
-    monkeypatch.setattr(fact_synth,'persist_fact_synthesis',lambda mid: {'claims':3})
-    synthesis('m','topic',{})
+    for _ in range(3): db.claim()
+    monkeypatch.setattr(fact_synth,'persist_fact_synthesis',lambda mid: {'claims':3, 'chars':0})
+    def fail(*args, **kw): raise RuntimeError('controlled legacy failure')
+    monkeypatch.setattr(orch, 'run_phase', fail)
+    with pytest.raises(RuntimeError, match='synthesis failed'):
+        synthesis('m','topic',{})
     assert not any(e == 'completed' for p,e,d in events)

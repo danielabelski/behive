@@ -1,0 +1,1235 @@
+{
+  "mission_id": "hive_1792833174_460b47",
+  "topic": "Produkcja stali wykorzystywanej w stoczniach przy budowie okrętów wojennych w Wielkiej Brytanii i Europie",
+  "items": [
+    {
+      "id": 260870,
+      "claim": "LIBERTY Steel UK is a steel manufacturer and distributor with capabilities that include production of heavy plates, linepipes, hollow sections and merchant bars mainly for construction, energy, defence industries.",
+      "source_url": "https://libertysteelgroup.com/our-operations/liberty-steel-uk",
+      "claim_type": "source_extraction",
+      "index": 0,
+      "url": "https://libertysteelgroup.com/our-operations/liberty-steel-uk",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260871,
+      "claim": "It employs c. 500 people and has an annual steel rolling capacity close to 1 million tonnes.",
+      "source_url": "https://libertysteelgroup.com/our-operations/liberty-steel-uk",
+      "claim_type": "source_extraction",
+      "index": 1,
+      "url": "https://libertysteelgroup.com/our-operations/liberty-steel-uk",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260872,
+      "claim": "The business is also certified to Lloyds, DNV and ABS standards, further strengthening its focus on the products of quality heavy steel plate.",
+      "source_url": "https://libertysteelgroup.com/our-operations/liberty-steel-uk",
+      "claim_type": "source_extraction",
+      "index": 2,
+      "url": "https://libertysteelgroup.com/our-operations/liberty-steel-uk",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260873,
+      "claim": "Liberty Steel Dalzell in Scotland has been unable to start production in earnest because there is “no cashflow to buy slab”, despite an order to supply 34,000 tonnes of metal plates to build fleet solid support (FSS) ships for the navy, according to two sources with knowledge of the situation.",
+      "source_url": "https://theguardian.com/business/2026/jan/18/royal-navy-shipbuilder-liberty-steel-dalzell-gupta",
+      "claim_type": "source_extraction",
+      "index": 3,
+      "url": "https://theguardian.com/business/2026/jan/18/royal-navy-shipbuilder-liberty-steel-dalzell-gupta",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260874,
+      "claim": "The 216-metre FSS ships, designed to carry munitions, food and other supplies for the navy’s Royal Fleet Auxiliary, are due to be built in Belfast by the Spanish state-owned shipbuilder Navantia.",
+      "source_url": "https://theguardian.com/business/2026/jan/18/royal-navy-shipbuilder-liberty-steel-dalzell-gupta",
+      "claim_type": "source_extraction",
+      "index": 4,
+      "url": "https://theguardian.com/business/2026/jan/18/royal-navy-shipbuilder-liberty-steel-dalzell-gupta",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260875,
+      "claim": "The cash shortage at Liberty Steel has left it unable to buy the slabs of steel it needs from British Steel, although workers have continued to be paid 80% of their salaries.",
+      "source_url": "https://theguardian.com/business/2026/jan/18/royal-navy-shipbuilder-liberty-steel-dalzell-gupta",
+      "claim_type": "source_extraction",
+      "index": 5,
+      "url": "https://theguardian.com/business/2026/jan/18/royal-navy-shipbuilder-liberty-steel-dalzell-gupta",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260876,
+      "claim": "Small trial runs in November were only able to process about 1,000 tonnes – or about three days of output – sources said.",
+      "source_url": "https://theguardian.com/business/2026/jan/18/royal-navy-shipbuilder-liberty-steel-dalzell-gupta",
+      "claim_type": "source_extraction",
+      "index": 6,
+      "url": "https://theguardian.com/business/2026/jan/18/royal-navy-shipbuilder-liberty-steel-dalzell-gupta",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260877,
+      "claim": "Navantia took over the Harland & Wolff site in Belfast last year, after its British owner collapsed.",
+      "source_url": "https://theguardian.com/business/2026/jan/18/royal-navy-shipbuilder-liberty-steel-dalzell-gupta",
+      "claim_type": "source_extraction",
+      "index": 7,
+      "url": "https://theguardian.com/business/2026/jan/18/royal-navy-shipbuilder-liberty-steel-dalzell-gupta",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260878,
+      "claim": "The data available from the information published includes steel purchased for MOD shipbuilding projects.",
+      "source_url": "https://questions-statements.parliament.uk/written-questions/detail/2025-03-13/38099",
+      "claim_type": "source_extraction",
+      "index": 8,
+      "url": "https://questions-statements.parliament.uk/written-questions/detail/2025-03-13/38099",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260879,
+      "claim": "The response to this question assumes that UK military shipbuilding relates solely to the building of surface warships, and does not include submarine construction.",
+      "source_url": "https://questions-statements.parliament.uk/written-questions/detail/2025-03-13/38099",
+      "claim_type": "source_extraction",
+      "index": 9,
+      "url": "https://questions-statements.parliament.uk/written-questions/detail/2025-03-13/38099",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260880,
+      "claim": "Data for Financial Year (FY) 2023-24 has not yet been published.",
+      "source_url": "https://questions-statements.parliament.uk/written-questions/detail/2025-03-13/38099",
+      "claim_type": "source_extraction",
+      "index": 10,
+      "url": "https://questions-statements.parliament.uk/written-questions/detail/2025-03-13/38099",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260881,
+      "claim": "Therefore, the origin of the steel is only available for FY 2022-23.",
+      "source_url": "https://questions-statements.parliament.uk/written-questions/detail/2025-03-13/38099",
+      "claim_type": "source_extraction",
+      "index": 11,
+      "url": "https://questions-statements.parliament.uk/written-questions/detail/2025-03-13/38099",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260882,
+      "claim": "No steel was recorded as having been purchased in FY 2018-19 for any UK shipbuilding projects.",
+      "source_url": "https://questions-statements.parliament.uk/written-questions/detail/2025-03-13/38099",
+      "claim_type": "source_extraction",
+      "index": 12,
+      "url": "https://questions-statements.parliament.uk/written-questions/detail/2025-03-13/38099",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260883,
+      "claim": "Manufacturer(s) approved by this certificate is/are accepted to deliver according to DNV GL, DNV and GL rules.",
+      "source_url": "https://dillinger.de/app/uploads/2025/12/DNV_DH_Certificate_AMMM00000RU-revision8_ex.pdf",
+      "claim_type": "source_extraction",
+      "index": 13,
+      "url": "https://dillinger.de/app/uploads/2025/12/DNV_DH_Certificate_AMMM00000RU-revision8_ex.pdf",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260884,
+      "claim": "Materials to be applied to DNV classed object shall fulfill the material requirements in the applicable DNV class rules.",
+      "source_url": "https://dillinger.de/app/uploads/2025/12/DNV_DH_Certificate_AMMM00000RU-revision8_ex.pdf",
+      "claim_type": "source_extraction",
+      "index": 14,
+      "url": "https://dillinger.de/app/uploads/2025/12/DNV_DH_Certificate_AMMM00000RU-revision8_ex.pdf",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260885,
+      "claim": "French specialty steel manufacturers melt, forge and roll the heavy plates, nickel alloys and superalloy bars that go into nuclear reactor vessels, jet engine discs, naval propulsion shafts and high-pressure oil and gas hardware.",
+      "source_url": "https://papaverai.com/blog/french-specialty-steel-manufacturers",
+      "claim_type": "source_extraction",
+      "index": 15,
+      "url": "https://papaverai.com/blog/french-specialty-steel-manufacturers",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260886,
+      "claim": "Industeel Le Creusot is one of the few European plants that can pour ingots up to 350 tonnes, bottom-poured from a 100 tonne EAF route with VOD and VD degassing, and roll heavy plates in the grades the nuclear code requires.",
+      "source_url": "https://papaverai.com/blog/french-specialty-steel-manufacturers",
+      "claim_type": "source_extraction",
+      "index": 16,
+      "url": "https://papaverai.com/blog/french-specialty-steel-manufacturers",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260887,
+      "claim": "The site renewed its ASME material organisation certification QSC-400 in March 2025, valid through 2028.",
+      "source_url": "https://papaverai.com/blog/french-specialty-steel-manufacturers",
+      "claim_type": "source_extraction",
+      "index": 17,
+      "url": "https://papaverai.com/blog/french-specialty-steel-manufacturers",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260888,
+      "claim": "The same Le Creusot route also feeds the PA-NG nuclear aircraft carrier programme, with Naval Group, TechnicAtome and the MO Porte-avions joint venture mobilising Industeel and Aubert and Duval as forging and materials partners on the first K22 reactor units.",
+      "source_url": "https://papaverai.com/blog/french-specialty-steel-manufacturers",
+      "claim_type": "source_extraction",
+      "index": 18,
+      "url": "https://papaverai.com/blog/french-specialty-steel-manufacturers",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260889,
+      "claim": "All steel plates for shipbuilding & repairing are supplied with 3rd party classification certificates in accordance with EN10204-3.2.",
+      "source_url": "https://dentsteel.co.uk/products/marine-and-naval-plates",
+      "claim_type": "source_extraction",
+      "index": 19,
+      "url": "https://dentsteel.co.uk/products/marine-and-naval-plates",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260890,
+      "claim": "Certificates are endorsed by Lloyds and DNV, other classification endorsements can be supplied upon request.",
+      "source_url": "https://dentsteel.co.uk/products/marine-and-naval-plates",
+      "claim_type": "source_extraction",
+      "index": 20,
+      "url": "https://dentsteel.co.uk/products/marine-and-naval-plates",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260891,
+      "claim": "Dent Steel Services specialises in the supply of plates, profiles and in-house processing to all major markets including naval, oil & gas, onshore & offshore renewables, construction and bridges.",
+      "source_url": "https://dentsteel.co.uk/product",
+      "claim_type": "source_extraction",
+      "index": 21,
+      "url": "https://dentsteel.co.uk/product",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260892,
+      "claim": "All products supplied are certified in accordance with EN10204:2004 with full traceability.",
+      "source_url": "https://dentsteel.co.uk/product",
+      "claim_type": "source_extraction",
+      "index": 22,
+      "url": "https://dentsteel.co.uk/product",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260893,
+      "claim": "All steel plates for shipbuilding & shiprepair are supplied with 3rd party classification certificates in accordance with EN10204-3.2.",
+      "source_url": "https://dentsteel.co.uk/product",
+      "claim_type": "source_extraction",
+      "index": 23,
+      "url": "https://dentsteel.co.uk/product",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260894,
+      "claim": "Goodwin plc, the UK-listed engineering group, agreed to sell substantially all of its Mechanical Engineering division to Cerberus Capital Management for approximately £1.1 billion, roughly $1.49 billion.",
+      "source_url": "https://financialmarkets.com/article/cerberus-is-buying-a-submarine-supply-chain-and-the-uk-government-gets-a-vote",
+      "claim_type": "source_extraction",
+      "index": 24,
+      "url": "https://financialmarkets.com/article/cerberus-is-buying-a-submarine-supply-chain-and-the-uk-government-gets-a-vote",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260895,
+      "claim": "The division comprises Goodwin Steel Castings, Goodwin International, Noreva, the Easat Group and a pumps business.",
+      "source_url": "https://financialmarkets.com/article/cerberus-is-buying-a-submarine-supply-chain-and-the-uk-government-gets-a-vote",
+      "claim_type": "source_extraction",
+      "index": 25,
+      "url": "https://financialmarkets.com/article/cerberus-is-buying-a-submarine-supply-chain-and-the-uk-government-gets-a-vote",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260896,
+      "claim": "It supplies components for naval vessel and submarine programmes serving both the UK and US navies.",
+      "source_url": "https://financialmarkets.com/article/cerberus-is-buying-a-submarine-supply-chain-and-the-uk-government-gets-a-vote",
+      "claim_type": "source_extraction",
+      "index": 26,
+      "url": "https://financialmarkets.com/article/cerberus-is-buying-a-submarine-supply-chain-and-the-uk-government-gets-a-vote",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260897,
+      "claim": "But a freedom of information request by Community steelworkers’ union has found ministers did not insist that UK-manufactured steel must be used in their construction.",
+      "source_url": "https://inview.org.uk/news/111179-toriec_playing_dangerous_game_over_british_steel_for_uk_warships/print",
+      "claim_type": "source_extraction",
+      "index": 27,
+      "url": "https://inview.org.uk/news/111179-toriec_playing_dangerous_game_over_british_steel_for_uk_warships/print",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260898,
+      "claim": "Team Resolute has publicly committed to procuring UK steel wherever it is practicable to do so.”",
+      "source_url": "https://inview.org.uk/news/111179-toriec_playing_dangerous_game_over_british_steel_for_uk_warships/print",
+      "claim_type": "source_extraction",
+      "index": 28,
+      "url": "https://inview.org.uk/news/111179-toriec_playing_dangerous_game_over_british_steel_for_uk_warships/print",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260899,
+      "claim": "A year earlier, we revealed how four Royal Fleet Auxiliary Tide-class tankers were being built with 44,000 tonnes of South Korean steel.",
+      "source_url": "https://inview.org.uk/news/111179-toriec_playing_dangerous_game_over_british_steel_for_uk_warships/print",
+      "claim_type": "source_extraction",
+      "index": 29,
+      "url": "https://inview.org.uk/news/111179-toriec_playing_dangerous_game_over_british_steel_for_uk_warships/print",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260900,
+      "claim": "During the Tories’ 2016 party conference, the Mirror exposed how French steel was ordered for Britain's new Dreadnought fleet of nuclear-armed submarines.",
+      "source_url": "https://inview.org.uk/news/111179-toriec_playing_dangerous_game_over_british_steel_for_uk_warships/print",
+      "claim_type": "source_extraction",
+      "index": 30,
+      "url": "https://inview.org.uk/news/111179-toriec_playing_dangerous_game_over_british_steel_for_uk_warships/print",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260901,
+      "claim": "Swedish steel was also used for three Navy offshore patrol vessels, as we reported in 2015.",
+      "source_url": "https://inview.org.uk/news/111179-toriec_playing_dangerous_game_over_british_steel_for_uk_warships/print",
+      "claim_type": "source_extraction",
+      "index": 31,
+      "url": "https://inview.org.uk/news/111179-toriec_playing_dangerous_game_over_british_steel_for_uk_warships/print",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260902,
+      "claim": "Not all of the required specifications for Type 26 steel are manufactured in the UK.",
+      "source_url": "https://assets.publishing.service.gov.uk/media/5c409c63e5274a6e65dc1cff/Steel-public-procurement-compliance-guidance-ppn-11-16.pdf",
+      "claim_type": "source_extraction",
+      "index": 32,
+      "url": "https://assets.publishing.service.gov.uk/media/5c409c63e5274a6e65dc1cff/Steel-public-procurement-compliance-guidance-ppn-11-16.pdf",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260903,
+      "claim": "Thin plate steel is sourced from overseas (primarily Sweden).",
+      "source_url": "https://assets.publishing.service.gov.uk/media/5c409c63e5274a6e65dc1cff/Steel-public-procurement-compliance-guidance-ppn-11-16.pdf",
+      "claim_type": "source_extraction",
+      "index": 33,
+      "url": "https://assets.publishing.service.gov.uk/media/5c409c63e5274a6e65dc1cff/Steel-public-procurement-compliance-guidance-ppn-11-16.pdf",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260904,
+      "claim": "The £10.8m contract for steel for the first three Type 26 Frigates valued was signed on 31 March 2017 and is included here for completeness.",
+      "source_url": "https://assets.publishing.service.gov.uk/media/5c409c63e5274a6e65dc1cff/Steel-public-procurement-compliance-guidance-ppn-11-16.pdf",
+      "claim_type": "source_extraction",
+      "index": 34,
+      "url": "https://assets.publishing.service.gov.uk/media/5c409c63e5274a6e65dc1cff/Steel-public-procurement-compliance-guidance-ppn-11-16.pdf",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260905,
+      "claim": "Steel procurement for the Astute programme is the responsibility of the prime contractor.",
+      "source_url": "https://assets.publishing.service.gov.uk/media/5c409c63e5274a6e65dc1cff/Steel-public-procurement-compliance-guidance-ppn-11-16.pdf",
+      "claim_type": "source_extraction",
+      "index": 35,
+      "url": "https://assets.publishing.service.gov.uk/media/5c409c63e5274a6e65dc1cff/Steel-public-procurement-compliance-guidance-ppn-11-16.pdf",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260906,
+      "claim": "A large variety, but low quantity, of various types of steel was procured from various stockists to support the Astute programme.",
+      "source_url": "https://assets.publishing.service.gov.uk/media/5c409c63e5274a6e65dc1cff/Steel-public-procurement-compliance-guidance-ppn-11-16.pdf",
+      "claim_type": "source_extraction",
+      "index": 36,
+      "url": "https://assets.publishing.service.gov.uk/media/5c409c63e5274a6e65dc1cff/Steel-public-procurement-compliance-guidance-ppn-11-16.pdf",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260907,
+      "claim": "Harvey armor was a type of steel naval armor developed in the early 1890s in which the front surfaces of the plates were case hardened.",
+      "source_url": "https://en.wikipedia.org/wiki/Harvey_armor",
+      "claim_type": "source_extraction",
+      "index": 37,
+      "url": "https://en.wikipedia.org/wiki/Harvey_armor",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260908,
+      "claim": "The year 1894 would see the ten main producers of armor plate, including Vickers, Armstrong, Krupp, Schneider, Carnegie, and Bethlehem Steel, form the Harvey Syndicate.",
+      "source_url": "https://en.wikipedia.org/wiki/Harvey_armor",
+      "claim_type": "source_extraction",
+      "index": 38,
+      "url": "https://en.wikipedia.org/wiki/Harvey_armor",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260909,
+      "claim": "In this process, the steel plate would be covered with charcoal and heated to approximately 1200 degrees Celsius for two to three weeks.",
+      "source_url": "https://en.wikipedia.org/wiki/Harvey_armor",
+      "claim_type": "source_extraction",
+      "index": 39,
+      "url": "https://en.wikipedia.org/wiki/Harvey_armor",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260910,
+      "claim": "After cementing, the plate was chilled first in an oil bath, then in a water bath, before being annealed to toughen the back of the plate.",
+      "source_url": "https://en.wikipedia.org/wiki/Harvey_armor",
+      "claim_type": "source_extraction",
+      "index": 40,
+      "url": "https://en.wikipedia.org/wiki/Harvey_armor",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260911,
+      "claim": "While the American navy used nickel steel for Harvey armor (roughly 0.2 percent carbon, 0.6 percent manganese, 3.5 percent nickel), the British used normal steels since their tests had shown that ordinary steel subjected to the Harvey process had the same resistance to penetration as nickel steel, although it was not quite as tough.",
+      "source_url": "https://en.wikipedia.org/wiki/Harvey_armor",
+      "claim_type": "source_extraction",
+      "index": 41,
+      "url": "https://en.wikipedia.org/wiki/Harvey_armor",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260912,
+      "claim": "Furthermore, we source only highest-quality steel from a global network of leading mills, ensuring compliance with strict defence specifications.",
+      "source_url": "https://dentsteel.co.uk/naval-solutions",
+      "claim_type": "source_extraction",
+      "index": 42,
+      "url": "https://dentsteel.co.uk/naval-solutions",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260913,
+      "claim": "Our services include long-term material storage, advanced processing capabilities and on time in full (OTIF) deliveries, ensuring your programme remains on scheduled and within specification.",
+      "source_url": "https://dentsteel.co.uk/naval-solutions",
+      "claim_type": "source_extraction",
+      "index": 43,
+      "url": "https://dentsteel.co.uk/naval-solutions",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260914,
+      "claim": "Our integrated management system is accredited to ISO 9001, 14001 and 45001, reflecting our dedication to quality, environmental responsibility and workplace safety.",
+      "source_url": "https://dentsteel.co.uk/naval-solutions",
+      "claim_type": "source_extraction",
+      "index": 44,
+      "url": "https://dentsteel.co.uk/naval-solutions",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260915,
+      "claim": "All materials are supplied in accordance with EN10204-3.1 or 3.2, and certified by leading IACS members, including Lloyds Register and DNV.",
+      "source_url": "https://dentsteel.co.uk/naval-solutions",
+      "claim_type": "source_extraction",
+      "index": 45,
+      "url": "https://dentsteel.co.uk/naval-solutions",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260916,
+      "claim": "Our 21,000m² covered facility is equipped with clean and secure storage solutions.",
+      "source_url": "https://dentsteel.co.uk/naval-solutions",
+      "claim_type": "source_extraction",
+      "index": 46,
+      "url": "https://dentsteel.co.uk/naval-solutions",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260917,
+      "claim": "Choć pozyskujemy stalowe blachy gorąco walcowane do budowy okrętów od wiodących partnerów, takich jak Baosteel, skupiamy się na dostarczaniu materiału o spójnych właściwościach mechanicznych, kluczowych dla integralności kadłuba.",
+      "source_url": "https://baotaimetal.com/pl/application/shipbuilding-hot-rolled-steel-coil",
+      "claim_type": "source_extraction",
+      "index": 47,
+      "url": "https://baotaimetal.com/pl/application/shipbuilding-hot-rolled-steel-coil",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260918,
+      "claim": "Nasze własne zakłady są wyposażone w niezbędną obróbkę, taką jak precyzyjne wygładzanie i cięcie wzdłużne, przekształcające zwoje maczyste na rozmiary nadające się do użycia w elementach stoczniowych.",
+      "source_url": "https://baotaimetal.com/pl/application/shipbuilding-hot-rolled-steel-coil",
+      "claim_type": "source_extraction",
+      "index": 48,
+      "url": "https://baotaimetal.com/pl/application/shipbuilding-hot-rolled-steel-coil",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260919,
+      "claim": "Gatunki takie jak gatunek A, B, D, E oraz wytrzymalsze odmiany typu AH36 lub DH36 są definiowane przez przepisy międzynarodowych towarzystw klasyfikacyjnych (np. Lloyd’s Register, DNV, Bureau Veritas, American Bureau of Shipping).",
+      "source_url": "https://baotaimetal.com/pl/application/shipbuilding-hot-rolled-steel-coil",
+      "claim_type": "source_extraction",
+      "index": 49,
+      "url": "https://baotaimetal.com/pl/application/shipbuilding-hot-rolled-steel-coil",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260920,
+      "claim": "Stale te poddaje się kontrolowanemu walcowaniu oraz obróbce cieplnej, aby osiągnąć drobnoziarnistą mikrostrukturę, zapewniającą odpowiednią równowagę między wytrzymałością a plastycznością.",
+      "source_url": "https://baotaimetal.com/pl/application/shipbuilding-hot-rolled-steel-coil",
+      "claim_type": "source_extraction",
+      "index": 50,
+      "url": "https://baotaimetal.com/pl/application/shipbuilding-hot-rolled-steel-coil",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260921,
+      "claim": "Stocznie i właściciele statków muszą dostarczać inspektorom towarzystw klasyfikacyjnych certyfikaty badawcze huty (MTC) lub dokumenty równoważne, aby potwierdzić zgodność materiału z określonym gatunkiem i normą.",
+      "source_url": "https://baotaimetal.com/pl/application/shipbuilding-hot-rolled-steel-coil",
+      "claim_type": "source_extraction",
+      "index": 51,
+      "url": "https://baotaimetal.com/pl/application/shipbuilding-hot-rolled-steel-coil",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260922,
+      "claim": "ArcelorMittal’s offer in naval grades includes hot rolled sheets for thinner applications and heavy plate up to 80 mm thick and 3,300 mm wide.",
+      "source_url": "https://industry.arcelormittal.com/repository/fce/Brochures/Shipbuilding_brochure_EN.pdf",
+      "claim_type": "source_extraction",
+      "index": 52,
+      "url": "https://industry.arcelormittal.com/repository/fce/Brochures/Shipbuilding_brochure_EN.pdf",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": false,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260923,
+      "claim": "ArcelorMittal Europe – Flat Products offers a wide range of heavy plate for shipbuilding from our quarto mill in Gijón (Spain).",
+      "source_url": "https://industry.arcelormittal.com/repository/fce/Brochures/Shipbuilding_brochure_EN.pdf",
+      "claim_type": "source_extraction",
+      "index": 53,
+      "url": "https://industry.arcelormittal.com/repository/fce/Brochures/Shipbuilding_brochure_EN.pdf",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260924,
+      "claim": "ArcelorMittal Europe – Flat Products produces hot rolled coils which can be cut to your specifications.",
+      "source_url": "https://industry.arcelormittal.com/repository/fce/Brochures/Shipbuilding_brochure_EN.pdf",
+      "claim_type": "source_extraction",
+      "index": 54,
+      "url": "https://industry.arcelormittal.com/repository/fce/Brochures/Shipbuilding_brochure_EN.pdf",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260925,
+      "claim": "Size and tolerances meet the EN 10029, ASTM A6, ASTM20, and JIS G 3193 standards.",
+      "source_url": "https://industry.arcelormittal.com/repository/fce/Brochures/Shipbuilding_brochure_EN.pdf",
+      "claim_type": "source_extraction",
+      "index": 55,
+      "url": "https://industry.arcelormittal.com/repository/fce/Brochures/Shipbuilding_brochure_EN.pdf",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260926,
+      "claim": "Surface quality meets EN10163 and naval regulation.",
+      "source_url": "https://industry.arcelormittal.com/repository/fce/Brochures/Shipbuilding_brochure_EN.pdf",
+      "claim_type": "source_extraction",
+      "index": 56,
+      "url": "https://industry.arcelormittal.com/repository/fce/Brochures/Shipbuilding_brochure_EN.pdf",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260927,
+      "claim": "Marine steel plates must comply with international standards and classification society certification requirements to ensure safety and reliability.",
+      "source_url": "https://central-steels.com/newsdetail/marine-steel-plate-specifications.html",
+      "claim_type": "source_extraction",
+      "index": 57,
+      "url": "https://central-steels.com/newsdetail/marine-steel-plate-specifications.html",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260928,
+      "claim": "For example: ABS AH36 indicates high-strength ship plates certified by the American Bureau of Shipping (ABS); LR DH36 indicates Lloyd's Register certified high-strength ship plates of the United Kingdom.",
+      "source_url": "https://central-steels.com/newsdetail/marine-steel-plate-specifications.html",
+      "claim_type": "source_extraction",
+      "index": 58,
+      "url": "https://central-steels.com/newsdetail/marine-steel-plate-specifications.html",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260929,
+      "claim": "Reports indicate that the Liberty Steel Dalzell had previously secured a contract to supply steel plates for three Royal Navy logistics support ships.",
+      "source_url": "https://imarinenews.com/31808.html",
+      "claim_type": "source_extraction",
+      "index": 59,
+      "url": "https://imarinenews.com/31808.html",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260930,
+      "claim": "Originally slated to produce 34,000 metric tons of shipbuilding steel plates under the contract, production has stalled due to an inability to procure the basic raw material for steel processing—steel billets.",
+      "source_url": "https://imarinenews.com/31808.html",
+      "claim_type": "source_extraction",
+      "index": 60,
+      "url": "https://imarinenews.com/31808.html",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260931,
+      "claim": "It is reported that the Liberty Steel Dalzell relies on purchasing steel billets from British Steel, which are then rolled and processed into marine steel plates.",
+      "source_url": "https://imarinenews.com/31808.html",
+      "claim_type": "source_extraction",
+      "index": 61,
+      "url": "https://imarinenews.com/31808.html",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260932,
+      "claim": "Sources revealed that the small-scale trial production conducted at the Dalzel plant in November 2025 yielded only about 1,000 tons of steel plates, equivalent to “roughly three days’ output” by factory standards.",
+      "source_url": "https://imarinenews.com/31808.html",
+      "claim_type": "source_extraction",
+      "index": 62,
+      "url": "https://imarinenews.com/31808.html",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260933,
+      "claim": "The project was jointly awarded to Spain’s state-owned shipbuilder Navantia and UK shipbuilder Harland & Wolff.",
+      "source_url": "https://imarinenews.com/31808.html",
+      "claim_type": "source_extraction",
+      "index": 63,
+      "url": "https://imarinenews.com/31808.html",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260934,
+      "claim": "Europe and North America maintain mature but slower-growing capacity focused on high-strength, certified and specialty plates.",
+      "source_url": "https://mrrse.com/reports/steel-plate-global-production-capacity-and-growth-outlook",
+      "claim_type": "source_extraction",
+      "index": 64,
+      "url": "https://mrrse.com/reports/steel-plate-global-production-capacity-and-growth-outlook",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260935,
+      "claim": "Infrastructure and energy applications dominate demand, with shipbuilding providing cyclical but high-volume consumption in select regions.",
+      "source_url": "https://mrrse.com/reports/steel-plate-global-production-capacity-and-growth-outlook",
+      "claim_type": "source_extraction",
+      "index": 65,
+      "url": "https://mrrse.com/reports/steel-plate-global-production-capacity-and-growth-outlook",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260936,
+      "claim": "At the PGZ Naval Shipyard in Gdynia, the ceremonial first “burning” (cutting) of steel plate took place for the second project 106 Miecznik frigate on Monday 5 May.",
+      "source_url": "https://defence24.com/armed-forces/navy/miecznik-gains-momentum-first-steel-plate-for-orp-burza-cut-photo",
+      "claim_type": "source_extraction",
+      "index": 66,
+      "url": "https://defence24.com/armed-forces/navy/miecznik-gains-momentum-first-steel-plate-for-orp-burza-cut-photo",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260937,
+      "claim": "Crist will build the bow block of the prototype 106/1, which will be transported across the Gdynia ship canal and joined in the new assembly hall with the mid and aft hull blocks being built by PGZ Naval Shipyard.",
+      "source_url": "https://defence24.com/armed-forces/navy/miecznik-gains-momentum-first-steel-plate-for-orp-burza-cut-photo",
+      "claim_type": "source_extraction",
+      "index": 67,
+      "url": "https://defence24.com/armed-forces/navy/miecznik-gains-momentum-first-steel-plate-for-orp-burza-cut-photo",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260938,
+      "claim": "Crist began cutting plates for the prototype’s bow block on 12th August 2024.",
+      "source_url": "https://defence24.com/armed-forces/navy/miecznik-gains-momentum-first-steel-plate-for-orp-burza-cut-photo",
+      "claim_type": "source_extraction",
+      "index": 68,
+      "url": "https://defence24.com/armed-forces/navy/miecznik-gains-momentum-first-steel-plate-for-orp-burza-cut-photo",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260939,
+      "claim": "LIBERTY Steel Dalzell offers hot rolled plates to national, international and classification society grades to the marine and shipbuilding markets.",
+      "source_url": "https://libertysteelgroup.com/uk/products/plate",
+      "claim_type": "source_extraction",
+      "index": 69,
+      "url": "https://libertysteelgroup.com/uk/products/plate",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260940,
+      "claim": "Plate materials supplied are used in all aspects of maritime transport for vessels as well as infrastructure such as off-shore replenishment vessels and naval defence.",
+      "source_url": "https://libertysteelgroup.com/uk/products/plate",
+      "claim_type": "source_extraction",
+      "index": 70,
+      "url": "https://libertysteelgroup.com/uk/products/plate",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260941,
+      "claim": "The materials are offered in a range of rolling conditions to be able to provide shipbuilding and fabrication yards with the most appropriate solution for their welding and qualified procedures.",
+      "source_url": "https://libertysteelgroup.com/uk/products/plate",
+      "claim_type": "source_extraction",
+      "index": 71,
+      "url": "https://libertysteelgroup.com/uk/products/plate",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260942,
+      "claim": "Large consumers of plate are construction, renewables, shipbuilding and the defense sector.",
+      "source_url": "https://eurometal.net/poland-must-fight-for-its-steel-plate-production-potential",
+      "claim_type": "source_extraction",
+      "index": 72,
+      "url": "https://eurometal.net/poland-must-fight-for-its-steel-plate-production-potential",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260943,
+      "claim": "There are three plate producers in Poland: Huta Czestochowa, Walcownia Blach Batory (WBB) of the Weglokoks group and the HSJ plant owned by the Cognor Group.",
+      "source_url": "https://eurometal.net/poland-must-fight-for-its-steel-plate-production-potential",
+      "claim_type": "source_extraction",
+      "index": 73,
+      "url": "https://eurometal.net/poland-must-fight-for-its-steel-plate-production-potential",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260944,
+      "claim": "Local plate production volumes fell by 50% from 625,000 tons in 2013 to 300,000 tons in 2023.",
+      "source_url": "https://eurometal.net/poland-must-fight-for-its-steel-plate-production-potential",
+      "claim_type": "source_extraction",
+      "index": 74,
+      "url": "https://eurometal.net/poland-must-fight-for-its-steel-plate-production-potential",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260945,
+      "claim": "This was due to problems at the largest producer, Huta Czestochowa, which has a capacity of up to 1 mln tons of plate.",
+      "source_url": "https://eurometal.net/poland-must-fight-for-its-steel-plate-production-potential",
+      "claim_type": "source_extraction",
+      "index": 75,
+      "url": "https://eurometal.net/poland-must-fight-for-its-steel-plate-production-potential",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260946,
+      "claim": "But Weglokoks is already present in the plate market currently, operating a plate mill in Huta Batory with a capacity of 150 thousand tons.",
+      "source_url": "https://eurometal.net/poland-must-fight-for-its-steel-plate-production-potential",
+      "claim_type": "source_extraction",
+      "index": 76,
+      "url": "https://eurometal.net/poland-must-fight-for-its-steel-plate-production-potential",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260947,
+      "claim": "Lloyd's Register and the Italian society RINA are both full members of the International Association of Classification Societies, and both apply the unified requirements of IACS UR W11 for normal and higher strength hull structural steel.",
+      "source_url": "http://m.gneesteels.com/info/lrarinashipbuildingsteelpl-31384858.html",
+      "claim_type": "source_extraction",
+      "index": 77,
+      "url": "http://m.gneesteels.com/info/lrarinashipbuildingsteelpl-31384858.html",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260948,
+      "claim": "The mill obtains works approval from the society, which covers the steelmaking route, the rolling practice, the heat treatment facilities, the testing laboratory and the welding procedures used for the mill's own qualification tests.",
+      "source_url": "http://m.gneesteels.com/info/lrarinashipbuildingsteelpl-31384858.html",
+      "claim_type": "source_extraction",
+      "index": 78,
+      "url": "http://m.gneesteels.com/info/lrarinashipbuildingsteelpl-31384858.html",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260949,
+      "claim": "Each order is then produced to a rolling schedule notified to the society, sampled at the frequency the rules prescribe for the grade and thickness, tested by a laboratory accepted by the society, and witnessed by a society surveyor who endorses the mill test certificate.",
+      "source_url": "http://m.gneesteels.com/info/lrarinashipbuildingsteelpl-31384858.html",
+      "claim_type": "source_extraction",
+      "index": 79,
+      "url": "http://m.gneesteels.com/info/lrarinashipbuildingsteelpl-31384858.html",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260950,
+      "claim": "Normal strength grades A, B, D and E have a minimum yield strength of 235 MPa and a tensile strength range of 400 to 520 MPa.",
+      "source_url": "http://m.gneesteels.com/info/lrarinashipbuildingsteelpl-31384858.html",
+      "claim_type": "source_extraction",
+      "index": 80,
+      "url": "http://m.gneesteels.com/info/lrarinashipbuildingsteelpl-31384858.html",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260951,
+      "claim": "The higher strength grades are supplied at three strength levels: 32 series with a minimum yield of 315 MPa, 36 series with a minimum yield of 355 MPa and 40 series with a minimum yield of 390 MPa, each combined with the same A, D, E and F toughness suffixes.",
+      "source_url": "http://m.gneesteels.com/info/lrarinashipbuildingsteelpl-31384858.html",
+      "claim_type": "source_extraction",
+      "index": 81,
+      "url": "http://m.gneesteels.com/info/lrarinashipbuildingsteelpl-31384858.html",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260952,
+      "claim": "In the maritime sector, it provides steel for cruise ships, military vessels, and specialized offshore structures, while also supporting machinery manufacturing (e.g., cranes and agricultural equipment) and energy applications in both renewable and conventional sources.",
+      "source_url": "https://grokipedia.com/page/trametal_spa",
+      "claim_type": "source_extraction",
+      "index": 82,
+      "url": "https://grokipedia.com/page/trametal_spa",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260953,
+      "claim": "Headquartered in Genoa with its primary production plant in San Giorgio di Nogaro, Friuli-Venezia Giulia, the company focuses on supplying structural and specialized steels to European markets, contributing significantly to sectors like shipbuilding, construction, and energy.",
+      "source_url": "https://grokipedia.com/page/trametal_spa",
+      "claim_type": "source_extraction",
+      "index": 83,
+      "url": "https://grokipedia.com/page/trametal_spa",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260954,
+      "claim": "Trametal's production emphasizes quarto plates ranging from thin gauges (4-6 mm) for lightweight applications to heavy plates (up to 150-180 mm) for demanding structural uses, including hot-rolled carbon and low-alloyed steels.",
+      "source_url": "https://grokipedia.com/page/trametal_spa",
+      "claim_type": "source_extraction",
+      "index": 84,
+      "url": "https://grokipedia.com/page/trametal_spa",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260955,
+      "claim": "By 2003, the commissioning of a new quarto rolling mill further boosted capacity to approximately 600,000 tonnes annually, supporting expanded output of plates for shipbuilding, pipe manufacturing, and industrial applications.",
+      "source_url": "https://grokipedia.com/page/trametal_spa",
+      "claim_type": "source_extraction",
+      "index": 85,
+      "url": "https://grokipedia.com/page/trametal_spa",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    },
+    {
+      "id": 260956,
+      "claim": "Trametal's growth extended beyond infrastructure to market expansion, with a strategic shift in 2001 toward broader European sales networks, targeting countries like Germany, Austria, and the United Kingdom.",
+      "source_url": "https://grokipedia.com/page/trametal_spa",
+      "claim_type": "source_extraction",
+      "index": 86,
+      "url": "https://grokipedia.com/page/trametal_spa",
+      "title": "source_extraction",
+      "provenance": {
+        "exact": true,
+        "whitespace_normalized": true,
+        "same_url_content_present": true
+      }
+    }
+  ],
+  "provenance_summary": {
+    "claims": 87,
+    "source_url_present": 87,
+    "same_url_content_present": 87,
+    "exact_text_present": 86,
+    "whitespace_text_present": 87,
+    "unmatched": 0
+  },
+  "read_only_verified": true,
+  "isolation": "repeatable read",
+  "limitation": "Literal or whitespace-normalized same-mission same-URL containment, not factual entailment. Paraphrases can fail containment."
+}

@@ -335,6 +335,8 @@ class RateLimitError(Exception):
 
 def test_local_rate_limit_is_retried_once_then_graded(monkeypatch):
     """The bridge allows 2 concurrent completions in total; a busy bridge says 'retry later'."""
+    # Non-strict legacy gate retry; strict mode delegates busy waits to llm.complete.
+    monkeypatch.delenv('BEHIVE_LLM_STRICT', raising=False)
     monkeypatch.setattr(RelevanceFilter, 'RATE_LIMIT_RETRY_DELAY_S', 0)
     calls = []
 
@@ -352,6 +354,8 @@ def test_local_rate_limit_is_retried_once_then_graded(monkeypatch):
 
 
 def test_rate_limit_twice_degrades_to_keyword_fallback(monkeypatch):
+    # Non-strict legacy gate retry; strict mode delegates busy waits to llm.complete.
+    monkeypatch.delenv('BEHIVE_LLM_STRICT', raising=False)
     monkeypatch.setattr(RelevanceFilter, 'RATE_LIMIT_RETRY_DELAY_S', 0)
     calls = []
 

@@ -494,7 +494,8 @@ class RelevanceFilter:
     # The Codex bridge allows two concurrent completions in TOTAL; one keeps a
     # slot free for the planner, extraction and other missions.
     CONTENT_CONCURRENCY = 1
-    # A busy bridge answers RateLimitError "retry later": one bounded retry.
+    # A busy bridge answers RateLimitError "retry later": one legacy retry.
+    # Strict mode delegates all busy waiting to llm.complete instead.
     RATE_LIMIT_RETRY_DELAY_S = 20
     CONTENT_EXCERPT_CHARS = 2000
     _CONTENT_SYSTEM = (
@@ -756,7 +757,11 @@ class RelevanceFilter:
                 try:
                     return await self.score_batch(chunk)
                 except Exception as exc:
-                    if type(exc).__name__ != 'RateLimitError':
+                    # In strict mode complete owns the entire busy budget. Do
+                    # not reset it here, or retry an upstream quota denial.
+                    # The legacy non-strict gate retry remains unchanged.
+                    if (os.environ.get('BEHIVE_LLM_STRICT') == '1'
+                            or type(exc).__name__ != 'RateLimitError'):
                         raise
                     log.warning('RelevanceFilter: model busy (RateLimitError); one retry in %ss',
                                 self.RATE_LIMIT_RETRY_DELAY_S)
@@ -2190,12 +2195,21 @@ class ProcessingDrones:
         counts = dict(documents_input=len(docs), documents_with_provenance=0,
                       documents_selected=0, documents_capped=0,
                       documents_already_attempted=0, documents_deadline_deferred=0,
-                      claims_extracted=0, claims_duplicates=0, claims_saved=0)
+                      claims_extracted=0, claims_duplicates=0, claims_saved=0, pending=0)
         status, stage, error_type = "failed", "provenance", None
         progress = ExtractionProgress()
+        accepted_urls: set[str] = set()
+        provenance_loaded = False
+
+        def extraction_state(config, attempted, available_urls):
+            pending = len((accepted_urls & available_urls) - attempted)
+            config["source_extraction"] = {
+                "version": 1, "attempted_urls": sorted(attempted), "pending": pending}
+            return pending
 
         def persist_document(url, claims):
             nonlocal stage
+            previous_stage = stage
             stage = "persistence"
             counts["claims_extracted"] += len(claims)
             saved = 0
@@ -2237,11 +2251,13 @@ class ProcessingDrones:
                     raise ValueError("Source extraction mission not found")
                 config = _mission_config(row[0])
                 attempted = _source_attempted_urls(config) | {url}
-                config["source_extraction"] = {"version": 1, "attempted_urls": sorted(attempted)}
+                pending = extraction_state(config, attempted, accepted_urls)
                 cur.execute("UPDATE hive_missions SET config = %s WHERE id = %s",
                             (json.dumps(config, ensure_ascii=False), self.mission_id))
+            counts["pending"] = pending
             counts["claims_saved"] += saved  # Only committed rows, even on a later failure.
-            stage = "extraction"
+            if previous_stage != "persistence":
+                stage = "extraction"  # Do not erase an earlier sibling's failing stage.
 
         try:
             # No PostgreSQL connection/transaction survives into a model call.
@@ -2254,8 +2270,17 @@ class ProcessingDrones:
                 cur.execute("SELECT config FROM hive_missions WHERE id = %s", (self.mission_id,))
                 row = cur.fetchone()
                 attempted = _source_attempted_urls(_mission_config(row[0])) if row else set()
-            provenance_docs = [doc for doc in docs if doc.get('url') in source_urls]
+            # A page is a URL, not a duplicate content row. Never spend two
+            # bridge slots on the same pending page in this pass.
+            unique_docs = {}
+            for doc in docs:
+                if doc.get('url') in source_urls:
+                    unique_docs.setdefault(doc['url'], doc)
+            provenance_docs = list(unique_docs.values())
+            accepted_urls = set(unique_docs)
+            provenance_loaded = True
             pending_docs = [doc for doc in provenance_docs if doc.get('url') not in attempted]
+            counts["pending"] = len(pending_docs)
             extract_docs = pending_docs[:MAX_DOCUMENTS]
             counts["documents_with_provenance"] = len(provenance_docs)
             counts["documents_already_attempted"] = len(provenance_docs) - len(pending_docs)
@@ -2276,12 +2301,43 @@ class ProcessingDrones:
                 f"Source claim extraction/persistence failed ({type(exc).__name__})"
             ) from None
         finally:
+            pending_error = None
+            if provenance_loaded:
+                try:
+                    # Refresh even on an empty/deferred/failed pass. A separate
+                    # short transaction cannot roll back committed page claims.
+                    with closing(get_pg_connection()) as conn, conn, conn.cursor() as cur:
+                        cur.execute("SELECT config FROM hive_missions WHERE id = %s FOR UPDATE",
+                                    (self.mission_id,))
+                        row = cur.fetchone()
+                        if row is None:
+                            raise ValueError("Source extraction mission not found")
+                        config = _mission_config(row[0])
+                        cur.execute("""
+                            SELECT url FROM hive_content WHERE mission_id = %s
+                            UNION SELECT url FROM hive_sources WHERE mission_id = %s
+                        """, (self.mission_id, self.mission_id))
+                        available_urls = {row[0] for row in cur.fetchall() if row[0]}
+                        pending = extraction_state(config, _source_attempted_urls(config), available_urls)
+                        cur.execute("UPDATE hive_missions SET config = %s WHERE id = %s",
+                                    (json.dumps(config, ensure_ascii=False), self.mission_id))
+                    counts["pending"] = pending
+                except Exception as exc:
+                    # Preserve the original provider/persistence failure, if any.
+                    if status != "failed":
+                        pending_error = exc
+                        status, stage, error_type = "failed", "progress", type(exc).__name__
+                    log.warning("Phase A3 progress write failed (error_type=%s)", type(exc).__name__)
             counts["documents_deadline_deferred"] = progress.counts.get("documents_deadline_deferred", 0)
             level = logging.ERROR if status == "failed" else (logging.INFO if counts["claims_saved"] else logging.WARNING)
             log.log(level, "Phase A3 summary: status=%s stage=%s error_type=%s counts=%s",
                     status, stage, error_type, counts,
                     extra={"phase_a3_status": status, "phase_a3_stage": stage,
                            "phase_a3_error_type": error_type, "phase_a3_counts": dict(counts)})
+            if pending_error is not None:
+                raise RuntimeError(
+                    f"Source claim extraction/persistence failed ({type(pending_error).__name__})"
+                ) from None
 
     async def _process_doc_with_ops(
         self,

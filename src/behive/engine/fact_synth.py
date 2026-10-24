@@ -96,7 +96,11 @@ def on_topic(claim: str, needles: list[str]) -> bool:
 
 
 def domain_of(url: str) -> str:
-    host = (urlparse(url or "").hostname or "").lower().removeprefix("www.")
+    try:
+        host = (urlparse(url or "").hostname or "").lower().removeprefix("www.")
+    except ValueError:
+        # SQL eligibility requires provenance, not URL-parser correctness.
+        return "unknown"
     return host or "unknown"
 
 
@@ -281,10 +285,12 @@ def persist_fact_synthesis(mission_id: str) -> dict:
             UPDATE hive_missions
             SET synthesis=%s, synth_done_at=NOW()
             WHERE id=%s AND status NOT IN ('cancelled', 'error')
+            RETURNING id
             """,
             (report, mission_id),
         )
+        persisted = cur.fetchone() is not None
         conn.commit()
-        return {"attested": len(attested), "claims": len(rows), "chars": len(report)}
+        return {"attested": len(attested), "claims": len(rows), "chars": len(report) if persisted else 0}
     finally:
         conn.close()

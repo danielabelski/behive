@@ -129,9 +129,9 @@ def test_provider_failure_logs_safe_type_and_counts_without_swallowing(monkeypat
     assert record.source_extraction_status == 'failed'
     assert record.source_extraction_error_type == type(error).__name__
     assert record.source_extraction_stage == 'completion'
-    assert record.source_extraction_counts['model_calls'] == 1
+    assert record.source_extraction_counts['model_calls'] == 2
     assert record.source_extraction_counts['responses'] == 0
-    assert record.source_extraction_counts['documents_considered'] == 1
+    assert record.source_extraction_counts['documents_considered'] == 2
     assert record.exc_info is None
     assert 'PRIVATE_PROVIDER_TOKEN' not in caplog.text
 

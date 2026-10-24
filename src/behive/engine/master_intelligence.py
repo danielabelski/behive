@@ -451,6 +451,13 @@ def summarize_bee_results(mission_id: str, con: Any) -> str:
     Pull top bee results from hive_bee_results and summarize for Queen context.
     Groups by operation tier, returns top insights per tier.
     """
+    def display_confidence(value):
+        # hive_facts.confidence is TEXT in canonical/legacy deployments.
+        try:
+            return f"{float(value):.2f}"
+        except (TypeError, ValueError):
+            return "unknown"
+
     try:
         rows = con.execute("""
             SELECT operation_id, operation_name, tier, output_json, confidence
@@ -480,12 +487,12 @@ def summarize_bee_results(mission_id: str, con: Any) -> str:
         if entities:
             parts.append("## Key Entities Extracted")
             for etype, val, ctx, conf in entities[:15]:
-                parts.append(f"- [{etype}] {val} (conf={conf:.2f}) — {ctx[:100]}")
+                parts.append(f"- [{etype}] {val} (conf={display_confidence(conf)}) — {ctx[:100]}")
 
         if facts:
             parts.append("\n## Key Facts Extracted")
             for val, unit, ctx, conf in facts[:10]:
-                parts.append(f"- {val} {unit} — {ctx[:100]} (conf={conf:.2f})")
+                parts.append(f"- {val} {unit} — {ctx[:100]} (conf={display_confidence(conf)})")
 
         return "\n".join(parts) if parts else "No agent intelligence available."
 
@@ -524,7 +531,7 @@ def summarize_bee_results(mission_id: str, con: Any) -> str:
                     summary = str(parsed)[:300]
             except Exception:
                 summary = str(output_json)[:300]
-            parts.append(f"**{op_id} — {op_name}** (conf={conf:.2f})\n{summary}")
+            parts.append(f"**{op_id} — {op_name}** (conf={display_confidence(conf)})\n{summary}")
 
     return "\n".join(parts)
 

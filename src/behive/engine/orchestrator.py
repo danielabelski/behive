@@ -1420,47 +1420,58 @@ def _bar(phase: str, elapsed: float, width: int = 20) -> str:
 
 
 def _run_synthesis(mission_id: str, query: str, timings: dict) -> None:
-    """Try the existing synthesis paths; publish completion only with evidence."""
+    """Persist a cited claim report; legacy paths run only if that path raises."""
     import gc
     from behive.hygiene import SQL_COMPLETION_CLAIM
     from behive.engine.fact_synth import persist_fact_synthesis
 
+    def report_state():
+        con = _connect_db(read_only=True)
+        try:
+            row = con.execute(
+                "SELECT synthesis,synth_done_at FROM hive_missions WHERE id=%s AND status NOT IN ('cancelled','error')",
+                [mission_id],
+            ).fetchone()
+            return row if row and isinstance(row[0], str) and row[0].strip() else None
+        finally:
+            con.close()
+
     _emit(mission_id, 'synth', 'started')
-    succeeded = False
-    method = "fact"
-    failure = None
+    succeeded, method, failure = False, 'claim', None
     try:
-        succeeded = persist_fact_synthesis(mission_id).get("claims", 0) >= 3
-        if succeeded:
-            timings['synth'] = 0.0
+        from behive.engine.claim_synthesis import persist_claim_synthesis
+        started = time.monotonic()
+        result = persist_claim_synthesis(mission_id)
+        succeeded = result.get('chars', 0) > 0 and result.get('persisted', False)
+        method = result.get('metadata', {}).get('method', 'claim')
+        timings['synth'] = time.monotonic() - started
     except Exception as exc:
         failure = exc
-        log.warning("Mission %s fact synthesis failed (%s)", mission_id, type(exc).__name__)
-    if not succeeded:
+        log.warning("Mission %s claim synthesis failed (%s)", mission_id, type(exc).__name__)
         for script, args, phase in (
             ('hive2_master_intelligence.py', [mission_id, query], 'queen-synthesis'),
             ('hive2_synth.py', [mission_id], 'synth-fallback'),
         ):
             gc.collect()
             try:
+                before = report_state()
                 timings['synth'] = run_phase(script, args, phase)
-                succeeded = True
-                method = phase
-                break
-            except Exception as exc:
-                failure = exc
-                log.warning("Mission %s %s failed (%s)", mission_id, phase, type(exc).__name__)
+                after = report_state()
+                succeeded = after is not None and after != before
+                if succeeded:
+                    method = phase
+                    break
+            except Exception as legacy_exc:
+                failure = legacy_exc
+                log.warning("Mission %s %s failed (%s)", mission_id, phase, type(legacy_exc).__name__)
         if not succeeded:
             try:
-                succeeded = persist_fact_synthesis(mission_id).get("claims", 0) >= 3
+                succeeded = persist_fact_synthesis(mission_id).get('chars', 0) > 0
                 if succeeded:
                     timings['synth'] = 0.0
-                    method = "fact"
-            except Exception as exc:
-                failure = exc
-    if not succeeded:
-        _emit(mission_id, 'synth', 'failed', data={'error_type': type(failure).__name__})
-        raise RuntimeError("synthesis failed") from failure
+                    method = 'fact'
+            except Exception as legacy_exc:
+                failure = legacy_exc
 
     con = None
     try:
@@ -1472,11 +1483,14 @@ def _run_synthesis(mission_id: str, query: str, timings: dict) -> None:
         claims = int(row[0] or 0) if row else 0
     except Exception as exc:
         _emit(mission_id, 'synth', 'failed', data={'error_type': type(exc).__name__})
-        raise RuntimeError("synthesis evidence unavailable") from exc
+        raise RuntimeError('synthesis evidence unavailable') from exc
     finally:
         if con is not None:
             con.close()
-    _emit(mission_id, 'synth', 'completed' if claims else 'empty', data={
+    if not succeeded and (claims or failure is not None):
+        _emit(mission_id, 'synth', 'failed', data={'error_type': type(failure).__name__ if failure else 'ReportNotPersisted'})
+        raise RuntimeError('synthesis failed') from failure
+    _emit(mission_id, 'synth', 'completed' if succeeded and claims else 'empty', data={
         'claims': claims, 'completion_basis': 'qualified_claims',
         'synthesis_method': method,
     })
@@ -1923,6 +1937,52 @@ print(json.dumps(output))
         _emit(mission_id, 'process', 'error', data={'error': 'Phase execution failed', 'error_type': type(e).__name__})
         timings['process'] = 0.0
         # Don't raise — synth can work with whatever claims exist
+    else:
+        # Only successful/partial passes may continue. A failed process might
+        # represent an upstream quota denial: never implicitly retry that phase.
+        def pending_progress():
+            from behive.engine.process import _mission_config
+            con = _connect_db(read_only=True)
+            try:
+                row = con.execute("SELECT config FROM hive_missions WHERE id=?", [mission_id]).fetchone()
+            finally:
+                con.close()
+            state = _mission_config(row[0]).get("source_extraction") if row else None
+            if (not isinstance(state, dict) or type(state.get("version")) is not int
+                    or state["version"] != 1 or type(state.get("pending")) is not int
+                    or state["pending"] < 0 or not isinstance(state.get("attempted_urls"), list)
+                    or any(not isinstance(url, str) or not url.strip() for url in state["attempted_urls"])):
+                return None
+            return state["pending"], len(set(state["attempted_urls"]))
+
+        try:
+            try:
+                continuation_passes = max(0, int(os.environ.get("BEHIVE_A3_CONTINUATION_PASSES", "1")))
+            except ValueError:
+                continuation_passes = 1
+            before = pending_progress() if continuation_passes else None
+            for continuation in range(continuation_passes):
+                if before is None or before[0] == 0:
+                    break
+                _emit(mission_id, 'process-continue', 'started',
+                      data={'pass': continuation + 1, 'pending': before[0]})
+                try:
+                    timings['process'] += run_phase('hive2_process.py', process_args, 'process-continue')
+                except Exception as exc:
+                    log.warning("Process continuation failed (error_type=%s); keeping committed claims",
+                                type(exc).__name__)
+                    _emit(mission_id, 'process-continue', 'error',
+                          data={'error': 'Phase execution failed', 'error_type': type(exc).__name__})
+                    break
+                after = pending_progress()
+                _emit(mission_id, 'process-continue', 'completed',
+                      data={'pass': continuation + 1, 'pending': after[0] if after else None})
+                if after is None or after[0] == 0 or after[1] <= before[1] or after[0] >= before[0]:
+                    break  # No newly attempted pages: another pass cannot help.
+                before = after
+        except Exception as exc:
+            log.warning("Process continuation progress unavailable (error_type=%s); continuing mission",
+                        type(exc).__name__)
     # Emit process completed event
     try:
         # import pg as _ddb  # removed — using _connect_db()
@@ -2404,8 +2464,7 @@ def cmd_synth(mission_id: str) -> None:
     row = con.execute("SELECT topic FROM hive_missions WHERE id=%s", [mission_id]).fetchone()
     con.close()
     if row:
-        from behive.engine.fact_synth import persist_fact_synthesis
-        persist_fact_synthesis(mission_id)
+        _run_synthesis(mission_id, row[0] or mission_id, {})
 
 
 def cleanup_stuck_missions(max_age_hours: int = 2) -> int:
