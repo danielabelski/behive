@@ -183,3 +183,40 @@ def test_missing_or_malformed_progress_cannot_authorize_continuation(pipeline_ed
     monkeypatch.setattr(orchestrator, 'run_phase', lambda script, args, name, **kw: phases.append(name) or 1.0)
     run_pipeline()
     assert phases == ['harvest', 'process', 'falsifier']
+
+
+def drive_default_passes(db, monkeypatch, docs, progress):
+    """Run the pipeline with NO continuation env; progress(n) -> (pending, attempted_count) after pass n."""
+    seed(db, docs)
+    scout_row(db)
+    phases, done = [], []
+    def phase(script, args, name, **kw):
+        phases.append(name)
+        if name in ('process', 'process-continue'):
+            pending, attempted = progress(len(done))
+            done.append(1)
+            write_state(db, pending=pending, attempted=[d['url'] for d in docs[:attempted]])
+        return 1.0
+    monkeypatch.setattr(orchestrator, 'run_phase', phase)
+    run_pipeline()
+    return phases
+
+
+def test_default_runs_two_continuation_passes_while_pending_remains(pipeline_edges, monkeypatch):
+    # Default BEHIVE_A3_CONTINUATION_PASSES is 2 (was 1): pending 6 -> 4 -> 2 -> 1, third cap stops it.
+    phases = drive_default_passes(pipeline_edges, monkeypatch, documents(8),
+                                  lambda n: ([6, 4, 2, 1][n], n + 1))
+    assert phases == ['harvest', 'process', 'process-continue', 'process-continue', 'falsifier']
+
+
+def test_default_continuation_stops_early_when_pending_reaches_zero(pipeline_edges, monkeypatch):
+    phases = drive_default_passes(pipeline_edges, monkeypatch, documents(8),
+                                  lambda n: ([3, 0][n], n + 1))
+    assert phases == ['harvest', 'process', 'process-continue', 'falsifier']
+
+
+def test_default_continuation_stops_early_without_progress(pipeline_edges, monkeypatch):
+    # The first continuation attempts nothing new -> the second default pass is not spent.
+    phases = drive_default_passes(pipeline_edges, monkeypatch, documents(8),
+                                  lambda n: ([6, 6, 6][n], [1, 1, 1][n]))
+    assert phases == ['harvest', 'process', 'process-continue', 'falsifier']

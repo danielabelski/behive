@@ -1957,7 +1957,7 @@ print(json.dumps(output))
 
         try:
             try:
-                continuation_passes = max(0, int(os.environ.get("BEHIVE_A3_CONTINUATION_PASSES", "1")))
+                continuation_passes = max(0, int(os.environ.get("BEHIVE_A3_CONTINUATION_PASSES", "2")))
             except ValueError:
                 continuation_passes = 1
             before = pending_progress() if continuation_passes else None

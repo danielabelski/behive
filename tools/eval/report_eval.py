@@ -15,6 +15,7 @@ import re
 import subprocess
 
 from behive.engine.claim_synthesis import normalized_text, number_claims, point_checks
+from behive.engine.fact_synth import domain_of
 from behive.hygiene import SQL_COMPLETION_CLAIM
 from . import judge
 from .fetch_content import save_json
@@ -34,22 +35,23 @@ def automatic_metrics(payload):
     if len(by_number) != len(claims) or any(type(i) is not int or i < 1 for i in by_number):
         raise ValueError('unique positive numbered claims required')
     points = report_points(payload)
-    checks = [point_checks(p, by_number) for p in points]
+    checks = [point_checks(p, by_number, payload['topic']) for p in points]
     cited = {i for p in points if isinstance(p, dict) and isinstance(p.get('cites'), list)
              for i in p['cites'] if type(i) is int and i in by_number}
-    from behive.engine.fact_synth import domain_of
     domains = {domain_of(r['source_url']) for r in claims}
     used_domains = {domain_of(by_number[i]['source_url']) for i in cited}
     return {'points_total': len(points), 'points_valid': sum(c['valid'] for c in checks),
             'citation_valid': sum(c['citation_valid'] for c in checks),
             'number_grounded': sum(c['number_grounded'] for c in checks),
+            'names_grounded': sum(c['names_grounded'] for c in checks),
+            'names_grounded_share': sum(c['names_grounded'] for c in checks) / len(points) if points else 0.,
             'claims_available': len(claims), 'claims_cited': len(cited),
             'claims_cited_share': len(cited) / len(claims) if claims else 0.,
             'domains_available': len(domains), 'domains_cited': len(used_domains),
             'domains_cited_share': len(used_domains) / len(domains) if domains else 0.,
             'sections_count': len(payload['document']['sections']), 'gaps_count': len(payload['document']['gaps']),
             'point_checks': [dict(index=n, **c) for n, c in enumerate(checks)],
-            'limitation': 'Lexical citation/number checks, not semantic entailment. Coverage is over supplied numbered claims.'}
+            'limitation': 'Lexical citation/number/name checks, not semantic entailment. Coverage is over supplied numbered claims.'}
 
 
 def _prompt(topic, items, kind='claim'):
@@ -58,7 +60,9 @@ def _prompt(topic, items, kind='claim'):
         task = '''Grade each report point ONLY against its supplied cited claims.
 2 = fully supported; 1 = partly supported; 0 = unsupported or contradicted.
 Do not use external knowledge. Missing cited evidence means 0. Check names, units,
-scale, attribution, uncertainty, geography and time, not merely shared numbers.'''
+scale, attribution, uncertainty, geography and time, not merely shared numbers.
+Attribution to the publisher of the cited source counts as supported when grounded
+in its supplied domain or URL. Do not infer other names or facts from a URL path.'''
     else:
         task = '''Give one overall usefulness grade for this report for the topic:
 2 = useful, clear, topic-focused synthesis; 1 = partly useful/incomplete; 0 = not useful.
@@ -89,7 +93,9 @@ def evaluate_report(payload, out, *, complete=None, automatic_only=False):
         cites = point.get('cites', []) if isinstance(point, dict) else []
         cited = [by_number[i] for i in cites if type(i) is int and i in by_number] if isinstance(cites, list) else []
         items.append({'index': n, 'evaluation_kind': 'support', 'point': point,
-                      'cited_claims': [{'number': r['number'], 'claim': r['claim']} for r in cited]})
+                      'cited_claims': [{'number': r['number'], 'claim': r['claim'],
+                                        'domain': r.get('domain') or domain_of(r['source_url']),
+                                        'source_url': r['source_url']} for r in cited]})
     overall = [{'index': 0, 'evaluation_kind': 'usefulness', 'report': payload['report'],
                 'document': payload['document'], 'claims': payload['claims']}]
     results = {}
@@ -130,13 +136,15 @@ def parse_persisted_report(topic, report, rows, metadata=None):
     Current eligible rows must still back every recorded source entry. A stale or
     tampered citation map is rejected, never silently rebound to a different row.
     """
-    eligible = {(normalized_text(r['claim']), r['source_url']): r for r in rows}
+    # Source text may predate the renderer's entity-decoding fix. Compare the
+    # decoded display text, retaining the original eligible row as evidence.
+    eligible = {(normalized_text(html.unescape(r['claim'])), r['source_url']): r for r in rows}
     entries = {}
     for line in report.splitlines():
         match = re.fullmatch(r'- \[(\d+)\] (.*) — (\S+)', line)
         if match:
             n, text, url = int(match[1]), _unmarkdown(match[2]), match[3]
-            row = eligible.get((normalized_text(text), url))
+            row = eligible.get((normalized_text(html.unescape(text)), url))
             if row is None or (n in entries and entries[n]['claim'] != row['claim']):
                 raise ValueError('report source is not a current eligible claim')
             entries[n] = dict(row, number=n)

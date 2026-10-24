@@ -491,9 +491,13 @@ class RelevanceFilter:
     # this many of them (in loader order) reach the model instead of dropping them.
     LOW_KEYWORD_MODEL_BUDGET = 45
     CONTENT_BATCH_SIZE = 15
-    # The Codex bridge allows two concurrent completions in TOTAL; one keeps a
-    # slot free for the planner, extraction and other missions.
-    CONTENT_CONCURRENCY = 1
+    # The Codex bridge allows two concurrent completions in TOTAL. Two gate
+    # batches in flight are safe: strict llm.complete waits out the local busy
+    # signal, so a contended slot delays a call instead of failing it. A single
+    # slot made a 228-page gate take 6.5 of the 10 minute process pass.
+    # BEHIVE_GATE_CONCURRENCY overrides: clamped to 1..2, invalid -> default.
+    CONTENT_CONCURRENCY_DEFAULT = 2
+    CONTENT_CONCURRENCY_MAX = 2
     # A busy bridge answers RateLimitError "retry later": one legacy retry.
     # Strict mode delegates all busy waiting to llm.complete instead.
     RATE_LIMIT_RETRY_DELAY_S = 20
@@ -704,6 +708,15 @@ class RelevanceFilter:
             by_index[row['index']] = row
         return [by_index[i] for i in range(len(docs))]
 
+    @classmethod
+    def gate_concurrency(cls) -> int:
+        """Parallel gate batches from BEHIVE_GATE_CONCURRENCY, clamped to 1..2."""
+        try:
+            value = int(os.environ.get('BEHIVE_GATE_CONCURRENCY', ''))
+        except ValueError:
+            return cls.CONTENT_CONCURRENCY_DEFAULT
+        return max(1, min(cls.CONTENT_CONCURRENCY_MAX, value))
+
     async def filter(self, docs: list[dict], *, grades_by_url: dict[str, int] | None = None) -> list[dict]:
         """Keep seeds/API bypasses and grade >= 1 content, ordered grade then overlap."""
         operator_seeds, pre_scored, candidates, passed = [], [], [], []
@@ -750,7 +763,7 @@ class RelevanceFilter:
 
         chunks = [candidates[i:i+self.CONTENT_BATCH_SIZE]
                   for i in range(0, len(candidates), self.CONTENT_BATCH_SIZE)]
-        semaphore = asyncio.Semaphore(self.CONTENT_CONCURRENCY)
+        semaphore = asyncio.Semaphore(self.gate_concurrency())
 
         async def judge(chunk):
             async with semaphore:
