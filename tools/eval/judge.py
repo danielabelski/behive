@@ -13,7 +13,8 @@ from .fetch_content import digest, load_pool, save_json
 
 SYSTEM = 'You are an independent relevance evaluator. Use only the supplied evidence. Output strict JSON only.'
 MODELS = {'sol': 'openai/gpt-6.1-sol', 'claude': 'claude-sonnet-5-5', 'opus': 'claude-opus-5-5'}
-DEFAULT_LEDGER = Path('/root/outputs/behive-eval-2026-10-23/E/calls.jsonl')
+# Cost guard ledger (150 Claude-family / 40 Opus calls per ledger); one ledger per evaluation round.
+DEFAULT_LEDGER = Path(os.environ.get('BEHIVE_EVAL_LEDGER') or '/root/outputs/behive-eval-2026-10-23/E/calls.jsonl')
 
 
 def build_prompt(topic, items, kind='page'):
