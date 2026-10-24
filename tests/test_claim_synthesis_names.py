@@ -328,3 +328,29 @@ def test_prompt_forbids_domain_names_and_allows_natural_place_names(monkeypatch)
     assert 'Never write domain names' in system
     assert 'voltterm.pl -> Voltterm' in system
     assert 'Place and country names may be written naturally' in system
+
+
+# Round-2 live dry-runs (9fb8759): the URL guard rejected Polish "m.in." and dotted
+# publisher labels ("Finance.yahoo", "R.Power"); real domains must still be rejected.
+@pytest.mark.parametrize('text', [
+    'Henkel produkuje m.in. blachy AH36.',
+    'Według Voltterm i R.Power opis dotyczy blach.',
+])
+def test_abbreviations_and_dotted_names_are_not_urls(text):
+    from behive.engine import claim_synthesis as cs
+    rows_ = rows()
+    rows_[0]['claim'] += ' R.Power dostarcza blachy.'
+    claims = {r['number']: r for r in cs.number_claims(rows_)}
+    assert cs.point_checks({'text': text, 'cites': [1]}, claims)['valid'] is True
+
+
+@pytest.mark.parametrize('text', [
+    'Według voltterm.pl opis dotyczy blach.',
+    'Według inview.org.uk opis dotyczy blach.',
+    'Opis na www.voltterm opisuje blachy.',
+    'Opis: https://voltterm.pl/oferta dotyczy blach.',
+])
+def test_real_domains_and_urls_still_rejected(text):
+    from behive.engine import claim_synthesis as cs
+    claims = {r['number']: r for r in cs.number_claims(rows())}
+    assert cs.point_checks({'text': text, 'cites': [1]}, claims)['valid'] is False
