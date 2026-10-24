@@ -61,7 +61,7 @@ def setUpModule():
           CREATE TABLE hive_sources (mission_id text, url text);
           CREATE TABLE hive_facts (id bigint PRIMARY KEY, mission_id text, value double precision,
             unit text, context text, sources jsonb, confidence text);
-          CREATE TABLE hive_missions (id text PRIMARY KEY, topic text);
+          CREATE TABLE hive_missions (id text PRIMARY KEY, topic text, config jsonb);
         """)
     conn.close()
 
@@ -94,7 +94,7 @@ class ClaimsRepairTests(unittest.TestCase):
         with self.conn, self.conn.cursor() as cur:
             cur.execute("TRUNCATE hive_claims, hive_content, hive_facts, hive_sources, hive_missions")
             cur.execute("ALTER SEQUENCE hive_facts_seq RESTART WITH 1000")
-            cur.execute("INSERT INTO hive_missions VALUES ('repair', 'Acme revenue')")
+            cur.execute("INSERT INTO hive_missions (id,topic) VALUES ('repair', 'Acme revenue')")
             cur.execute("INSERT INTO hive_content VALUES (1, 'repair', %s, %s, 'Annual report 2025', 500)",
                         (URL, ' '.join(CLAIMS)))
             cur.execute("INSERT INTO hive_facts VALUES (nextval('hive_facts_seq'), 'repair', 42, 'million', %s, %s, 'HIGH')",
@@ -165,7 +165,7 @@ class ClaimsRepairTests(unittest.TestCase):
             for i in range(8):
                 mission = f'repair_{i}'
                 # Salvage judges relevance against the mission topic (2026-10-23).
-                cur.execute("INSERT INTO hive_missions VALUES (%s, 'Acme revenue')", (mission,))
+                cur.execute("INSERT INTO hive_missions (id,topic) VALUES (%s, 'Acme revenue')", (mission,))
                 cur.execute("INSERT INTO hive_content VALUES (%s, %s, %s, %s, 'Annual report', 500)",
                             (i + 2, mission, URL, ' '.join(CLAIMS)))
                 cur.execute("INSERT INTO hive_facts VALUES (nextval('hive_facts_seq'), %s, 42, 'million', %s, %s, 'HIGH')",
@@ -254,6 +254,8 @@ class ClaimsRepairTests(unittest.TestCase):
                         with self.subTest(mode=mode, writer=writer):
                             with self.conn, self.conn.cursor() as cur:
                                 cur.execute('TRUNCATE hive_claims')
+                                # Each allocator mode is an independent extraction, not a later mission round.
+                                cur.execute("UPDATE hive_missions SET config=NULL WHERE id='repair'")
                                 cur.execute("SELECT last_value, is_called FROM hive_facts_seq")
                                 shared_before = cur.fetchone()
                             if writer == 'facts':
@@ -434,16 +436,28 @@ class ClaimsRepairTests(unittest.TestCase):
             self.assertEqual(asyncio.run(drones._extract_source_claims([{'url': URL, 'raw_text': CLAIM}], 'Acme')), 0)
         self.assertEqual(len(self.rows()), 1)
 
-    def test_source_extraction_insert_failure_is_atomic_and_fatal(self):
+    def test_source_extraction_insert_failure_rolls_back_only_current_document(self):
         drones = self.source_drones()
+        second_url = URL + '/second'
         with self.conn, self.conn.cursor() as cur:
             cur.execute("ALTER TABLE hive_claims ADD CHECK (claim NOT LIKE '%1200%')")
-        response = json.dumps([{'claim': c, 'evidence': c, 'confidence': 0.9} for c in CLAIMS])
+            cur.execute("INSERT INTO hive_content (id,mission_id,url,raw_text) VALUES (2,'repair',%s,%s)",
+                        (second_url, ' '.join(CLAIMS[1:])))
+        def complete(prompt, **kwargs):
+            # Doc 2 inserts one valid row before its next row fails. Doc 1 must
+            # survive, but neither doc 2 row nor its attempted marker can commit.
+            selected = [CLAIM] if CLAIM in prompt else [CLAIMS[2], CLAIMS[1]]
+            return json.dumps([{'claim': c, 'evidence': c, 'confidence': 0.9} for c in selected])
         try:
-            with patch('behive.engine.llm.complete', return_value=response):
+            with patch('behive.engine.llm.complete', side_effect=complete):
                 with self.assertRaisesRegex(RuntimeError, 'CheckViolation'):
-                    asyncio.run(drones._extract_source_claims([{'url': URL, 'raw_text': ' '.join(CLAIMS)}], 'Acme'))
-            self.assertEqual(self.rows(), [])
+                    asyncio.run(drones._extract_source_claims([
+                        {'url': URL, 'raw_text': CLAIM},
+                        {'url': second_url, 'raw_text': ' '.join(CLAIMS[1:])}], 'Acme'))
+            self.assertEqual([row[1] for row in self.rows()], [CLAIM])
+            with self.conn, self.conn.cursor() as cur:
+                cur.execute("SELECT config FROM hive_missions WHERE id='repair'")
+                self.assertEqual(cur.fetchone()[0]['source_extraction']['attempted_urls'], [URL])
         finally:
             with self.conn, self.conn.cursor() as cur:
                 cur.execute("ALTER TABLE hive_claims DROP CONSTRAINT hive_claims_claim_check")

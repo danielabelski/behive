@@ -1325,7 +1325,8 @@ def run_phase(script: str, args: list[str], phase_name: str,
         with tempfile.TemporaryFile(mode="w+b") as output:
             proc = subprocess.Popen(
                 cmd, shell=False, stdout=output, stderr=output,
-                env={**os.environ, "HIVE_PARENT_PID": str(os.getpid())},
+                env={**os.environ, "HIVE_PARENT_PID": str(os.getpid()),
+                     "BEHIVE_PHASE_DEADLINE": str(time.time() + timeout)},
                 start_new_session=True,
             )
             try:

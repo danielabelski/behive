@@ -34,6 +34,8 @@ def private_pg(monkeypatch):
             cur.execute(sql.SQL('SET search_path = {}').format(sql.Identifier(schema)))
             cur.execute('CREATE TABLE hive_content (mission_id text,url text)')
             cur.execute('CREATE TABLE hive_sources (mission_id text,url text)')
+            cur.execute('CREATE TABLE hive_missions (id text PRIMARY KEY,config jsonb)')
+            cur.execute("INSERT INTO hive_missions VALUES ('repair1022-b','{}')")
             cur.execute('''CREATE TABLE hive_claims (
                 id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
                 mission_id text,claim text,evidence text,source_url text,claim_type text,
@@ -79,6 +81,7 @@ def test_a3_zero_candidates_reports_provenance_cap_and_valid_empty_response(priv
     assert record.phase_a3_counts == {
         'documents_input': 4, 'documents_with_provenance': 3,
         'documents_selected': 2, 'documents_capped': 1,
+        'documents_already_attempted': 0, 'documents_deadline_deferred': 0,
         'claims_extracted': 0, 'claims_duplicates': 0, 'claims_saved': 0,
     }
     with private_pg, private_pg.cursor() as cur:

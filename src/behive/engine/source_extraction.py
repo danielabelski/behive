@@ -1,14 +1,17 @@
 """Bounded extractive claims through the existing BYOK completion layer.
 
-No legacy/local model, enrichment, retries or parallel requests. A model may only
-select claims and evidence already present in the supplied harvested excerpt.
+A model may only select claims and evidence in the harvested excerpt. A finished
+response can be persisted before the next call; transient retries remain bounded.
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import asyncio
 import json
 import logging
 import math
+import os
 import re
+import time
+from typing import Callable
 from urllib.parse import urlparse
 
 from behive.hygiene import sanitize_claim
@@ -16,6 +19,9 @@ from behive.hygiene import sanitize_claim
 MAX_DOCUMENTS = 60
 MAX_SOURCE_CHARS = 6000
 MAX_CLAIMS_PER_DOCUMENT = 5
+DEADLINE_RESERVE_S = 45.0
+EXPECTED_DOCUMENT_FLOOR_S = 20.0
+DOCUMENT_DURATION_MARGIN = 1.5
 
 # Gateway/5xx failures of one request (e.g. Codex bridge 502) get one retry;
 # a document that still fails is skipped and counted, not the whole batch.
@@ -40,9 +46,40 @@ def _normalized(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip()
 
 
-async def extract_source_claims(docs: list[dict], topic: str) -> list[SourceClaim]:
+@dataclass
+class ExtractionProgress:
+    """Payload-free outcome, also available when extraction raises."""
+
+    status: str = "failed"
+    counts: dict[str, int] = field(default_factory=dict)
+
+
+def _phase_deadline() -> float | None:
+    try:
+        value = float(os.environ.get("BEHIVE_PHASE_DEADLINE", ""))
+    except (TypeError, ValueError):
+        return None
+    return value if math.isfinite(value) else None
+
+
+async def extract_source_claims(
+    docs: list[dict], topic: str, *,
+    on_document: Callable[[str, list[SourceClaim]], None] | None = None,
+    clock: Callable[[], float] | None = None,
+    progress: ExtractionProgress | None = None,
+) -> list[SourceClaim]:
+    """Validate sequentially; flush each response before another document starts.
+
+    The synchronous callback commits both claims and the attempted URL, including
+    empty/rejected/invalid responses. Its errors are fatal, like provider errors.
+    Callers without a callback retain the list-returning extraction interface.
+    """
     from behive.engine.llm import complete
 
+    clock = clock or time.time
+    deadline = _phase_deadline()
+    durations = []
+    selected_docs = docs[:MAX_DOCUMENTS]
     results = []
     counts = dict(documents_input=len(docs), documents_considered=0,
                   documents_capped=max(0, len(docs) - MAX_DOCUMENTS),
@@ -51,14 +88,21 @@ async def extract_source_claims(docs: list[dict], topic: str) -> list[SourceClai
                   rows_capped=0, accepted=0, invalid_json=0, invalid_shape=0,
                   rejected_type=0, rejected_hygiene=0, rejected_evidence=0,
                   rejected_quote=0, rejected_confidence=0,
-                  transient_errors=0, documents_failed=0)
+                  transient_errors=0, documents_failed=0,
+                  documents_deadline_deferred=0)
     consecutive_failed = 0
     last_transient: Exception | None = None
     status = "failed"
     stage = "input"
     error_type = None
     try:
-        for doc in docs[:MAX_DOCUMENTS]:
+        for index, doc in enumerate(selected_docs):
+            expected = max(EXPECTED_DOCUMENT_FLOOR_S,
+                           DOCUMENT_DURATION_MARGIN * sum(durations) / len(durations)
+                           if durations else EXPECTED_DOCUMENT_FLOOR_S)
+            if deadline is not None and clock() + DEADLINE_RESERVE_S + expected > deadline:
+                counts["documents_deadline_deferred"] = len(selected_docs) - index
+                break
             counts["documents_considered"] += 1
             url = doc.get("url") or ""
             excerpt = (doc.get("raw_text") or "")[:MAX_SOURCE_CHARS]
@@ -78,6 +122,7 @@ async def extract_source_claims(docs: list[dict], topic: str) -> list[SourceClai
                 "Return [] if there is no relevant evidence.\nSOURCE:\n" + excerpt
             )
             stage = "completion"
+            started = clock()
             response = None
             for attempt in (1, 2):
                 counts["model_calls"] += 1
@@ -94,6 +139,7 @@ async def extract_source_claims(docs: list[dict], topic: str) -> list[SourceClai
                     last_transient = exc
                     if attempt == 1 and TRANSIENT_RETRY_DELAY_S:
                         await asyncio.sleep(TRANSIENT_RETRY_DELAY_S)
+            durations.append(max(0.0, clock() - started))
             if response is None:
                 counts["documents_failed"] += 1
                 consecutive_failed += 1
@@ -103,50 +149,58 @@ async def extract_source_claims(docs: list[dict], topic: str) -> list[SourceClai
             consecutive_failed = 0
             counts["responses"] += 1
             stage = "json"
+            document_start = len(results)
             try:
-                rows = json.loads(response)
-            except (TypeError, ValueError) as exc:
-                counts["invalid_json"] += 1
-                raise ValueError("Source extraction returned invalid JSON") from exc
-            stage = "shape"
-            if not isinstance(rows, list) or any(not isinstance(row, dict) for row in rows):
-                counts["invalid_shape"] += 1
-                raise ValueError("Source extraction must return an array of claim objects")
-            stage = "validation"
-            counts["empty_responses"] += not rows
-            counts["rows_returned"] += len(rows)
-            counts["rows_capped"] += max(0, len(rows) - MAX_CLAIMS_PER_DOCUMENT)
-            source = _normalized(excerpt)
-            for row in rows[:MAX_CLAIMS_PER_DOCUMENT]:
-                counts["rows_considered"] += 1
-                text, evidence = row.get("claim"), row.get("evidence")
-                if not isinstance(text, str) or not isinstance(evidence, str):
-                    counts["rejected_type"] += 1
-                    continue
-                claim = sanitize_claim(text, require_digit=False)
-                evidence = _normalized(evidence)
-                if not claim:
-                    counts["rejected_hygiene"] += 1
-                    continue
-                if not evidence or len(evidence) > 500:
-                    counts["rejected_evidence"] += 1
-                    continue
-                if claim not in source or evidence not in source:
-                    counts["rejected_quote"] += 1
-                    continue
                 try:
-                    confidence = float(row.get("confidence", 0))
-                except (ValueError, TypeError):
-                    counts["rejected_confidence"] += 1
-                    continue
-                if not math.isfinite(confidence) or not 0.7 <= confidence <= 1:
-                    counts["rejected_confidence"] += 1
-                    continue
-                results.append(SourceClaim(claim, evidence, url, confidence))
-                counts["accepted"] += 1
-        if counts["documents_failed"] and not counts["responses"] and last_transient:
+                    rows = json.loads(response)
+                except (TypeError, ValueError) as exc:
+                    counts["invalid_json"] += 1
+                    raise ValueError("Source extraction returned invalid JSON") from exc
+                stage = "shape"
+                if not isinstance(rows, list) or any(not isinstance(row, dict) for row in rows):
+                    counts["invalid_shape"] += 1
+                    raise ValueError("Source extraction must return an array of claim objects")
+                stage = "validation"
+                counts["empty_responses"] += not rows
+                counts["rows_returned"] += len(rows)
+                counts["rows_capped"] += max(0, len(rows) - MAX_CLAIMS_PER_DOCUMENT)
+                source = _normalized(excerpt)
+                for row in rows[:MAX_CLAIMS_PER_DOCUMENT]:
+                    counts["rows_considered"] += 1
+                    text, evidence = row.get("claim"), row.get("evidence")
+                    if not isinstance(text, str) or not isinstance(evidence, str):
+                        counts["rejected_type"] += 1
+                        continue
+                    claim = sanitize_claim(text, require_digit=False)
+                    evidence = _normalized(evidence)
+                    if not claim:
+                        counts["rejected_hygiene"] += 1
+                        continue
+                    if not evidence or len(evidence) > 500:
+                        counts["rejected_evidence"] += 1
+                        continue
+                    if claim not in source or evidence not in source:
+                        counts["rejected_quote"] += 1
+                        continue
+                    try:
+                        confidence = float(row.get("confidence", 0))
+                    except (ValueError, TypeError):
+                        counts["rejected_confidence"] += 1
+                        continue
+                    if not math.isfinite(confidence) or not 0.7 <= confidence <= 1:
+                        counts["rejected_confidence"] += 1
+                        continue
+                    results.append(SourceClaim(claim, evidence, url, confidence))
+                    counts["accepted"] += 1
+            finally:
+                # Even an invalid response was attempted. Record it before
+                # propagating the original fatal JSON/shape error.
+                if on_document is not None:
+                    on_document(url, results[document_start:])
+        if (counts["documents_failed"] and not counts["responses"] and last_transient
+                and not counts["documents_deadline_deferred"]):
             raise last_transient  # nothing reached the model successfully
-        status = "partial" if counts["documents_failed"] else "completed"
+        status = "partial" if (counts["documents_failed"] or counts["documents_deadline_deferred"]) else "completed"
         if last_transient is not None:
             error_type = type(last_transient).__name__
         stage = "completed"
@@ -155,6 +209,9 @@ async def extract_source_claims(docs: list[dict], topic: str) -> list[SourceClai
         error_type = type(exc).__name__
         raise
     finally:
+        if progress is not None:
+            progress.status = status
+            progress.counts = dict(counts)
         # Counts only: never log source excerpts, provider text, URLs or traceback.
         level = logging.ERROR if status == "failed" else (
             logging.INFO if results and status == "completed" else logging.WARNING)

@@ -442,6 +442,42 @@ def _extract_json_from_text(text: str) -> Any:
 # RelevanceFilter
 # ---------------------------------------------------------------------------
 
+def _mission_config(value) -> dict:
+    """Decode legacy JSON text as well as native json/jsonb objects."""
+    if isinstance(value, str):
+        try:
+            value = json.loads(value or "{}")
+        except ValueError:
+            return {}
+    return dict(value) if isinstance(value, dict) else {}
+
+
+def _stored_relevance_grades(config: dict) -> dict[str, int]:
+    """A malformed gate is never a partially usable cache or a new decision."""
+    gate = config.get("relevance_gate")
+    if (not isinstance(gate, dict) or type(gate.get("version")) is not int
+            or gate["version"] != 1 or type(gate.get("considered")) is not int
+            or gate["considered"] < 0 or not isinstance(gate.get("accepted_urls"), list)
+            or any(not isinstance(url, str) or not url.strip() for url in gate["accepted_urls"])
+            or not isinstance(gate.get("grades_by_url"), dict)):
+        return {}
+    grades = gate["grades_by_url"]
+    if any(not isinstance(url, str) or not url.strip()
+           or type(grade) is not int or grade not in (0, 1, 2)
+           for url, grade in grades.items()):
+        return {}
+    return dict(grades)
+
+
+def _source_attempted_urls(config: dict) -> set[str]:
+    state = config.get("source_extraction")
+    if (not isinstance(state, dict) or type(state.get("version")) is not int
+            or state["version"] != 1 or not isinstance(state.get("attempted_urls"), list)
+            or any(not isinstance(url, str) or not url.strip() for url in state["attempted_urls"])):
+        return set()
+    return set(state["attempted_urls"])
+
+
 class RelevanceFilter:
     """Keyword admission followed by content grading through the configured model.
 
@@ -667,9 +703,12 @@ class RelevanceFilter:
             by_index[row['index']] = row
         return [by_index[i] for i in range(len(docs))]
 
-    async def filter(self, docs: list[dict]) -> list[dict]:
+    async def filter(self, docs: list[dict], *, grades_by_url: dict[str, int] | None = None) -> list[dict]:
         """Keep seeds/API bypasses and grade >= 1 content, ordered grade then overlap."""
-        operator_seeds, pre_scored, candidates = [], [], []
+        operator_seeds, pre_scored, candidates, passed = [], [], [], []
+        grade_counts = {0: 0, 1: 0, 2: 0}
+        cached_count = 0
+        grades_by_url = grades_by_url or {}
         low_budget = self.LOW_KEYWORD_MODEL_BUDGET
         for doc in docs:
             # Clear previous decisions when a document is filtered again.
@@ -691,7 +730,17 @@ class RelevanceFilter:
                 doc['_relevance_text'] = self._readable_text(doc)
                 doc['_keyword_score'] = self._keyword_overlap(doc)
                 doc['_relevance_method'] = 'keyword_prefilter'
-                if doc['_keyword_score'] >= self.KEYWORD_THRESHOLD:
+                if doc.get('url') in grades_by_url:
+                    grade = grades_by_url[doc['url']]
+                    doc['_relevance_grade'] = grade
+                    doc['_relevance_reason'] = 'stored_model_grade'
+                    doc['_relevance_method'] = 'model_cached'
+                    doc['_relevance_score'] = grade / 2.0
+                    grade_counts[grade] += 1
+                    cached_count += 1
+                    if grade >= 1:
+                        passed.append(doc)
+                elif doc['_keyword_score'] >= self.KEYWORD_THRESHOLD:
                     candidates.append(doc)
                 elif doc['_relevance_text'].strip() and low_budget > 0:
                     low_budget -= 1
@@ -715,9 +764,7 @@ class RelevanceFilter:
                     return await self.score_batch(chunk)
 
         results = await asyncio.gather(*(judge(chunk) for chunk in chunks), return_exceptions=True)
-        passed = []
         failed_batches = 0
-        grade_counts = {0: 0, 1: 0, 2: 0}
         for chunk, judgments in zip(chunks, results):
             if isinstance(judgments, BaseException) and not isinstance(judgments, Exception):
                 raise judgments  # cancellation is not a provider failure
@@ -759,10 +806,10 @@ class RelevanceFilter:
         kept = operator_seeds + pre_scored + passed
         log.info(
             'RelevanceFilter: %s pass / %s skip (model_calls=%s grades=0:%s,1:%s,2:%s'
-            ' failed_batches=%s operator_seeds=%s API_docs=%s)',
+            ' failed_batches=%s operator_seeds=%s API_docs=%s cached_grades=%s)',
             len(kept), len(docs) - len(kept), len(chunks),
             grade_counts[0], grade_counts[1], grade_counts[2], failed_batches,
-            len(operator_seeds), len(pre_scored),
+            len(operator_seeds), len(pre_scored), cached_count,
         )
         return kept
 
@@ -1912,7 +1959,7 @@ class ProcessingDrones:
         # -----------------------------------------------
         log.info(f"Phase A1: RelevanceFilter (threshold={self.relevance_threshold})")
         rel_filter  = RelevanceFilter(topic, self.relevance_threshold, self.debug)
-        scored_docs = await rel_filter.filter(docs)
+        scored_docs = await rel_filter.filter(docs, grades_by_url=self._load_relevance_grades())
         self._record_relevance_gate(docs, scored_docs)
 
         if not scored_docs:
@@ -1920,6 +1967,9 @@ class ProcessingDrones:
             self._finalize(0, 0, 0, 0, 0)
             return
 
+        # A2's cap must not strand later URLs in A3 on every round. A3 applies
+        # its own unchanged cap AFTER removing the mission's attempted URLs.
+        source_docs = scored_docs
         # Cap at 300 docs (top relevance) to keep process time < 90 min
         MAX_PROCESS_DOCS = 80  # 80 top-scored × 10 ops = 800 tasks → ~400s process
         if len(scored_docs) > MAX_PROCESS_DOCS:
@@ -2076,7 +2126,7 @@ class ProcessingDrones:
         # -----------------------------------------------
         # Phase A3 — bounded source-backed extraction through configured BYOK
         # -----------------------------------------------
-        source_claims = await self._extract_source_claims(scored_docs, topic)
+        source_claims = await self._extract_source_claims(source_docs, topic)
         total_facts += source_claims
 
         # HIVE 3.0: Log specialized bee stats
@@ -2130,58 +2180,40 @@ class ProcessingDrones:
             bee_ops=total_bee_ops,
         )
 
-    async def _extract_source_claims(self, docs: list[dict], topic: str) -> int:
-        """Persist grounded claims atomically; extraction/DB failures are fatal."""
+    async def _extract_source_claims(self, docs: list[dict], topic: str, *, clock=None) -> int:
+        """Commit each finished document; later failures never undo earlier work."""
         from contextlib import closing
         from behive.engine.claim_ids import claim_id_expression
         from behive.engine.db import get_pg_connection
-        from behive.engine.source_extraction import MAX_DOCUMENTS, extract_source_claims
+        from behive.engine.source_extraction import MAX_DOCUMENTS, ExtractionProgress, extract_source_claims
 
         counts = dict(documents_input=len(docs), documents_with_provenance=0,
                       documents_selected=0, documents_capped=0,
+                      documents_already_attempted=0, documents_deadline_deferred=0,
                       claims_extracted=0, claims_duplicates=0, claims_saved=0)
         status, stage, error_type = "failed", "provenance", None
-        try:
-            # End the provenance read AND close its connection before network I/O.
-            with closing(get_pg_connection()) as conn, conn, conn.cursor() as cur:
-                cur.execute("""
-                    SELECT url FROM hive_content WHERE mission_id = %s
-                    UNION SELECT url FROM hive_sources WHERE mission_id = %s
-                """, (self.mission_id, self.mission_id))
-                source_urls = {row[0] for row in cur.fetchall() if row[0]}
-            provenance_docs = [doc for doc in docs if doc.get('url') in source_urls]
-            extract_docs = provenance_docs[:MAX_DOCUMENTS]
-            counts["documents_with_provenance"] = len(provenance_docs)
-            counts["documents_selected"] = len(extract_docs)
-            counts["documents_capped"] = len(provenance_docs) - len(extract_docs)
-            log.info("Phase A3 [BYOK source extraction]: %s harvested docs", len(extract_docs))
-            stage = "extraction"
-            claims = await extract_source_claims(extract_docs, topic)
-            counts["claims_extracted"] = len(claims)
-            if not claims:
-                status, stage = "completed", "completed"
-                return 0
+        progress = ExtractionProgress()
+
+        def persist_document(url, claims):
+            nonlocal stage
             stage = "persistence"
+            counts["claims_extracted"] += len(claims)
+            saved = 0
             with closing(get_pg_connection()) as conn, conn, conn.cursor() as cur:
-                # Serialize dedupe with both deterministic fallback writers.
+                # Same lock/allocator/dedupe contract as the fallback writers.
                 cur.execute("SELECT pg_advisory_xact_lock(hashtextextended(%s, 0))",
                             ("behive_claims:" + self.mission_id,))
-                # Provenance can change during inference. Re-read it in the write
-                # transaction and hold row locks so delete/update cannot invalidate
-                # the accepted URLs until the atomic claim batch commits.
                 source_urls = set()
-                claim_urls = sorted({claim.source_url for claim in claims})
                 for table in ('hive_content', 'hive_sources'):
                     cur.execute(f"SELECT url FROM {table} WHERE mission_id = %s AND url = ANY(%s) FOR SHARE",
-                                (self.mission_id, claim_urls))
+                                (self.mission_id, [url]))
                     source_urls.update(row[0] for row in cur.fetchall() if row[0])
-                if any(claim.source_url not in source_urls for claim in claims):
+                if url not in source_urls or any(claim.source_url not in source_urls for claim in claims):
                     raise ValueError("Source provenance changed during extraction")
                 cur.execute("SELECT LEFT(claim, 160) FROM hive_claims WHERE mission_id = %s",
                             (self.mission_id,))
                 seen = {row[0] for row in cur.fetchall()}
-                id_sql = claim_id_expression(cur)
-                saved = 0
+                id_sql = claim_id_expression(cur) if claims else None
                 for claim in claims:
                     key = claim.claim[:160]
                     if key in seen:
@@ -2197,10 +2229,45 @@ class ProcessingDrones:
                           claim.confidence, claim.confidence))
                     seen.add(key)
                     saved += 1
-            counts["claims_saved"] = saved  # Only count rows after the batch commits.
-            status, stage = "completed", "completed"
-            log.info("Phase A3 done: %s source-backed claims", saved)
-            return saved
+                # Claims and progress share ONE document transaction. Merge under
+                # a row lock in Python for both jsonb and legacy json columns.
+                cur.execute("SELECT config FROM hive_missions WHERE id = %s FOR UPDATE", (self.mission_id,))
+                row = cur.fetchone()
+                if row is None:
+                    raise ValueError("Source extraction mission not found")
+                config = _mission_config(row[0])
+                attempted = _source_attempted_urls(config) | {url}
+                config["source_extraction"] = {"version": 1, "attempted_urls": sorted(attempted)}
+                cur.execute("UPDATE hive_missions SET config = %s WHERE id = %s",
+                            (json.dumps(config, ensure_ascii=False), self.mission_id))
+            counts["claims_saved"] += saved  # Only committed rows, even on a later failure.
+            stage = "extraction"
+
+        try:
+            # No PostgreSQL connection/transaction survives into a model call.
+            with closing(get_pg_connection()) as conn, conn, conn.cursor() as cur:
+                cur.execute("""
+                    SELECT url FROM hive_content WHERE mission_id = %s
+                    UNION SELECT url FROM hive_sources WHERE mission_id = %s
+                """, (self.mission_id, self.mission_id))
+                source_urls = {row[0] for row in cur.fetchall() if row[0]}
+                cur.execute("SELECT config FROM hive_missions WHERE id = %s", (self.mission_id,))
+                row = cur.fetchone()
+                attempted = _source_attempted_urls(_mission_config(row[0])) if row else set()
+            provenance_docs = [doc for doc in docs if doc.get('url') in source_urls]
+            pending_docs = [doc for doc in provenance_docs if doc.get('url') not in attempted]
+            extract_docs = pending_docs[:MAX_DOCUMENTS]
+            counts["documents_with_provenance"] = len(provenance_docs)
+            counts["documents_already_attempted"] = len(provenance_docs) - len(pending_docs)
+            counts["documents_selected"] = len(extract_docs)
+            counts["documents_capped"] = len(pending_docs) - len(extract_docs)
+            log.info("Phase A3 [BYOK source extraction]: %s harvested docs", len(extract_docs))
+            stage = "extraction"
+            await extract_source_claims(extract_docs, topic, on_document=persist_document,
+                                        clock=clock, progress=progress)
+            status, stage = progress.status, "completed"
+            log.info("Phase A3 done: %s source-backed claims", counts["claims_saved"])
+            return counts["claims_saved"]
         except Exception as exc:
             error_type = type(exc).__name__
             # Provider/DB exception text (including chained tracebacks) may carry
@@ -2209,6 +2276,7 @@ class ProcessingDrones:
                 f"Source claim extraction/persistence failed ({type(exc).__name__})"
             ) from None
         finally:
+            counts["documents_deadline_deferred"] = progress.counts.get("documents_deadline_deferred", 0)
             level = logging.ERROR if status == "failed" else (logging.INFO if counts["claims_saved"] else logging.WARNING)
             log.log(level, "Phase A3 summary: status=%s stage=%s error_type=%s counts=%s",
                     status, stage, error_type, counts,
@@ -2352,6 +2420,19 @@ class ProcessingDrones:
             log.debug(f"Suppressed in process.py: {e}")
             return "Unknown topic"
 
+    def _load_relevance_grades(self) -> dict[str, int]:
+        from contextlib import closing
+        from behive.engine.db import get_pg_connection
+
+        try:
+            with closing(get_pg_connection()) as conn, conn, conn.cursor() as cur:
+                cur.execute("SELECT config FROM hive_missions WHERE id = %s", (self.mission_id,))
+                row = cur.fetchone()
+            return _stored_relevance_grades(_mission_config(row[0])) if row else {}
+        except Exception as exc:
+            log.warning("Stored relevance grades unavailable (%s); grading again", type(exc).__name__)
+            return {}
+
     def _record_relevance_gate(self, docs: list[dict], accepted: list[dict]) -> None:
         """Persist which harvested URLs passed Phase A1 (hive_missions.config).
 
@@ -2376,10 +2457,8 @@ class ProcessingDrones:
                 row = cur.fetchone()
                 if row is None:
                     return
-                config = row[0]
-                if isinstance(config, str):
-                    config = json.loads(config or "{}")
-                config = dict(config) if isinstance(config, dict) else {}
+                config = _mission_config(row[0])
+                gate["grades_by_url"] = {**_stored_relevance_grades(config), **gate["grades_by_url"]}
                 config["relevance_gate"] = gate
                 cur.execute("UPDATE hive_missions SET config = %s WHERE id = %s",
                             (json.dumps(config, ensure_ascii=False), self.mission_id))
