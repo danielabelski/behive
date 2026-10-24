@@ -101,12 +101,13 @@ def test_steel_model_persists_citations_and_python_config_merge(db, monkeypatch)
     assert config['synthesis']['method'] == 'model'
     assert config['synthesis']['claims_used'] == 87
     assert config['synthesis']['model_calls'] == len(calls) == 1
-    # The old fake response contains translated Sweden/Spain and an uncited
-    # UK acronym. Persist the grounded remainder, not those former loopholes.
-    assert config['synthesis']['points_valid'] == 9
-    assert config['synthesis']['points_dropped'] == 3
+    # The fake response contains Sweden/Spain written in Polish (grounded through the
+    # country exonym map since the cited claims name Sweden/Spain) and one uncited
+    # acronym. Persist the grounded remainder.
+    assert config['synthesis']['points_valid'] == 11
+    assert config['synthesis']['points_dropped'] == 1
     assert '## Źródła' in report and '[22][23]' in report
-    assert '[34]' not in report and 'Szwecji' not in report and 'Hiszpanii' not in report
+    assert '[33][34]' in report and 'Szwecji' in report and 'Hiszpanii' in report
     assert 'https://libertysteelgroup.com/our-operations/liberty-steel-uk' in report
     assert '[1] LIBERTY Steel UK is a steel manufacturer' in report
     assert done is not None and status == 'running'

@@ -177,10 +177,12 @@ def test_system_prompt_has_name_preservation_and_narrow_false_drop_mitigations(m
     monkeypatch.setattr(llm, 'complete', complete)
     cs.synthesize_claims('Produkcja blach', rows())
     system = seen[0].lower()
-    assert 'firms, products, programmes and places' in system
+    # Migrated (live dry-runs): places may be written naturally; publishers are named from the
+    # domain label without its TLD, never as a domain name.
+    assert 'firms, products and programmes' in system
     assert 'as they appear in the cited claims' in system and 'no translation' in system
-    assert 'domain owner' in system and 'as given in the input' in system
-    assert 'domain label' in system
+    assert 'place and country names may be written naturally' in system
+    assert 'domain label' in system and 'never write domain names' in system
     assert 'abbreviations' in system and 'currency' in system and 'unit' in system
     assert 'inflection' in system and 'restructure' in system
 
@@ -273,3 +275,56 @@ def test_rendered_source_map_roundtrips_original_entity_encoded_claims(claim):
     assert loaded['document']['summary'][0]['text'] == 'Opis dotyczy oferty oil & gas.'
     with pytest.raises(ValueError, match='eligible claim'):
         ev.parse_persisted_report('Oil & gas', report.replace('Firma oferuje', 'Firma fałszuje'), evidence)
+
+
+# Live dry-runs (df83222) showed two false-drop classes: the prompt made the model write
+# domain names ("Według inview.org.uk ..."), which the no-URL rule rejects, and untranslated
+# places ("w Poland") or rejected natural Polish ("w Polsce" from "Poland").
+def place_rows():
+    return [
+        {'id': 1, 'claim': 'Thin plate steel for UK warships is sourced from overseas (primarily Sweden) and from Spain and Poland.',
+         'source_url': 'https://assets.publishing.service.gov.uk/x.pdf', 'confidence': .9},
+        {'id': 2, 'claim': 'The cash shortage left the plant unable to buy slab from British Steel.',
+         'source_url': 'https://www.theguardian.com/business/a', 'confidence': .9},
+        {'id': 3, 'claim': 'Installations from 50 to 500 kWp on industrial roofs.',
+         'source_url': 'https://epcsolar.pl/oferta', 'confidence': .9},
+    ]
+
+
+@pytest.mark.parametrize('text,cites', [
+    ('Cienkie blachy pochodzą głównie ze Szwecji, a także z Hiszpanii i z Polski.', [1]),
+    ('Część blach sprowadzana jest do Wielkiej Brytanii ze Szwecji.', [1]),
+    ('Według The Guardian zakładowi brakowało środków na zakup slabów.', [2]),
+    ('Według Guardian zakładowi brakowało środków na zakup slabów.', [2]),
+    ('EPC Solar montuje instalacje od 50 do 500 kWp na dachach zakładów.', [3]),
+])
+def test_country_exonyms_and_compound_domain_labels_are_grounded(text, cites):
+    from behive.engine import claim_synthesis as cs
+    claims = {r['number']: r for r in cs.number_claims(place_rows())}
+    checks = cs.point_checks({'text': text, 'cites': cites}, claims)
+    assert checks['unverified_names'] == [] and checks['valid'] is True
+
+
+@pytest.mark.parametrize('text,cites,missing', [
+    ('Według Reuters zakładowi brakowało środków na zakup slabów.', [2], ['Reuters']),
+    ('Blachy pochodzą głównie z Norwegii.', [1], ['Norwegii']),
+    ('Firma Fantom montuje instalacje od 50 do 500 kWp.', [3], ['Fantom']),
+])
+def test_exonym_and_domain_allowances_stay_narrow(text, cites, missing):
+    from behive.engine import claim_synthesis as cs
+    claims = {r['number']: r for r in cs.number_claims(place_rows())}
+    assert cs.point_checks({'text': text, 'cites': cites}, claims)['unverified_names'] == missing
+
+
+def test_prompt_forbids_domain_names_and_allows_natural_place_names(monkeypatch):
+    from behive.engine import claim_synthesis as cs, llm
+    seen = []
+    def complete(prompt, **kwargs):
+        seen.append(kwargs['system'])
+        return json.dumps(document())
+    monkeypatch.setattr(llm, 'complete', complete)
+    cs.synthesize_claims('Produkcja blach', rows())
+    system = seen[0]
+    assert 'Never write domain names' in system
+    assert 'voltterm.pl -> Voltterm' in system
+    assert 'Place and country names may be written naturally' in system
