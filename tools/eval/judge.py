@@ -70,8 +70,12 @@ def validate_response(raw, indices):
             raise ValueError('missing, duplicate or unexpected index')
         if type(grade) is not int or grade not in (0, 1, 2):
             raise ValueError('grade must be integer 0/1/2')
-        if not isinstance(reason, str) or not reason.strip() or len(reason.split()) > 20:
+        if not isinstance(reason, str) or not reason.strip():
             raise ValueError('reason must contain 1..20 words')
+        if len(reason.split()) > 20:
+            # A valid grade with a verbose reason is still a valid grade (Sonnet often
+            # writes 21-30 words); keep the grade, cut the explanation.
+            row['reason'] = ' '.join(reason.split()[:20]) + ' […]'
         seen.add(i)
     if seen != set(indices):
         raise ValueError('exact indices required')

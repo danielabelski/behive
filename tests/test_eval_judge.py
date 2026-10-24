@@ -1,5 +1,6 @@
 """Strict labels and adjudication; all data boundaries stay offline in tests."""
 import importlib
+import json
 from pathlib import Path
 import sys
 import pytest
@@ -13,7 +14,7 @@ def mod(name):
     return importlib.import_module('tools.eval.' + name)
 
 
-@pytest.mark.parametrize('raw', ['{}', '[{"index":0,"grade":true,"reason":"x"}]', '[{"index":0,"grade":3,"reason":"x"}]', '[{"index":0,"grade":1,"reason":"x"},{"index":0,"grade":0,"reason":"x"}]', '[{"index":1,"grade":1,"reason":"x"}]', '[{"index":0,"grade":1,"reason":"x","extra":0}]', '[{"index":0,"grade":1,"reason":"' + 'word ' * 21 + '"}]', '[{"index":0,"grade":1,"grade":2,"reason":"x"}]'])
+@pytest.mark.parametrize('raw', ['{}', '[{"index":0,"grade":true,"reason":"x"}]', '[{"index":0,"grade":3,"reason":"x"}]', '[{"index":0,"grade":1,"reason":"x"},{"index":0,"grade":0,"reason":"x"}]', '[{"index":1,"grade":1,"reason":"x"}]', '[{"index":0,"grade":1,"reason":"x","extra":0}]', '[{"index":0,"grade":1,"reason":"   "}]', '[{"index":0,"grade":1,"grade":2,"reason":"x"}]'])
 def test_rejects_bad_labels(raw):
     with pytest.raises(ValueError):
         mod('judge').validate_response(raw, [0])
@@ -97,3 +98,19 @@ def test_bad_cli_envelope_keeps_authentic_raw_output(tmp_path, monkeypatch):
     assert len(result['failures']) == 1
     batch = Path(result['batches'][0]['path'])
     assert (batch / 'response.raw.txt').read_text() == capture
+
+
+def test_verbose_reason_is_truncated_not_fatal():
+    """Sonnet often writes 21-30 word reasons; the grade is valid, so keep it and cut the reason."""
+    from tools.eval.judge import validate_response
+    reason = ' '.join(f'w{i}' for i in range(27))
+    labels = validate_response(json.dumps([{'index': 0, 'grade': 2, 'reason': reason}]), [0])
+    assert labels[0]['grade'] == 2
+    assert labels[0]['reason'].split()[:20] == reason.split()[:20]
+    assert len(labels[0]['reason'].split()) == 21 and labels[0]['reason'].endswith('[…]')
+
+
+def test_empty_reason_still_rejected():
+    from tools.eval.judge import validate_response
+    with pytest.raises(ValueError):
+        validate_response(json.dumps([{'index': 0, 'grade': 1, 'reason': '  '}]), [0])
